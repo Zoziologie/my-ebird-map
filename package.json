@@ -1,5 +1,5 @@
 {
-  "name": "see-your-observations",
+  "name": "myebirdmap",
   "version": "1.1.0",
   "description": "Visualize all your eBird observations on a map!",
   "main": "main.js",
@@ -11,15 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Zoziologie/see-your-observations.git"
+    "url": "git+https://github.com/Zoziologie/myebirdmap.git"
   },
   "private": true,
   "type": "module",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Zoziologie/see-your-observations/issues"
+    "url": "https://github.com/Zoziologie/myebirdmap/issues"
   },
-  "homepage": "https://zoziologie.raphaelnussbaumer.com/see-your-observations/",
+  "homepage": "https://zoziologie.raphaelnussbaumer.com/myebirdmap/",
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",
     "leaflet": "^1.9.4",

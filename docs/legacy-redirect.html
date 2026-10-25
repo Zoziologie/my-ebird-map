@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My eBird Map has moved</title>
+  <link rel="canonical" href="https://zoziologie.raphaelnussbaumer.com/myebirdmap/">
+  <meta name="robots" content="noindex">
+  <meta http-equiv="refresh" content="0; url=https://zoziologie.raphaelnussbaumer.com/myebirdmap/">
+  <script>
+    const destination = new URL('https://zoziologie.raphaelnussbaumer.com/myebirdmap/');
+    const suffix = location.pathname.replace(/^\/see-your-observations\/?/, '').replace(/^index\.html$/, '');
+    destination.pathname += suffix;
+    destination.search = location.search;
+    destination.hash = location.hash;
+    location.replace(destination.href);
+  </script>
+</head>
+<body>
+  <p>See Your Observations is now <a href="https://zoziologie.raphaelnussbaumer.com/myebirdmap/">My eBird Map</a>.</p>
+</body>
+</html>

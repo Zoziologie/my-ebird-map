@@ -3,7 +3,7 @@ import vue from "@vitejs/plugin-vue";
 
 export default defineConfig({
   plugins: [vue()],
-  base: "/see-your-observations/",
+  base: "/myebirdmap/",
   css: {
     preprocessorOptions: {
       scss: {

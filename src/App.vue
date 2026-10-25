@@ -130,10 +130,11 @@
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h2 class="modal-title">See your eBird observations on a map!</h2>
+            <h2 class="modal-title">My eBird Map</h2>
           </div>
           <div class="modal-body">
             <h3>How does it work?</h3>
+            <p>Your eBird observations, mapped.</p>
             <p>
               This web app is designed to let you explore all your counts of checklists, species and
               observations on a map. This is computed based on the eBird export file.
@@ -146,6 +147,7 @@
             <p>
               Note that sub-species, slashs, etc are counted as different species for the moment...
             </p>
+            <p class="small text-muted">Independent project; not an official eBird application.</p>
             <div class="row">
               <div class="col-6">
                 <h4>1. Download your data from eBird</h4>
