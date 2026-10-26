@@ -1,23 +1,278 @@
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link rel="icon" href="favicon.ico">
-  <title>My eBird Map | Your eBird observations, mapped.</title>
-  <meta name="description" content="Explore your own eBird observations on a map. An independent project, not an official eBird application.">
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TZFVZH1W15"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-TZFVZH1W15');
-  </script>
-</head>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#385b75" />
+    <title>My eBird Map | Your eBird observations, mapped.</title>
+    <meta
+      name="description"
+      content="Explore your own eBird observations on a map. An independent project, not an official eBird application."
+    />
+    <link rel="icon" href="/favicon.ico" />
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.33.0/mapbox-gl.css" rel="stylesheet" />
+    <link href="/src/style.css" rel="stylesheet" />
+    <link href="/src/ebird-theme.css" rel="stylesheet" />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.33.0/mapbox-gl.js"></script>
+  </head>
+  <body>
+    <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <symbol viewBox="0 0 24 24" id="Icon--species" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <path
+            id="dna"
+            d="M11.999 1a11 11 0 00-5.49 20.532c.213-.142.59-1.04.657-1.643.039-.384-6.2-14.854 1.753-13.942 1.135.13 2.537.94 2.91 1.909-.075-.192.22.521.276.635.057.113.71 1.064.81 1.16 1.61.483 3.509 1.122 8.665 3.024-.905.113-2.197-.412-3.315-.586-1.117-.174-3.46-.77-5.656-1.064-.681 0-2.15.514-2.338.585a1.14 1.14 0 00-.682.681c-.134.675 3.194 4.812 3.51 5.167a35.109 35.109 0 013.236 4.652A11 11 0 0012 1z"
+          ></path>
+        </defs>
+        <use fill-rule="evenodd" xlink:href="#dna"></use>
+      </symbol>
+      <symbol viewBox="0 0 24 24" id="Icon--checklist" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <path
+            id="aua"
+            d="M9.231 5.083V3c0-.552.438-1 .977-1h8.815c.54 0 .977.448.977 1v15.977c0 .552-.438 1-.977 1h-2.525V6.207a1.132 1.132 0 00-.325-.764.998.998 0 00-.789-.333l-6.153-.027zm-4.254 1.7h8.883c.54 0 .977.448.977 1V21c0 .552-.437 1-.977 1H4.977A.989.989 0 014 21V7.783c0-.552.438-1 .977-1z"
+          ></path>
+        </defs>
+        <use fill-rule="evenodd" xlink:href="#aua"></use>
+      </symbol>
+      <symbol viewBox="0 0 24 24" id="Icon--check" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <path
+            id="ata"
+            d="M9.96 19.725a.466.466 0 01-.616.042l-7.686-6.546a.41.41 0 01-.06-.59l2.76-3.1a.452.452 0 01.605-.042l4.208 3.588 8.387-9.434a.452.452 0 01.615-.042l3.175 2.694a.408.408 0 01.043.59L9.96 19.726z"
+          ></path>
+        </defs>
+        <use fill-rule="evenodd" xlink:href="#ata"></use>
+      </symbol>
+    </svg>
+    <header class="header">
+      <a class="brand" href="./" aria-label="My eBird Map home"
+        ><span
+          >My <span class="brand-ebird"><span class="brand-e">e</span>Bird</span> Map</span
+        ></a
+      >
+      <div class="header-actions">
+        <button class="header-button" id="drive-save" disabled title="Save to Google Drive">
+          <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i> Save
+        </button>
+        <div class="load-menu">
+          <button class="header-button" popovertarget="load-menu">
+            <i class="bi bi-folder2-open" aria-hidden="true"></i> Load
+          </button>
+          <div id="load-menu" popover>
+            <button id="data-button"><i class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i> CSV or ZIP</button
+            ><button id="drive-load" disabled>
+              <i class="bi bi-cloud-arrow-down" aria-hidden="true"></i> Google Drive
+            </button>
+          </div>
+        </div>
+        <button class="header-button settings-button" id="settings-button" popovertarget="settings-dialog">
+          <i class="bi bi-sliders" aria-hidden="true"></i><span>Settings</span>
+        </button>
+      </div>
+      <input
+        type="file"
+        id="file-input"
+        accept=".csv,.zip,text/csv,application/zip,application/x-zip-compressed"
+        hidden
+      />
+      <span id="import-status" class="visually-hidden" role="status"></span>
+    </header>
+    <main class="workspace">
+      <aside class="sidebar" aria-label="Explore your observations">
+        <button id="close-results" class="mobile-close" aria-label="Close area results">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
 
-<body>
-  <div id="app"></div>
-  <script type="module" src="/src/main.js"></script>
-</body>
-
+        <div class="tabs" role="tablist" aria-label="Results type">
+          <button id="species-tab" role="tab" aria-selected="true">Species</button
+          ><button id="locations-tab" role="tab" aria-selected="false">Locations</button>
+        </div>
+        <div class="results-panel" role="tabpanel" aria-labelledby="species-tab">
+          <div class="search-wrap">
+            <i class="bi bi-search" aria-hidden="true"></i
+            ><input id="search" placeholder="Search species" aria-label="Search species" autocomplete="off" /><kbd
+              >/</kbd
+            >
+          </div>
+          <span id="list-label" class="visually-hidden"></span>
+          <div id="results" class="results"></div>
+        </div>
+      </aside>
+      <section class="map-shell" aria-label="Observation map">
+        <div id="map"></div>
+        <div class="map-message" id="map-message" hidden></div>
+        <div class="polygon-control" aria-label="Map grouping">
+          <label class="map-grouping" for="clustering"
+            ><span><i class="bi bi-layers" aria-hidden="true"></i> Map view</span
+            ><select id="clustering">
+              <option value="off">Individual locations</option>
+              <option value="auto">Location clusters</option>
+              <option value="country">Country</option>
+              <option value="region">Region</option>
+              <option value="polygon">Custom area</option>
+            </select></label
+          >
+          <p id="demo-notice" class="demo-notice" hidden>Demonstration data · Load your export to begin</p>
+          <div id="species-selection" class="species-selection" hidden>
+            <span id="species-selection-label" role="status"></span
+            ><button id="clear-species-selection" aria-label="Clear species selection" title="Clear species selection">
+              <i class="bi bi-x-lg" aria-hidden="true"></i><span>Clear</span>
+            </button>
+          </div>
+          <div class="polygon-buttons">
+            <button id="polygon-start" class="button" aria-expanded="false" hidden>Draw polygon</button
+            ><button
+              id="polygon-clear"
+              class="text-button polygon-icon"
+              aria-label="Delete polygon"
+              title="Delete polygon"
+              hidden
+            >
+              <i class="bi bi-trash3" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div id="polygon-actions" hidden>
+            <p id="polygon-help" role="status">Click the map to add corners.</p>
+            <div class="polygon-buttons">
+              <button id="polygon-finish" class="button polygon-finish" disabled>Finish</button
+              ><button
+                id="polygon-undo"
+                class="text-button polygon-icon"
+                aria-label="Undo last change"
+                title="Undo last change"
+                disabled
+              >
+                <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i></button
+              ><button
+                id="polygon-delete"
+                class="text-button polygon-icon"
+                aria-label="Delete polygon"
+                title="Delete polygon"
+              >
+                <i class="bi bi-trash3" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="map-tools">
+          <button id="zoom-in" aria-label="Zoom in"><i class="bi bi-plus-lg" aria-hidden="true"></i></button
+          ><button id="zoom-out" aria-label="Zoom out"><i class="bi bi-dash-lg" aria-hidden="true"></i></button>
+        </div>
+        <button id="mobile-results" class="mobile-results">
+          <i class="bi bi-search" aria-hidden="true"></i> <span>Species & locations</span
+          ><i class="bi bi-chevron-up" aria-hidden="true"></i>
+        </button>
+        <div id="map-legend" class="map-legend" aria-label="Map color scale"></div>
+        <div class="bottom-dock">
+          <div class="stats" role="group" aria-label="Count shown on the map" aria-live="polite">
+            <button
+              type="button"
+              class="stat active"
+              id="stat-species"
+              data-metric="species"
+              aria-pressed="true"
+              title="Show species counts on the map. Purple → teal → yellow indicates increasing counts."
+            >
+              <span class="stat-value"
+                ><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--species" /></svg
+                ><span id="species-count">—</span></span
+              ><span class="metric-label">Species</span>
+            </button>
+            <button
+              type="button"
+              class="stat"
+              data-metric="checklists"
+              aria-pressed="false"
+              title="Show checklist counts on the map. Purple → teal → yellow indicates increasing counts."
+            >
+              <span class="stat-value"
+                ><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--checklist" /></svg
+                ><span id="checklists-count">—</span></span
+              ><span class="metric-label">Checklists</span>
+            </button>
+            <button
+              type="button"
+              class="stat"
+              data-metric="observations"
+              aria-pressed="false"
+              title="Show observations on the map. Purple → teal → yellow indicates increasing counts."
+            >
+              <span class="stat-value"
+                ><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--check" /></svg
+                ><span id="observations-count">—</span></span
+              ><span class="metric-label">Observations</span>
+            </button>
+            <button
+              type="button"
+              class="stat"
+              data-metric="locations"
+              aria-pressed="false"
+              title="Show location counts on the map. Purple → teal → yellow indicates increasing counts."
+            >
+              <span class="stat-value"
+                ><i class="bi bi-geo-alt metric-icon" aria-hidden="true"></i><span id="places-count">—</span></span
+              ><span class="metric-label">Locations</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div id="toast" class="toast" role="status" hidden></div>
+    <section id="settings-dialog" popover aria-labelledby="settings-title">
+      <div class="dialog-heading">
+        <h2 id="settings-title">Settings</h2>
+        <button id="close-settings" aria-label="Close settings"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      </div>
+      <form id="settings-form">
+        <fieldset>
+          <legend>Appearance</legend>
+          <div class="setting-options">
+            <label><input type="radio" name="theme" value="system" checked /> Device</label
+            ><label><input type="radio" name="theme" value="atlas" /> Light</label
+            ><label><input type="radio" name="theme" value="night" /> Dark</label>
+          </div>
+        </fieldset>
+        <label class="setting-row" for="projection"
+          >Map projection<select id="projection">
+            <option value="mercator">Flat map</option>
+            <option value="globe">Globe</option>
+          </select></label
+        >
+        <label class="setting-row" for="background"
+          >Background<select id="background">
+            <option value="atlas">Simple</option>
+            <option value="streets">Streets</option>
+            <option value="outdoors">Outdoors</option>
+            <option value="satellite">Satellite</option>
+          </select></label
+        >
+        <fieldset>
+          <legend>Years</legend>
+          <div class="date-range">
+            <label>From<select id="date-from-year" aria-label="From year"></select></label
+            ><label>To<select id="date-to-year" aria-label="To year"></select></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Season of year</legend>
+          <div class="date-range">
+            <label>From month<select id="date-from-month" aria-label="From month"></select></label
+            ><label>To month<select id="date-to-month" aria-label="To month"></select></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Results</legend>
+          <label class="setting-check"><input id="follow-map" type="checkbox" checked /> Follow the map area</label
+          ><label class="setting-check"
+            ><input id="additional" type="checkbox" checked /> Include additional taxa</label
+          >
+        </fieldset>
+        <div class="settings-actions">
+          <button class="button settings-done" type="button" id="settings-done">Done</button>
+        </div>
+      </form>
+    </section>
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>

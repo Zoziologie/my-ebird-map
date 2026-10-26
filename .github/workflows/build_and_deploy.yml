@@ -1,42 +1,62 @@
 name: Build and Deploy
 on:
+  pull_request:
   push:
-    branches:
-      - main
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
-
-      - name: Install and Build
-        run: npm ci && npm run build
-
-      - name: Upload Artifact
+      - name: Install
+        run: npm ci
+      - name: Lint and formatting
+        run: npm run lint && npm run format:check
+      - name: Test counting, map logic, and archives
+        run: npm test
+      - name: Build production app
+        env:
+          VITE_MAPBOX_ACCESS_TOKEN: ${{ vars.VITE_MAPBOX_ACCESS_TOKEN }}
+          VITE_GOOGLE_CLIENT_ID: ${{ vars.VITE_GOOGLE_CLIENT_ID }}
+          REQUIRE_MAPBOX_TOKEN: ${{ github.event_name != 'pull_request' }}
+        run: |
+          if [ "$REQUIRE_MAPBOX_TOKEN" = "true" ] && [ -z "$VITE_MAPBOX_ACCESS_TOKEN" ]; then
+            echo "::error::Set the VITE_MAPBOX_ACCESS_TOKEN repository variable before deploying."
+            exit 1
+          fi
+          npm run build
+          npm run check:build
+      - name: Upload site
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v4
         with:
           path: dist
 
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4

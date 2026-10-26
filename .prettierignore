@@ -1,0 +1,9 @@
+node_modules/
+dist/
+dist-design/
+local/
+output/
+.playwright-cli/
+src/assets/
+package-lock.json
+.env*

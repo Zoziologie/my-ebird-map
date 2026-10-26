@@ -1,13 +1,24 @@
 {
   "name": "myebirdmap",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Visualize all your eBird observations on a map!",
-  "main": "main.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "download-taxo": "node scripts/download_taxonomy.js"
+    "check": "node scripts/check-app.mjs",
+    "benchmark": "node scripts/benchmark-map.mjs",
+    "prepare:local": "node scripts/prepare-local.mjs",
+    "review:taxonomy": "node --env-file=.env scripts/review-taxonomy.mjs",
+    "check:build": "node scripts/check-build.mjs",
+    "lint": "eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run check && node --test tests/*.test.js",
+    "prepare:cases": "python3 scripts/prepare-export-cases.py",
+    "test:export": "node scripts/check-export.mjs",
+    "benchmark:export": "node scripts/benchmark-export.mjs"
   },
   "repository": {
     "type": "git",
@@ -21,20 +32,19 @@
   },
   "homepage": "https://zoziologie.raphaelnussbaumer.com/myebirdmap/",
   "devDependencies": {
-    "@vitejs/plugin-vue": "^6.0.0",
-    "leaflet": "^1.9.4",
-    "sass": "^1.89.2",
-    "vite": "^7.0.4"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
+    "vite": "^7.3.7"
   },
   "dependencies": {
-    "@popperjs/core": "^2.11.8",
-    "bootstrap": "^5.3.7",
+    "@zip.js/zip.js": "^2.24.0",
     "bootstrap-icons": "^1.13.1",
-    "csv-parser": "^3.2.0",
-    "leaflet-draw": "^1.0.4",
-    "leaflet-easybutton": "^2.4.0",
-    "leaflet.markercluster": "^1.5.3",
     "papaparse": "^5.5.3",
-    "vue": "^3.5.17"
+    "supercluster": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=22.13.0"
   }
 }

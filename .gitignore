@@ -1,14 +1,10 @@
-
 .DS_Store
 /node_modules
-
-# Local research data and preview artifacts
 /.env
+/.env.*
+!/.env.example
 /dist
 /dist-design
-/design/data.local.json
-/design/map-config.local.json
-/design/taxonomy.local.json
-/design/taxonomy-meta.local.json
+/local
 /output
 /.playwright-cli

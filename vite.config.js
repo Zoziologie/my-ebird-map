@@ -1,14 +1,6 @@
-import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
+import { defineConfig } from 'vite';
 
 export default defineConfig({
-  plugins: [vue()],
-  base: "/myebirdmap/",
-  css: {
-    preprocessorOptions: {
-      scss: {
-        silenceDeprecations: ["mixed-decls", "color-functions", "global-builtin", "import"],
-      },
-    },
-  },
+  base: '/myebirdmap/',
+  worker: { format: 'es' },
 });
