@@ -56,7 +56,7 @@ The former Vue/Leaflet app remains available in Git at commit `e8eb9587fe1946277
 
 GitHub Actions checks pull requests. Pushes to `main` and manual runs on `main` build and deploy to GitHub Pages. Configure the repository’s public Mapbox token before pushing; deployment deliberately fails without it. See [deployment preparation and acceptance checks](docs/deployment.md) and [release notes](docs/releases/README.md).
 
-Imports preserve the export's County column and use the bundled regional exotic matrix when observation-level status is absent. Species totals can still differ from eBird because regional defaults cannot reproduce checklist overrides, unresolved counties or taxonomy changes. The app does not fetch status separately for every checklist. Very large spherical/polar polygons and real-account Drive access still require acceptance checks before public release. French names and analytics are not implemented.
+Imports preserve the export's County column and use the bundled regional exotic matrix when observation-level status is absent. Species totals can still differ from eBird because regional defaults cannot reproduce checklist overrides, unresolved counties or taxonomy changes. The app does not fetch status separately for every checklist. Very large spherical/polar polygons and real-account Drive access still require acceptance checks before public release. French names are not implemented. Google Analytics event tracking is optional and loads only after consent; the choice can be changed in Settings.
 
 ## Reference data and research
 

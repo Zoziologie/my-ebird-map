@@ -1917,6 +1917,47 @@ svg.metric-icon {
 .policy-links button:hover {
   color: var(--ink);
 }
+.analytics-consent {
+  position: fixed;
+  bottom: 12px;
+  left: 12px;
+  z-index: 20;
+  width: min(440px, calc(100vw - 24px));
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 4px 24px rgb(0 0 0 / 18%);
+  font-size: 13px;
+}
+.analytics-consent[hidden] {
+  display: none;
+}
+.analytics-consent p {
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+.analytics-consent > div {
+  display: flex;
+  gap: 8px;
+}
+.analytics-consent button {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 6px 10px;
+  background: var(--paper);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.analytics-consent button:first-child {
+  background: var(--accent);
+  color: white;
+}
+.analytics-consent a {
+  color: var(--accent);
+}
 .setup-footer {
   margin-inline: -32px;
   padding: 18px 32px;

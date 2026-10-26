@@ -3,6 +3,7 @@ import { filterRecords, summarize, pointInPolygon, unwrapPolygon, polygonError, 
 import { loadSnapshot, saveSnapshotMetadata } from './storage.js';
 import { exoticStatusSummary } from './exotic-rules.js';
 import { driveClientId, prepareDrive, saveToDrive, loadFromDrive } from './drive.js';
+import { initializeAnalyticsChoice, trackEvent } from './analytics.js';
 import {
   groupMapRecords,
   indexMapLocations,
@@ -260,6 +261,7 @@ async function transferDrive(action) {
   try {
     if (action === 'save') {
       const backup = await saveToDrive(activeSource, dataset, progress);
+      trackEvent('drive_backup_save_success');
       dataset.driveSavedAt = backup.savedAt;
       if (locallySaved) await saveSnapshotMetadata(dataset).catch(() => {});
       progress('Saved to your Google Drive.');
@@ -1091,6 +1093,9 @@ function importCsv(file, options = {}) {
       records = data.records;
       activeSource = data.source;
       locallySaved = data.saved;
+      trackEvent(options.origin === 'drive' ? 'drive_backup_load_success' : 'csv_import_success', {
+        file_type: file.name.toLowerCase().endsWith('.zip') ? 'zip' : 'csv',
+      });
       setDateBounds();
       searchText.species = '';
       searchText.locations = '';
@@ -1198,4 +1203,5 @@ refresh();
 initializeMap();
 updateDataActions();
 if (driveClientId) prepareDrive().catch((error) => toast(error.message, true));
+initializeAnalyticsChoice();
 if (!stored) $('#data-dialog').showModal();

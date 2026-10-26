@@ -297,6 +297,16 @@
         >
       </footer>
     </dialog>
+    <aside id="analytics-consent" class="analytics-consent" role="dialog" aria-label="Analytics choice" hidden>
+      <p>
+        May we use Google Analytics to understand app use? Optional event statistics help improve imports and Drive
+        backups. <a href="https://zoziologie.raphaelnussbaumer.com/privacy/">Privacy</a>
+      </p>
+      <div>
+        <button id="analytics-accept" type="button">Allow analytics</button>
+        <button id="analytics-decline" type="button">Decline</button>
+      </div>
+    </aside>
     <dialog
       id="progress-dialog"
       aria-labelledby="progress-title"
@@ -370,6 +380,7 @@
       <footer class="policy-links" aria-label="Privacy and legal information">
         <a href="https://zoziologie.raphaelnussbaumer.com/privacy/">Privacy</a>
         <a href="https://zoziologie.raphaelnussbaumer.com/terms/">Terms</a>
+        <button id="analytics-settings" type="button">Analytics settings</button>
       </footer>
     </section>
     <div id="species-tooltip" class="species-tooltip" role="tooltip" hidden></div>
