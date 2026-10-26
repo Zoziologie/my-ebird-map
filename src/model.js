@@ -1,3 +1,5 @@
+import { regionalExoticStatus } from './exotic-rules.js';
+
 // Retain taxonomy identity separately from observation-level exotic status.
 export function taxonomyIndex(taxonomy) {
   return {
@@ -6,10 +8,13 @@ export function taxonomyIndex(taxonomy) {
   };
 }
 
-export function normalizeRecord(row, taxonomy) {
+export function normalizeRecord(row, taxonomy, exoticIndex) {
   const taxon = taxonomy.scientific.get(row['Scientific Name']);
   const parent = taxon && taxonomy.code.get(taxon.reportAs || taxon.speciesCode);
   const countable = !['spuh', 'slash', 'hybrid'].includes(taxon?.category) && parent?.category === 'species';
+  const countyCode = row['County Code'] || exoticIndex?.counties[row['State/Province']]?.[row.County] || null;
+  const regional =
+    exoticIndex && regionalExoticStatus(exoticIndex, taxon?.speciesCode, countyCode || row['State/Province']);
   return {
     checklist: row['Submission ID'],
     locationId: row['Location ID'],
@@ -17,6 +22,8 @@ export function normalizeRecord(row, taxonomy) {
     longitude: Number(row.Longitude),
     latitude: Number(row.Latitude),
     region: row['State/Province'],
+    county: row.County || null,
+    countyCode,
     country: row['State/Province'].split('-')[0],
     date: row.Date,
     name: row['Common Name'],
@@ -28,7 +35,10 @@ export function normalizeRecord(row, taxonomy) {
     speciesName: countable ? parent.comName : null,
     speciesScientific: countable ? parent.sciName : null,
     count: row.Count.toUpperCase() === 'X' ? null : Number(row.Count),
-    exotic: row['Exotic Code'] ?? null,
+    exotic: row['Exotic Code'] ?? regional?.status ?? null,
+    exoticSource: row['Exotic Code'] != null ? 'observation' : regional?.status != null ? 'regional' : 'unknown',
+    exoticRegion: row['Exotic Code'] != null ? null : regional?.region || null,
+    exoticNeedsCounty: row['Exotic Code'] == null && Boolean(regional?.needsCounty),
   };
 }
 

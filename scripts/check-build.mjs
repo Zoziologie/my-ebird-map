@@ -3,7 +3,7 @@ import fs from 'node:fs';
 
 const files = fs.readdirSync('dist', { recursive: true }).filter((file) => fs.statSync(`dist/${file}`).isFile());
 assert(files.includes('index.html') && files.includes('favicon.ico'), 'App entry and favicon must be packaged');
-for (const name of ['import.worker-', 'countries-v1-', 'eBird_taxonomy-', 'demo-']) {
+for (const name of ['import.worker-', 'countries-v1-', 'eBird_taxonomy-', 'exotic-rules-', 'demo-']) {
   assert(
     files.some((file) => file.startsWith(`assets/${name}`)),
     `${name} must be packaged`,

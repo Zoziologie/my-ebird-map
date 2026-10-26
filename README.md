@@ -54,7 +54,7 @@ The former Vue/Leaflet app remains available in Git at commit `e8eb9587fe1946277
 
 GitHub Actions checks pull requests. Pushes to `main` and manual runs on `main` build and deploy to GitHub Pages. Configure the repository’s public Mapbox token before pushing; deployment deliberately fails without it. See [deployment preparation and acceptance checks](docs/deployment.md) and [release notes](docs/releases/README.md).
 
-Species totals can differ from eBird when an export lacks exotic status. The app does not fetch status separately for every checklist. Very large spherical/polar polygons and real-account Drive access still require acceptance checks before public release. French names and analytics are not implemented.
+Imports preserve the export's County column and use the bundled regional exotic matrix when observation-level status is absent. Species totals can still differ from eBird because regional defaults cannot reproduce checklist overrides, unresolved counties or taxonomy changes. The app does not fetch status separately for every checklist. Very large spherical/polar polygons and real-account Drive access still require acceptance checks before public release. French names and analytics are not implemented.
 
 ## Reference data and research
 
@@ -66,3 +66,5 @@ node scripts/review-export.mjs /path/to/MyEBirdData.csv local/taxonomy.local.jso
 ```
 
 These commands require a local `.env` with `EBIRD_API_TOKEN` for taxonomy download. Generated research samples are used by optional local regression checks and are excluded from the deployment.
+
+For a supplied regional exotic-status CSV, `node scripts/prepare-exotics.mjs /path/to/matrix.csv src/assets/exotic-rules.json` updates the bundled lookup and county-name mapping with source provenance. See [regional exotic rules](docs/exotic-rules.md) for lookup precedence and county limitations, and [taxonomy differences](docs/exotic-taxonomy-review.md) for the 24 codes absent from the bundled taxonomy. Re-import an export to apply updated rules to previously saved observations.

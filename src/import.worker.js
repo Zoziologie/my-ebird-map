@@ -2,6 +2,7 @@ import Papa from 'papaparse';
 import { normalizeRecord, taxonomyIndex } from './model.js';
 import { csvFromExport } from './archive.js';
 import { saveSnapshot } from './storage.js';
+import { exoticRulesIndex } from './exotic-rules.js';
 
 self.onmessage = async ({ data: { file: input, origin = 'file', backupAt } }) => {
   try {
@@ -14,8 +15,12 @@ self.onmessage = async ({ data: { file: input, origin = 'file', backupAt } }) =>
       message: source.name.toLowerCase().endsWith('.zip') ? 'Opening ZIP…' : 'Reading CSV…',
     });
     const file = await csvFromExport(source);
+    self.postMessage({ type: 'progress', message: 'Loading eBird taxonomy…' });
     const index = taxonomyIndex(await (await fetch(new URL('./assets/eBird_taxonomy.json', import.meta.url))).json());
     const taxonomySource = 'Repository taxonomy snapshot; release version unknown';
+    self.postMessage({ type: 'progress', message: 'Loading regional exotic rules…' });
+    const exoticData = await (await fetch(new URL('./assets/exotic-rules.json', import.meta.url))).json();
+    const exoticIndex = exoticRulesIndex(exoticData.rules, exoticData.counties);
     const records = [],
       started = performance.now();
     let hasExoticStatus = false,
@@ -48,7 +53,7 @@ self.onmessage = async ({ data: { file: input, origin = 'file', backupAt } }) =>
           return;
         }
         hasExoticStatus = meta.fields.includes('Exotic Code');
-        for (const row of data) records.push(normalizeRecord(row, index));
+        for (const row of data) records.push(normalizeRecord(row, index, exoticIndex));
         self.postMessage({ type: 'progress', rows: records.length });
       },
       async complete() {
@@ -64,9 +69,13 @@ self.onmessage = async ({ data: { file: input, origin = 'file', backupAt } }) =>
           importedAt: new Date().toISOString(),
           hasExoticStatus,
           taxonomySource,
+          exoticRulesSource: exoticData.source,
+          exoticRulesSha256: exoticData.sha256,
+          exoticNeedsCounty: records.filter((record) => record.exoticNeedsCounty).length,
           origin,
           driveSavedAt: backupAt || null,
         };
+        self.postMessage({ type: 'progress', message: 'Saving your observations on this device…' });
         let saved = true;
         try {
           await saveSnapshot(records, source, metadata);
