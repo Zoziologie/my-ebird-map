@@ -22,15 +22,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Zoziologie/myebirdmap.git"
+    "url": "git+https://github.com/Zoziologie/my-ebird-map.git"
   },
   "private": true,
   "type": "module",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Zoziologie/myebirdmap/issues"
+    "url": "https://github.com/Zoziologie/my-ebird-map/issues"
   },
-  "homepage": "https://zoziologie.raphaelnussbaumer.com/myebirdmap/",
+  "homepage": "https://zoziologie.raphaelnussbaumer.com/my-ebird-map/",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "eslint": "^10.13.0",

@@ -21,5 +21,5 @@ assert(
   !/\.local\.(json|csv)|window\.designMap|src\/App\.vue/.test(code),
   'Development data paths and globals must not ship',
 );
-assert(code.includes('/myebirdmap/assets/'), 'Assets must use the production base path');
+assert(code.includes('/my-ebird-map/assets/'), 'Assets must use the production base path');
 console.log('Passed: production entry, worker, demo, taxonomy, boundaries, base path, and private-file exclusion.');

@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/myebirdmap/',
+  base: '/my-ebird-map/',
   worker: { format: 'es' },
 });

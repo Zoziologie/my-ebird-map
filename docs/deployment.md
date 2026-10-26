@@ -1,6 +1,6 @@
 # Deployment preparation
 
-The Mapbox app is now the default root entry. Build output is a static site in `dist/`, configured for `https://zoziologie.raphaelnussbaumer.com/myebirdmap/`. No backend is required. Pushes to `main` trigger deployment after the build checks pass.
+The Mapbox app is now the default root entry. Build output is a static site in `dist/`, configured for `https://zoziologie.raphaelnussbaumer.com/my-ebird-map/`. No backend is required. Pushes to `main` trigger deployment after the build checks pass.
 
 ## GitHub Pages configuration
 
@@ -21,7 +21,7 @@ npm run check:build
 npm run preview -- --host 127.0.0.1
 ```
 
-Open `http://127.0.0.1:4173/myebirdmap/` with a new browser profile. The production bundle contains a synthetic demo, the pinned Mapbox CDN runtime, local fonts/icons, the import worker, the bundled taxonomy snapshot, and lazily loaded country boundaries. Browser observation data is stored locally, so use a separate profile to avoid overwriting an existing import while checking. Mapbox and Google integrations require network access; offline basemaps are not supported.
+Open `http://127.0.0.1:4173/my-ebird-map/` with a new browser profile. The production bundle contains a synthetic demo, the pinned Mapbox CDN runtime, local fonts/icons, the import worker, the bundled taxonomy snapshot, and lazily loaded country boundaries. Browser observation data is stored locally, so use a separate profile to avoid overwriting an existing import while checking. Mapbox and Google integrations require network access; offline basemaps are not supported.
 
 ## Before public release
 

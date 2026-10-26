@@ -17,7 +17,7 @@ cp .env.example .env
 npm run dev
 ```
 
-Open `http://localhost:5173/myebirdmap/`. The Mapbox token and Google client ID are public browser configuration. Keep the developer-only `EBIRD_API_TOKEN` out of all `VITE_` variables. See [Google Drive setup](docs/google-drive-setup.md).
+Open `http://localhost:5173/my-ebird-map/`. The Mapbox token and Google client ID are public browser configuration. Keep the developer-only `EBIRD_API_TOKEN` out of all `VITE_` variables. See [Google Drive setup](docs/google-drive-setup.md).
 
 To prepare an ignored private export for local development:
 
@@ -38,7 +38,7 @@ npm run check:build
 npm run preview
 ```
 
-The build writes the static app to `dist/` for `/myebirdmap/`. Preview at `http://localhost:4173/myebirdmap/`. Model checks cover taxonomic counting, exotic status, filters, polygon containment, distinct cluster totals, and country boundaries. Build checks verify runtime assets and exclusion of private files. Optional stress measurement: `npm run benchmark`.
+The build writes the static app to `dist/` for `/my-ebird-map/`. Preview at `http://localhost:4173/my-ebird-map/`. Model checks cover taxonomic counting, exotic status, filters, polygon containment, distinct cluster totals, and country boundaries. Build checks verify runtime assets and exclusion of private files. Optional stress measurement: `npm run benchmark`.
 
 For private CSV regression cases, run `npm run prepare:cases`, `npm run test:export`, and `npm run benchmark:export`. See [test cases, benchmark method, and the first measured baseline](docs/testing.md).
 
