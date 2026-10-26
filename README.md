@@ -2,7 +2,7 @@
 
 Your eBird observations, mapped. Independent project; not an official eBird application.
 
-The Mapbox rewrite is now the main app (`2.0.0`). Import your full eBird CSV or ZIP export, explore species and locations, choose a count metric, and group locations automatically, by country/region, or with a drawn polygon. Imports stay in this browser’s IndexedDB; Google Drive backup/restore is optional. New visitors get a guided download-and-import flow; synthetic demonstration data loads only when they choose “Explore the demo”. Returning visitors reopen their last saved import automatically. “My data” contains import instructions, local save status, and optional Google Drive backup/restore.
+The Mapbox app is now `2.1.0`. Import your full eBird CSV or ZIP export, explore species and locations, choose a count metric, and group locations automatically, by country/region, or with a drawn polygon. Imports stay in this browser’s IndexedDB; Google Drive backup/restore is optional. New visitors get a guided download-and-import flow; synthetic demonstration data loads only when they choose “Explore the demo”. Returning visitors reopen their last saved import automatically. “My data” contains import instructions, local save status, and optional Google Drive backup/restore.
 
 New users start with individual locations. Display settings, date filters, result options, map position, and completed custom areas are stored in local browser preferences and restored on return. Existing saved view choices are preserved.
 
