@@ -391,6 +391,63 @@ h1 > span {
   font-style: normal;
   margin-left: 5px;
 }
+.exotic-icon {
+  display: inline-block;
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.exotic-icon-N {
+  background: #777;
+}
+.exotic-icon-P {
+  background: #faeee5;
+  border: 1px solid #cc5000;
+}
+.exotic-icon-X {
+  background: #cc5000;
+}
+.exotic-icon-mixed {
+  background: linear-gradient(90deg, #f0f0f0 50%, #cc5000 50%);
+  border: 1px solid #777;
+}
+.exotic-icon-native {
+  background: #f0f0f0;
+  border: 1px solid #777;
+}
+.species-tooltip {
+  position: fixed;
+  z-index: 2000;
+  min-width: 180px;
+  max-width: calc(100vw - 16px);
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 5px 18px #0003;
+  pointer-events: none;
+  font-size: 12px;
+}
+.species-tooltip > strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.status-breakdown-row {
+  display: grid;
+  grid-template-columns: 9px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+}
+.status-breakdown-row b {
+  margin-left: 14px;
+  font-variant-numeric: tabular-nums;
+}
 .empty {
   padding: 30px 0;
   font-size: 12px;

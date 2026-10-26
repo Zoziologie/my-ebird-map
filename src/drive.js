@@ -101,6 +101,7 @@ export async function saveToDrive(source, metadata, onProgress) {
       }),
     },
   );
+  onProgress('Starting upload to Google Drive…');
   const sessionUrl = response.headers.get('Location');
   if (!sessionUrl) throw new Error('Google Drive did not provide an upload session. Try again.');
   let start = 0,
@@ -114,18 +115,25 @@ export async function saveToDrive(source, metadata, onProgress) {
         headers: { 'Content-Range': `bytes ${start}-${end - 1}/${body.size}` },
         body: body.slice(start, end),
       });
-      if (uploaded.status !== 308) return completeBackup(uploaded, manifest);
+      if (uploaded.status !== 308) {
+        onProgress('Finishing your Google Drive backup…');
+        return completeBackup(uploaded, manifest);
+      }
       start = Number(uploaded.headers.get('Range').split('-')[1]) + 1;
       retries = 0;
     } catch (error) {
       if (!token || ++retries > 2) throw error;
+      onProgress('Connection interrupted. Reconnecting to Google Drive…');
       // Ask Drive where the interrupted upload stopped before sending more bytes.
       const status = await driveRequest(sessionUrl, {
         method: 'PUT',
         headers: { 'Content-Range': `bytes */${body.size}` },
         body: new Blob(),
       });
-      if (status.status !== 308) return completeBackup(status, manifest);
+      if (status.status !== 308) {
+        onProgress('Finishing your Google Drive backup…');
+        return completeBackup(status, manifest);
+      }
       start = status.headers.has('Range') ? Number(status.headers.get('Range').split('-')[1]) + 1 : 0;
     }
   }

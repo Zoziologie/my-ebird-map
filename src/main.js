@@ -1,6 +1,7 @@
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { filterRecords, summarize, pointInPolygon, unwrapPolygon, polygonError, ebirdSummaryLinks } from './model.js';
 import { loadSnapshot, saveSnapshotMetadata } from './storage.js';
+import { exoticStatusSummary } from './exotic-rules.js';
 import { driveClientId, prepareDrive, saveToDrive, loadFromDrive } from './drive.js';
 import {
   groupMapRecords,
@@ -22,13 +23,9 @@ const preferences = {
   theme: 'system',
   mapStyle: 'atlas',
   projection: 'mercator',
-  clustering: 'auto',
+  clustering: 'off',
   ...JSON.parse(localStorage.getItem('myebirdmap:display') || '{}'),
 };
-if (preferences.defaultsVersion !== 3) {
-  preferences.theme = 'system';
-  preferences.clustering = 'auto';
-}
 let activeSource,
   locallySaved = false,
   dataBusy = false;
@@ -43,23 +40,23 @@ let dataset,
   mapStyle = preferences.mapStyle,
   projection = preferences.projection;
 let metric = preferences.metric || 'species',
-  clustering = preferences.clustering || 'auto',
+  clustering = preferences.clustering,
   mapPoints = [],
   clusterIndex;
-let grouping = clustering,
+let grouping = preferences.grouping || clustering,
   mapGroups = new Map(),
   renderedSource,
   renderedKey;
 let countryBoundaries, countryBoundaryRequest;
-let yearFrom = '',
-  yearTo = '',
-  monthFrom = '',
-  monthTo = '';
+let yearFrom = preferences.yearFrom || '',
+  yearTo = preferences.yearTo || '',
+  monthFrom = preferences.monthFrom || '',
+  monthTo = preferences.monthTo || '';
 const selectedCodes = new Set();
 let selectionAnchor = '',
   areaRecords = [],
   speciesRecords = [],
-  polygon = null,
+  polygon = preferences.polygon || null,
   drawing = false,
   vertices = [];
 let previewPolygon = null,
@@ -68,6 +65,7 @@ let previewPolygon = null,
   draggingCorner = false,
   liveCountTimer,
   liveDragCounts = true;
+let speciesTooltipTarget;
 let resultsByCode = new Map(),
   toastTimer,
   locationPopup;
@@ -78,7 +76,24 @@ let visibleRows = 160;
 function savePreferences() {
   localStorage.setItem(
     'myebirdmap:display',
-    JSON.stringify({ theme: themeMode, mapStyle, projection, metric, clustering, defaultsVersion: 3 }),
+    JSON.stringify({
+      theme: themeMode,
+      mapStyle,
+      projection,
+      metric,
+      clustering,
+      grouping,
+      polygon,
+      yearFrom,
+      yearTo,
+      monthFrom,
+      monthTo,
+      followMap: $('#follow-map').checked,
+      additional: $('#additional').checked,
+      camera: map
+        ? { center: map.getCenter().toArray(), zoom: map.getZoom(), bearing: map.getBearing(), pitch: map.getPitch() }
+        : preferences.camera,
+    }),
   );
 }
 
@@ -171,15 +186,64 @@ function updateMapMetric() {
   map.setLayoutProperty('map-labels', 'text-field', label);
 }
 
-function toast(message) {
-  $('#toast').textContent = message;
+function toast(message, error = false) {
+  $('#toast-message').textContent = message;
+  $('#toast-icon').className = `bi ${error ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill'}`;
+  $('#toast').classList.toggle('toast-error', error);
   $('#toast').hidden = false;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => ($('#toast').hidden = true), 5000);
+  if (!error) toastTimer = setTimeout(() => ($('#toast').hidden = true), 12000);
+}
+
+function progress(message) {
+  $('#import-status').textContent = message;
+}
+
+function beginOperation(title, message) {
+  dataBusy = true;
+  updateDataActions();
+  $('#toast').hidden = true;
+  $('#data-feedback').hidden = true;
+  $('#progress-title').textContent = title;
+  progress(message);
+  if (!$('#progress-dialog').open) $('#progress-dialog').showModal();
+  $('#progress-dialog').focus();
+}
+
+function finishOperation() {
+  dataBusy = false;
+  updateDataActions();
+  $('#progress-dialog').close();
 }
 
 function updateDataActions() {
   $('#data-button').disabled = dataBusy;
+  $('#choose-export').disabled = dataBusy;
+  $('#explore-demo').disabled = dataBusy;
+  $('#drive-backups').hidden = !driveClientId;
+  const personal = dataset?.kind === 'import';
+  $('#data-state').textContent = personal
+    ? locallySaved
+      ? 'Saved on this device'
+      : 'Session only · not saved'
+    : dataset?.kind === 'synthetic'
+      ? 'Demo · sample observations'
+      : 'No data loaded';
+  $('#data-state').classList.toggle('is-demo', dataset?.kind === 'synthetic');
+  $('#current-data').hidden = !personal;
+  $('#current-data-name').textContent = dataset?.label || '';
+  $('#current-data-detail').textContent =
+    `${format(records.length)} observation${records.length === 1 ? '' : 's'} · ${locallySaved ? 'Saved on this device' : 'Session only'}`;
+  $('#data-title').textContent = personal ? 'My data' : 'Your birding, mapped.';
+  $('#data-intro').hidden = personal;
+  $('#close-data').hidden = !records.length;
+  $('#data-footer').hidden = personal;
+  $('#demo-invitation').hidden = personal;
+  $('#backup-status').textContent = dataset?.driveSavedAt
+    ? `Last backup: ${new Date(dataset.driveSavedAt).toLocaleString()}`
+    : personal
+      ? 'Save a copy to use on another device.'
+      : 'Have a saved backup? Restore it here.';
   $('#drive-save').disabled = dataBusy || !activeSource || !driveClientId;
   $('#drive-load').disabled = dataBusy || !driveClientId;
   for (const id of ['drive-save', 'drive-load'])
@@ -189,12 +253,10 @@ function updateDataActions() {
 }
 
 async function transferDrive(action) {
-  dataBusy = true;
-  $('#import-status').classList.remove('visually-hidden');
-  updateDataActions();
-  const progress = (message) => {
-    $('#import-status').textContent = message;
-  };
+  beginOperation(
+    action === 'save' ? 'Saving to Google Drive' : 'Loading from Google Drive',
+    'Connecting to Google Drive… Complete sign-in in the Google window if prompted.',
+  );
   try {
     if (action === 'save') {
       const backup = await saveToDrive(activeSource, dataset, progress);
@@ -204,21 +266,21 @@ async function transferDrive(action) {
       toast('Saved to your Google Drive.');
     } else {
       const backup = await loadFromDrive(progress);
-      $('#load-menu').hidePopover();
       await importCsv(backup.file, { origin: 'drive', backupAt: backup.savedAt });
     }
   } catch (error) {
-    progress(error.message);
-    toast(error.message);
+    $('#data-feedback').textContent = error.message;
+    $('#data-feedback').hidden = false;
+    toast(error.message, true);
   } finally {
-    dataBusy = false;
-    updateDataActions();
-    $('#import-status').classList.add('visually-hidden');
+    finishOperation();
   }
 }
 
 function setDateBounds() {
-  const years = [...new Set(records.map((record) => record.date.slice(0, 4)))].sort();
+  const years = [
+    ...new Set([...records.map((record) => record.date.slice(0, 4)), yearFrom, yearTo].filter(Boolean)),
+  ].sort();
   const options = '<option value="">Any year</option>' + years.map((year) => `<option>${year}</option>`).join('');
   const months =
     '<option value="">Any month</option>' +
@@ -230,19 +292,40 @@ function setDateBounds() {
   for (const end of ['from', 'to']) {
     $(`#date-${end}-year`).innerHTML = options;
     $(`#date-${end}-month`).innerHTML = months;
+    $(`#date-${end}-year`).value = end === 'from' ? yearFrom : yearTo;
+    $(`#date-${end}-month`).value = end === 'from' ? monthFrom : monthTo;
   }
 }
 
-function resetDates() {
-  yearFrom = '';
-  yearTo = '';
-  monthFrom = '';
-  monthTo = '';
-  for (const select of document.querySelectorAll('[id^="date-"]')) select.value = '';
-  $('#date-to-year').setCustomValidity('');
+function hideSpeciesTooltip() {
+  speciesTooltipTarget?.removeAttribute('aria-describedby');
+  speciesTooltipTarget = null;
+  $('#species-tooltip').hidden = true;
+}
+
+function showSpeciesTooltip(event) {
+  const icon = event.target.closest('.table-name .exotic-icon');
+  if (tab !== 'species' || !icon || icon === speciesTooltipTarget) return;
+  hideSpeciesTooltip();
+  const { categories } = exoticStatusSummary(resultsByCode.get(icon.closest('.table-name').dataset.key).exoticCounts);
+  if (!categories.length) return;
+  const tooltip = $('#species-tooltip');
+  tooltip.innerHTML = `<strong>Observations</strong>${categories
+    .map(
+      (category) =>
+        `<div class="status-breakdown-row"><span class="exotic-icon exotic-icon-${category.code}" aria-hidden="true"></span><span>${category.label}</span><b>${format(category.count)}</b></div>`,
+    )
+    .join('')}`;
+  tooltip.hidden = false;
+  const bounds = icon.getBoundingClientRect();
+  tooltip.style.left = `${Math.max(8, Math.min(bounds.left, innerWidth - tooltip.offsetWidth - 8))}px`;
+  tooltip.style.top = `${bounds.bottom + 8 + tooltip.offsetHeight > innerHeight ? Math.max(8, bounds.top - tooltip.offsetHeight - 8) : bounds.bottom + 8}px`;
+  speciesTooltipTarget = icon;
+  icon.setAttribute('aria-describedby', 'species-tooltip');
 }
 
 function renderResults() {
+  hideSpeciesTooltip();
   const query = $('#search')
     .value.trim()
     .normalize('NFD')
@@ -262,10 +345,13 @@ function renderResults() {
         speciesIds: new Set(),
         observations: 0,
         individuals: 0,
+        exoticCounts: { native: 0, N: 0, P: 0, X: 0, unresolved: 0 },
       });
     groups.get(key).checklists.add(record.checklist);
     if (record.count !== 0) groups.get(key).observations++;
     groups.get(key).individuals += record.count ?? 0;
+    if (record.count !== 0)
+      groups.get(key).exoticCounts[record.exoticNeedsCounty ? 'unresolved' : record.exotic || 'native']++;
     if (record.species && record.count !== 0 && record.exotic !== 'X') groups.get(key).speciesIds.add(record.species);
   }
   const results = [...groups.entries()].filter(([, record]) =>
@@ -313,10 +399,14 @@ function renderResults() {
   let speciesNumber = 0;
   const rows = results
     .slice(0, visibleRows)
-    .map(
-      ([key, record]) =>
-        `<tr data-key="${escapeHtml(key)}" class="${tab === 'species' && selectedCodes.has(key) ? 'selected ' : ''}${tab === 'species' && !record.speciesIds.size ? 'additional-taxon' : ''}">${tab === 'species' ? `<td class="species-number">${record.speciesIds.size ? format(++speciesNumber) : ''}</td>` : ''}<td><button class="table-name"${tab === 'species' ? ` aria-pressed="${selectedCodes.has(key)}"` : ''} data-key="${escapeHtml(key)}" title="${escapeHtml(tab === 'species' ? `${record.name} · ${record.scientific}` : record.location)}"><span>${escapeHtml(tab === 'species' ? record.name : record.location)}</span>${tab === 'species' ? `<i class="table-scientific">${escapeHtml(record.scientific)}</i>` : ''}${tab === 'species' && record.category !== 'species' ? `<span class="result-tag">${escapeHtml(record.category)}</span>` : ''}</button></td>${tab === 'locations' ? `<td>${format(record.speciesIds.size)}</td><td>${format(record.checklists.size)}</td>` : ''}<td>${format(record.observations)}</td><td>${format(record.individuals)}</td></tr>`,
-    )
+    .map(([key, record]) => {
+      const status = exoticStatusSummary(record.exoticCounts);
+      const statusTags =
+        tab === 'species' && status.code && status.code !== 'unresolved'
+          ? `<span class="exotic-icon exotic-icon-${status.code}" role="img" tabindex="0" aria-label="${status.label}"></span>`
+          : '';
+      return `<tr data-key="${escapeHtml(key)}" class="${tab === 'species' && selectedCodes.has(key) ? 'selected ' : ''}${tab === 'species' && !record.speciesIds.size ? 'additional-taxon' : ''}">${tab === 'species' ? `<td class="species-number">${record.speciesIds.size ? format(++speciesNumber) : ''}</td>` : ''}<td><button class="table-name"${tab === 'species' ? ` aria-pressed="${selectedCodes.has(key)}"` : ''} data-key="${escapeHtml(key)}" ${tab === 'locations' ? `title="${escapeHtml(record.location)}"` : ''}><span class="species-label">${escapeHtml(tab === 'species' ? record.name : record.location)}</span>${statusTags}</button></td>${tab === 'locations' ? `<td>${format(record.speciesIds.size)}</td><td>${format(record.checklists.size)}</td>` : ''}<td>${format(record.observations)}</td><td>${format(record.individuals)}</td></tr>`;
+    })
     .join('');
   $('#results').innerHTML =
     `<table class="results-table"><caption class="visually-hidden">${tab === 'species' ? 'Species' : 'Locations'} in the selected area. Click column headings to sort.</caption><thead><tr>${tab === 'species' ? '<th scope="col" class="species-number" title="Species number">#</th>' : ''}${head}</tr></thead><tbody>${rows || `<tr><td colspan="${columns.length + (tab === 'species' ? 1 : 0)}" class="empty">No results in this selection.</td></tr>`}</tbody></table>${results.length > visibleRows ? `<button class="show-more" data-more>Show more (${format(visibleRows)} of ${format(results.length)})</button>` : ''}`;
@@ -675,6 +765,7 @@ async function initializeMap() {
     projection,
     center: [12, 22],
     zoom: window.innerWidth < 760 ? 0.5 : 1.22,
+    ...preferences.camera,
     attributionControl: true,
   });
   if (import.meta.env.DEV) window.designMap = map;
@@ -682,7 +773,10 @@ async function initializeMap() {
     addMapLayers();
     refresh(false);
   });
-  map.on('moveend', () => refresh(false));
+  map.on('moveend', () => {
+    refresh(false);
+    savePreferences();
+  });
   map.on('error', (event) => {
     if (event.error?.status === 401 || event.error?.status === 403) {
       $('#map-message').textContent =
@@ -769,14 +863,23 @@ function resetSelection() {
   selectionAnchor = '';
   polygon = null;
   if (grouping === 'polygon') {
-    grouping = 'auto';
-    clustering = 'auto';
-    $('#clustering').value = 'auto';
+    grouping = 'off';
+    clustering = 'off';
+    $('#clustering').value = 'off';
     savePreferences();
   }
   endDrawing();
   refresh();
 }
+
+$('#results').onpointerover = showSpeciesTooltip;
+$('#results').addEventListener('focusin', showSpeciesTooltip);
+$('#results').onpointerout = (event) => {
+  if (speciesTooltipTarget && !speciesTooltipTarget.contains(event.relatedTarget)) hideSpeciesTooltip();
+};
+$('#results').addEventListener('focusout', hideSpeciesTooltip);
+document.addEventListener('scroll', hideSpeciesTooltip, true);
+window.addEventListener('resize', hideSpeciesTooltip);
 
 $('#results').onclick = (event) => {
   const heading = event.target.closest('[data-sort]');
@@ -860,6 +963,7 @@ function finishPolygon() {
     return;
   }
   polygon = unwrapPolygon(vertices);
+  savePreferences();
   endDrawing();
   refresh();
   $('#polygon-start').focus();
@@ -873,9 +977,9 @@ $('#polygon-undo').onclick = () => {
 };
 $('#polygon-clear').onclick = () => {
   polygon = null;
-  grouping = 'auto';
-  clustering = 'auto';
-  $('#clustering').value = 'auto';
+  grouping = 'off';
+  clustering = 'off';
+  $('#clustering').value = 'off';
   endDrawing();
   savePreferences();
   refresh();
@@ -893,6 +997,7 @@ document.onkeydown = (event) => {
     $('#search').focus();
   }
   if (event.key === 'Escape') {
+    hideSpeciesTooltip();
     if (drawing) {
       endDrawing();
       refresh();
@@ -950,51 +1055,63 @@ document.querySelectorAll('[data-metric]').forEach(
     }),
 );
 function importCsv(file, options = {}) {
+  if (
+    dataset.kind === 'import' &&
+    !window.confirm(
+      `Replace “${dataset.label}” with “${file.name}”?\nYour saved browser copy is replaced only after a successful import.`,
+    )
+  )
+    return Promise.resolve();
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL('./import.worker.js', import.meta.url), { type: 'module' });
-    dataBusy = true;
-    updateDataActions();
-    $('#import-status').classList.remove('visually-hidden');
+    beginOperation(
+      options.origin === 'drive' ? 'Loading from Google Drive' : 'Loading My eBird observations',
+      'Opening your export…',
+    );
     const finish = () => {
-      dataBusy = false;
-      updateDataActions();
-      $('#import-status').classList.add('visually-hidden');
+      finishOperation();
       worker.terminate();
     };
-    worker.onmessage = ({ data }) => {
+    worker.onmessage = async ({ data }) => {
       if (data.type === 'progress') {
-        $('#import-status').textContent = data.message || `Importing ${format(data.rows)} rows…`;
+        progress(data.message || `Importing ${format(data.rows)} rows…`);
         return;
       }
       if (data.type === 'error') {
         finish();
-        toast(`Import failed: ${data.message}`);
+        $('#data-feedback').textContent = `Import failed: ${data.message}`;
+        $('#data-feedback').hidden = false;
+        toast(`Import failed: ${data.message}`, true);
         reject(new Error(data.message));
         return;
       }
+      progress('Preparing your map and observation lists…');
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       dataset = data.metadata;
       records = data.records;
       activeSource = data.source;
       locallySaved = data.saved;
-      $('#import-status').textContent = locallySaved ? 'Saved on this device' : 'Available for this session';
       setDateBounds();
-      resetDates();
       searchText.species = '';
       searchText.locations = '';
       $('#search').value = '';
-      $('#additional').checked = true;
       resetSelection();
       toast(
         data.saved
           ? `${format(records.length)} rows loaded and saved on this device.`
           : 'Data loaded for this session. Browser storage is full or unavailable; your previous saved data was kept.',
+        !data.saved,
       );
       finish();
+      $('#data-dialog').close();
+      $('#data-button').focus();
       resolve();
     };
     worker.onerror = (error) => {
       finish();
-      toast(`Import failed: ${error.message}`);
+      $('#data-feedback').textContent = `Import failed: ${error.message}`;
+      $('#data-feedback').hidden = false;
+      toast(`Import failed: ${error.message}`, true);
       reject(new Error(error.message));
     };
     worker.postMessage({ file, ...options });
@@ -1007,10 +1124,43 @@ $('#file-input').onchange = async ({ target }) => {
 };
 $('#mobile-results').onclick = () => $('.sidebar').classList.toggle('open');
 $('#close-results').onclick = () => $('.sidebar').classList.remove('open');
-$('#data-button').onclick = () => {
-  $('#load-menu').hidePopover();
-  $('#file-input').click();
+$('#data-button').onclick = () => $('#data-dialog').showModal();
+$('#demo-import').onclick = () => $('#data-dialog').showModal();
+$('#choose-export').onclick = () => $('#file-input').click();
+$('#close-data').onclick = () => $('#data-dialog').close();
+$('#data-dialog').oncancel = (event) => {
+  if (!records.length) event.preventDefault();
 };
+$('#explore-demo').onclick = async () => {
+  dataset = { ...(await import('./demo.js')).default };
+  records = dataset.records;
+  delete dataset.records;
+  setDateBounds();
+  resetSelection();
+  updateDataActions();
+  $('#data-dialog').close();
+  $('#data-button').focus();
+};
+$('#choose-export').ondragover = (event) => {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = dataBusy ? 'none' : 'copy';
+  if (!dataBusy) $('#choose-export').classList.add('drag-over');
+};
+$('#choose-export').ondragleave = (event) => {
+  if (!$('#choose-export').contains(event.relatedTarget)) $('#choose-export').classList.remove('drag-over');
+};
+$('#choose-export').ondrop = async (event) => {
+  event.preventDefault();
+  $('#choose-export').classList.remove('drag-over');
+  if (dataBusy) return;
+  const file = event.dataTransfer.files[0];
+  if (file) await importCsv(file).catch(() => {});
+};
+$('#toast-close').onclick = () => {
+  $('#toast').hidden = true;
+  clearTimeout(toastTimer);
+};
+$('#progress-dialog').oncancel = (event) => event.preventDefault();
 $('#drive-save').onclick = () => transferDrive('save');
 $('#drive-load').onclick = () => transferDrive('load');
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
@@ -1030,7 +1180,7 @@ if (stored) {
   dataset = { ...stored.metadata, records: stored.records };
   activeSource = stored.source;
   locallySaved = true;
-} else dataset = (await import('./demo.js')).default;
+} else dataset = { kind: 'empty', label: '', records: [] };
 records = dataset.records;
 delete dataset.records;
 $('#import-status').textContent = dataset.label;
@@ -1039,17 +1189,13 @@ $(`input[name="theme"][value="${themeMode}"]`).checked = true;
 $('#projection').value = projection;
 $('#background').value = mapStyle;
 $('#clustering').value = grouping;
+$('#follow-map').checked = preferences.followMap ?? true;
+$('#additional').checked = preferences.additional ?? true;
 updateMapMetric();
 savePreferences();
 setDateBounds();
 refresh();
 initializeMap();
 updateDataActions();
-if (driveClientId) prepareDrive().catch((error) => toast(error.message));
-if (import.meta.env.DEV && !stored) {
-  const previewResponse = await fetch(`${import.meta.env.BASE_URL}local/preview-data.local.json`);
-  if (previewResponse.ok && previewResponse.headers.get('content-type')?.includes('json')) {
-    $('#import-status').textContent = 'Loading your full export…';
-    importCsv(`${import.meta.env.BASE_URL}local/MyEBirdData.local.csv`).catch(() => {});
-  }
-}
+if (driveClientId) prepareDrive().catch((error) => toast(error.message, true));
+if (!stored) $('#data-dialog').showModal();

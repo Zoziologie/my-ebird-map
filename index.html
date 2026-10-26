@@ -52,21 +52,16 @@
         ></a
       >
       <div class="header-actions">
-        <button class="header-button" id="drive-save" disabled title="Save to Google Drive">
-          <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i> Save
+        <span id="data-state" class="data-state" role="status">No data loaded</span>
+        <button class="header-button" id="data-button" aria-haspopup="dialog">
+          <i class="bi bi-folder2-open" aria-hidden="true"></i><span>My data</span>
         </button>
-        <div class="load-menu">
-          <button class="header-button" popovertarget="load-menu">
-            <i class="bi bi-folder2-open" aria-hidden="true"></i> Load
-          </button>
-          <div id="load-menu" popover>
-            <button id="data-button"><i class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i> CSV or ZIP</button
-            ><button id="drive-load" disabled>
-              <i class="bi bi-cloud-arrow-down" aria-hidden="true"></i> Google Drive
-            </button>
-          </div>
-        </div>
-        <button class="header-button settings-button" id="settings-button" popovertarget="settings-dialog">
+        <button
+          class="header-button settings-button"
+          id="settings-button"
+          aria-label="Settings"
+          popovertarget="settings-dialog"
+        >
           <i class="bi bi-sliders" aria-hidden="true"></i><span>Settings</span>
         </button>
       </div>
@@ -76,7 +71,6 @@
         accept=".csv,.zip,text/csv,application/zip,application/x-zip-compressed"
         hidden
       />
-      <span id="import-status" class="visually-hidden" role="status"></span>
     </header>
     <main class="workspace">
       <aside class="sidebar" aria-label="Explore your observations">
@@ -98,6 +92,26 @@
           <span id="list-label" class="visually-hidden"></span>
           <div id="results" class="results"></div>
         </div>
+        <footer class="project-links" aria-label="Project and support">
+          <a
+            class="project-brand"
+            href="https://zoziologie.raphaelnussbaumer.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg viewBox="0 0 97.45 76.75" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M96.4,22c-.5-2.4-2.5-6.8-2.5-7.7.1-1.2,3.5-4.2,3.3-4.6s-5.3.5-5.7.3a2.66,2.66,0,0,1-1.1-1C82.5-2.6,70.2-2,59.3,5.5,49.8,12,42.9,21,36.6,30.5c-4.9,7.4-11.5,8.7-19.6,6.8C11,35.8,5.6,32.9.2,30c-.8,6,1.5,14.4,6.2,21.2C16.2,65.6,31,72,47.2,75.8a38.7,38.7,0,0,0,19.7-.6C88.2,69.2,101.5,45.4,96.4,22ZM69.3,50.8c-9.3,8.9-25.5,4.5-31.5-6.1,7.4,1.1,12.2-1.8,15.5-7.5a7.35,7.35,0,0,1,1.6-1.9c5.1-5,9.7-5.6,13.5-1.8C73.6,38.6,74,46.3,69.3,50.8Zm11.9-34a2.9,2.9,0,1,1,2.9-2.9A2.9,2.9,0,0,1,81.2,16.8Z"
+              />
+              <path fill="currentColor" d="M59.3,52.6c2.1.1,12.1-5.3,9.6-14.2C67.9,48.4,59.3,52.6,59.3,52.6Z" />
+            </svg>
+            Zoziologie
+          </a>
+          <a href="https://github.com/sponsors/Zoziologie" target="_blank" rel="noopener noreferrer"
+            ><i class="bi bi-heart" aria-hidden="true"></i> Support</a
+          >
+        </footer>
       </aside>
       <section class="map-shell" aria-label="Observation map">
         <div id="map"></div>
@@ -113,7 +127,10 @@
               <option value="polygon">Custom area</option>
             </select></label
           >
-          <p id="demo-notice" class="demo-notice" hidden>Demonstration data · Load your export to begin</p>
+          <div id="demo-notice" class="demo-notice" hidden>
+            <strong>You’re exploring a demo</strong><span>These are made-up observations.</span
+            ><button id="demo-import">Use my eBird data <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+          </div>
           <div id="species-selection" class="species-selection" hidden>
             <span id="species-selection-label" role="status"></span
             ><button id="clear-species-selection" aria-label="Clear species selection" title="Clear species selection">
@@ -218,7 +235,85 @@
         </div>
       </section>
     </main>
-    <div id="toast" class="toast" role="status" hidden></div>
+    <dialog id="data-dialog" aria-labelledby="data-title" aria-describedby="data-intro">
+      <button id="close-data" aria-label="Close my data" hidden><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+      <h1 id="data-title">Your birding, mapped.</h1>
+      <p id="data-intro">Your eBird export is all you need.</p>
+      <div id="current-data" class="current-data" hidden>
+        <i class="bi bi-check-circle" aria-hidden="true"></i>
+        <div>
+          <strong id="current-data-name"></strong>
+          <p id="current-data-detail"></p>
+        </div>
+      </div>
+      <p id="data-feedback" class="data-feedback" role="alert" hidden></p>
+      <ol class="setup-steps">
+        <li>
+          <h2><span class="step-number">1</span> Download</h2>
+          <a
+            class="setup-download setup-card"
+            href="https://ebird.org/downloadMyData"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <i class="bi bi-cloud-arrow-down" aria-hidden="true"></i>
+            <strong>Get my eBird data <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i></strong>
+            <span>Request your export on eBird</span>
+          </a>
+        </li>
+        <li>
+          <h2><span class="step-number">2</span> Import</h2>
+          <button id="choose-export" class="export-drop setup-card">
+            <i class="bi bi-file-earmark-arrow-up" aria-hidden="true"></i>
+            <strong>Choose your file</strong>
+            <span>or drop your eBird CSV / ZIP here</span>
+          </button>
+        </li>
+      </ol>
+      <p class="setup-autosave">
+        <i class="bi bi-check-circle" aria-hidden="true"></i> Auto-saved in this browser. Ready next visit.
+      </p>
+      <section id="drive-backups" class="backup-section" aria-labelledby="backup-title" hidden>
+        <div class="backup-heading">
+          <h2 id="backup-title"><i class="bi bi-cloud" aria-hidden="true"></i> Google Drive backup</h2>
+          <span>Optional</span>
+        </div>
+        <div class="backup-content">
+          <div class="backup-actions">
+            <button class="header-button" id="drive-save" disabled>
+              <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i> Save backup
+            </button>
+            <button class="header-button" id="drive-load" disabled>
+              <i class="bi bi-cloud-arrow-down" aria-hidden="true"></i> Restore backup
+            </button>
+          </div>
+          <span id="backup-status" class="step-hint"></span>
+        </div>
+      </section>
+      <footer id="data-footer" class="setup-footer">
+        <span id="demo-invitation"
+          ><button id="explore-demo">Try a demo <i class="bi bi-arrow-right" aria-hidden="true"></i></button
+          ><span>Sample observations</span></span
+        >
+      </footer>
+    </dialog>
+    <dialog
+      id="progress-dialog"
+      aria-labelledby="progress-title"
+      aria-describedby="progress-help"
+      aria-busy="true"
+      tabindex="-1"
+    >
+      <span class="progress-spinner" aria-hidden="true"></span>
+      <h2 id="progress-title">Loading your observations</h2>
+      <p id="import-status" role="status" aria-live="polite" aria-atomic="true"></p>
+      <p id="progress-help">Large exports can take a few minutes. Keep this tab open.</p>
+    </dialog>
+    <div id="toast" class="toast" hidden>
+      <i id="toast-icon" class="bi bi-check-circle-fill" aria-hidden="true"></i>
+      <span id="toast-message" role="status" aria-live="polite" aria-atomic="true"></span>
+      <button id="toast-close" aria-label="Dismiss notification"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
+    </div>
     <section id="settings-dialog" popover aria-labelledby="settings-title">
       <div class="dialog-heading">
         <h2 id="settings-title">Settings</h2>
@@ -272,7 +367,12 @@
           <button class="button settings-done" type="button" id="settings-done">Done</button>
         </div>
       </form>
+      <footer class="policy-links" aria-label="Privacy and legal information">
+        <a href="https://zoziologie.raphaelnussbaumer.com/privacy/">Privacy</a>
+        <a href="https://zoziologie.raphaelnussbaumer.com/terms/">Terms</a>
+      </footer>
     </section>
+    <div id="species-tooltip" class="species-tooltip" role="tooltip" hidden></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

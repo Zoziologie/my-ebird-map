@@ -1,0 +1,5 @@
+# Exotic status circles
+
+The species list uses small CSS circles with colors taken from the [eBird Help Center illustration](https://support.ebird.org/en/support/solutions/articles/48001218430-exotic-and-introduced-species-in-ebird): gray for Naturalized, pale orange with an orange border for Provisional, and solid orange for Escapee. The original image is no longer bundled.
+
+A row shows the highest category (Native → Naturalized → Provisional → Escapee), with no circle for native-only observations. Native plus exotic observations use a half-gray, half-orange circle. Missing exotic codes and absent matrix rules mean native. County-resolution metadata remains internal and has no visible badge or tooltip row. Hovering or focusing the status circle only opens a styled tooltip with colored category dots and bold observation counts. Only nonzero Native, Naturalized, Provisional and Escapee categories appear. The card stays inside the viewport and closes on leave, blur, scrolling or Escape. Each circle has an accessible label; species eligibility is calculated separately.
