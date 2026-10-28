@@ -16,6 +16,7 @@ import {
   clusteredMapFeatures,
   indexLocationHighlights,
   renderMapFeatures,
+  formatMapCount,
   boundaryMapFeatures,
 } from './map-data.js';
 
@@ -163,7 +164,12 @@ function updateMapMetric() {
 
   const radius = ['interpolate', ['linear'], ['ln', ['+', ['get', metric], 1]], 0, 9, 9, 30];
   const count = ['get', metric];
-  const label = metric === 'observations' ? ['get', 'observationLabel'] : ['to-string', count];
+  const label =
+    metric === 'observations'
+      ? ['get', 'observationLabel']
+      : metric === 'individuals'
+        ? ['get', 'individualsLabel']
+        : ['to-string', count];
   const breaks = (selectionColorBreaks || colorBreaks)[clustering][metric];
   const palette = ['#440154', '#414487', '#2a788e', '#22a884', '#7ad151', '#fde725'];
   const colorIndices = Array.from({ length: breaks.length + 1 }, (_, i) =>
@@ -179,7 +185,7 @@ function updateMapMetric() {
   $('#map-legend').title =
     `Categories based on the full file${selectedCodes.size ? ' for the selected taxa' : ''}; stable across zoom, date and area filters.`;
   $('#map-legend').innerHTML =
-    `<strong>${{ species: 'Species', checklists: 'Checklists', observations: 'Observations', locations: 'Locations' }[metric]}</strong><div class="legend-colors">${[
+    `<strong>${{ species: 'Species', checklists: 'Checklists', observations: 'Observations', individuals: 'Count', locations: 'Locations' }[metric]}</strong><div class="legend-colors">${[
       1,
       ...breaks,
     ]
@@ -187,7 +193,7 @@ function updateMapMetric() {
         const end = breaks[i] - 1;
         const range =
           i === breaks.length ? `${format(value)}+` : value === end ? format(value) : `${format(value)}–${format(end)}`;
-        const label = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(value);
+        const label = formatMapCount(value);
         return `<span style="background: ${palette[colorIndices[i]]}" title="${range}"><span class="legend-boundary">${label}${i === breaks.length ? '+' : ''}</span></span>`;
       })
       .join('')}</div>`;
@@ -513,7 +519,7 @@ function renderResults() {
         tab === 'species' && status.code && status.code !== 'unresolved'
           ? `<span class="exotic-icon exotic-icon-${status.code}" role="img" tabindex="0" aria-label="${status.label}"></span>`
           : '';
-      return `<tr data-key="${escapeHtml(key)}" class="${tab === 'species' && selectedCodes.has(key) ? 'selected ' : ''}${tab === 'species' && !record.speciesIds.size ? 'additional-taxon' : ''}">${tab === 'species' ? `<td class="species-number">${record.speciesIds.size ? format(++speciesNumber) : ''}</td>` : ''}<td><button class="table-name"${tab === 'species' ? ` aria-pressed="${selectedCodes.has(key)}"` : ''} data-key="${escapeHtml(key)}" ${tab === 'locations' ? `title="${escapeHtml(record.location)}"` : ''}><span class="species-label">${escapeHtml(tab === 'species' ? record.name : record.location)}</span>${statusTags}</button></td>${tab === 'locations' ? `<td>${format(record.speciesIds.size)}</td><td>${format(record.checklists.size)}</td>` : ''}<td>${format(record.observations)}</td><td>${format(record.individuals)}</td></tr>`;
+      return `<tr data-key="${escapeHtml(key)}" class="${tab === 'species' && selectedCodes.has(key) ? 'selected ' : ''}${tab === 'species' && !record.speciesIds.size ? 'additional-taxon' : ''}">${tab === 'species' ? `<td class="species-number">${record.speciesIds.size ? format(++speciesNumber) : ''}</td>` : ''}<td><button class="table-name"${tab === 'species' ? ` aria-pressed="${selectedCodes.has(key)}"` : ''} data-key="${escapeHtml(key)}" ${tab === 'locations' ? `title="${escapeHtml(record.location)}"` : ''}><span class="species-label">${escapeHtml(tab === 'species' ? record.name : record.location)}</span>${statusTags}</button></td>${tab === 'locations' ? `<td>${format(record.speciesIds.size)}</td><td>${format(record.checklists.size)}</td>` : ''}<td>${format(record.observations)}</td><td>${record.individuals === 0 && record.observations > 0 ? 'X' : format(record.individuals)}</td></tr>`;
     })
     .join('');
   $('#results').innerHTML =
@@ -562,9 +568,16 @@ function refresh(updateSource = true) {
     ['species', 'species'],
     ['checklists', 'checklists'],
     ['observations', 'observations'],
+    ['individuals', 'individuals'],
     ['places', 'locations'],
-  ])
-    $(`#${id}-count`).textContent = format(totals[key]);
+  ]) {
+    $(`#${id}-count`).textContent =
+      key === 'individuals' ? formatMapCount(totals[key], totals.observations) : format(totals[key]);
+    $(`#${id}-count`).title =
+      key === 'individuals' && totals.individuals === 0 && totals.observations > 0
+        ? 'X: present without a numeric count'
+        : format(totals[key]);
+  }
   $('#species-selection').hidden = !selectedCodes.size;
   if (selectedCodes.size === 1) {
     const code = [...selectedCodes][0],
@@ -1067,6 +1080,7 @@ async function initializeMap() {
         ['species', 'Species', 'species'],
         ['checklists', 'Checklists', 'checklist'],
         ['observations', 'Observations', 'check'],
+        ['individuals', 'Count', 'species'],
       ]
         .map(([key, label, icon]) => {
           const linked = links[key];
@@ -1074,7 +1088,7 @@ async function initializeMap() {
           const attributes = linked
             ? ` href="${escapeHtml(linked)}" target="_blank" rel="noopener" title="View your ${label.toLowerCase()} on eBird"`
             : '';
-          return `<${tag} class="popup-stat"${attributes}><span class="stat-value"><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--${icon}"/></svg><span>${format(p[key])}</span></span><span class="metric-label">${label}</span></${tag}>`;
+          return `<${tag} class="popup-stat"${attributes}><span class="stat-value"><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--${icon}"/></svg><span>${key === 'individuals' && p.individuals === 0 && p.observations > 0 ? 'X' : format(p[key])}</span></span><span class="metric-label">${label}</span></${tag}>`;
         })
         .join('');
       const title =
@@ -1180,8 +1194,8 @@ $('#results').onclick = (event) => {
       }
       selectionAnchor = key;
     }
-    if (selectedCodes.size) {
-      metric = 'checklists';
+    if (selectedCodes.size && metric === 'species') {
+      metric = 'individuals';
       savePreferences();
     }
     refresh();

@@ -3,12 +3,15 @@ import assert from 'node:assert/strict';
 import { mapColorBreaks, datasetMapColorBreaks } from '../src/map-colors.js';
 
 test('category thresholds adapt to each metric and stay ordered for small datasets', () => {
-  const features = [{ properties: { species: 100, checklists: 1000, observations: 42, locations: 1 } }];
+  const features = [
+    { properties: { species: 100, checklists: 1000, observations: 42, individuals: 2450000, locations: 1 } },
+  ];
   const breaks = mapColorBreaks(features);
   assert.equal(breaks.species.at(-1), 100);
   assert.equal(breaks.checklists.at(-1), 1000);
   assert.equal(breaks.observations.at(-1), 50);
   assert.deepEqual(breaks.locations, []);
+  assert.equal(breaks.individuals.at(-1), 3000000);
   for (const values of Object.values(breaks)) {
     if (values.length) assert.ok(values[0] >= 2);
     assert.ok(values.every((value, index) => !index || value > values[index - 1]));
@@ -19,7 +22,7 @@ test('category thresholds adapt to each metric and stay ordered for small datase
 test('small integer metrics use only meaningful categories', () => {
   for (let maximum = 0; maximum <= 6; maximum++) {
     const breaks = mapColorBreaks([
-      { properties: { species: maximum, checklists: 0, observations: 0, locations: 0 } },
+      { properties: { species: maximum, checklists: 0, observations: 0, individuals: 0, locations: 0 } },
     ]).species;
     assert.deepEqual(
       breaks,
@@ -50,6 +53,7 @@ test('taxon selection scales use all matching records and clearing restores the 
     assert.deepEqual(selected[grouping].species, []);
     assert.deepEqual(selected[grouping].checklists, [2, 3]);
     assert.deepEqual(selected[grouping].observations, [2, 3]);
+    assert.deepEqual(selected[grouping].individuals, [2, 3]);
     assert.equal(full[grouping].checklists.at(-1), 200);
   }
   assert.deepEqual(datasetMapColorBreaks(records, new Set()), full);

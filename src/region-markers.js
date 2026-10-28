@@ -1,4 +1,4 @@
-import { formatMapObservation } from './map-data.js';
+import { formatMapCount } from './map-data.js';
 
 const palette = ['#440154', '#414487', '#2a788e', '#22a884', '#7ad151', '#fde725'];
 const cachedValues = new WeakMap();
@@ -22,7 +22,12 @@ export function updateRegionMarkers(map, points, metric, breaks) {
       ? Math.round((breaks.filter((threshold) => value >= threshold).length * 5) / breaks.length)
       : 2;
     const color = value === 0 ? '#87939b' : palette[colorIndex];
-    const label = metric === 'observations' ? formatMapObservation(value) : String(value);
+    const label =
+      metric === 'individuals'
+        ? formatMapCount(value, properties.observations)
+        : metric === 'observations'
+          ? formatMapCount(value)
+          : String(value);
     const key = `${value}/${color}/${label}`;
     if (map.hasImage(id) && cache.get(id) === key) continue;
     const radius = regionMarkerRadius(value);

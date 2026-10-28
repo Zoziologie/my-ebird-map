@@ -84,8 +84,16 @@ test('import, reload, search, sorting and bounded rendering across devices', asy
   await expect(page.locator('#checklists-count')).toHaveText('1,000');
   await expect(page.locator('#observations-count')).toHaveText('20,000');
   await expect(page.locator('#places-count')).toHaveText('500');
+  await expect(page.locator('#individuals-count')).toHaveText('20K');
+  await expect(page.locator('#individuals-count')).toHaveAttribute('title', '20,000');
+  await page.locator('[data-metric="individuals"]').click();
+  await expect(page.locator('[data-metric="individuals"]')).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#map-legend strong')).toHaveText('Count');
+  await expect(page).toHaveURL(/metric=individuals/);
   await page.reload();
   await expect(page.locator('#observations-count')).toHaveText('20,000');
+  await expect(page.locator('#individuals-count')).toHaveText('20K');
+  await expect(page.locator('[data-metric="individuals"]')).toHaveAttribute('aria-pressed', 'true');
   if (isMobile) await page.locator('#mobile-results').click();
   await page.locator('#locations-tab').click();
   await expect(page.locator('#results tbody tr')).toHaveCount(160);
@@ -102,6 +110,15 @@ test('import, reload, search, sorting and bounded rendering across devices', asy
   await expect(page.locator('#results tbody tr')).toHaveCount(1);
   await expect(page.locator('#results tbody')).toContainText('European Robin');
   await page.locator('#search').fill('');
+
+  for (const initialMetric of ['species', 'checklists', 'observations', 'individuals', 'locations']) {
+    await page.locator(`[data-metric="${initialMetric}"]`).click();
+    await page.locator('#results .table-name').first().click();
+    const expectedMetric = initialMetric === 'species' ? 'individuals' : initialMetric;
+    await expect(page.locator(`[data-metric="${expectedMetric}"]`)).toHaveAttribute('aria-pressed', 'true');
+    await page.locator('#clear-species-selection').click();
+    await expect(page.locator(`[data-metric="${expectedMetric}"]`)).toHaveAttribute('aria-pressed', 'true');
+  }
 
   const session = browserName === 'chromium' ? await page.context().newCDPSession(page) : null;
   if (session) await session.send('HeapProfiler.collectGarbage');
@@ -159,6 +176,31 @@ test('import, reload, search, sorting and bounded rendering across devices', asy
     ),
     contentType: 'application/json',
   });
+});
+
+test('unknown bird counts display X while empty totals remain zero', async ({ page, isMobile }) => {
+  await page.addInitScript(() => localStorage.setItem('myebirdmap:analytics-consent', 'denied'));
+  await page.route('https://**/*', (route) =>
+    route.fulfill({
+      body: '',
+      contentType: route.request().resourceType() === 'stylesheet' ? 'text/css' : 'application/javascript',
+    }),
+  );
+  await page.goto('./');
+  await expect(page.locator('#data-dialog')).toBeVisible();
+  await page.locator('#file-input').setInputFiles({
+    name: 'MyEBirdData.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(csv.split('\n').slice(0, 3).join('\n').replaceAll(',1,2025-', ',X,2025-')),
+  });
+  await expect(page.locator('#individuals-count')).toHaveText('X');
+  if (isMobile) await page.locator('#mobile-results').click();
+  await expect(page.locator('#results tbody tr')).toHaveCount(2);
+  await expect(page.locator('#results tbody tr').first().locator('td').last()).toHaveText('X');
+  if (isMobile) await page.locator('#close-results').click();
+  await page.locator('#settings-button').click();
+  await page.locator('#date-from-month').selectOption('07');
+  await expect(page.locator('#individuals-count')).toHaveText('0');
 });
 
 test('live map loads and switches location, cluster, country and region views', async ({ page }, testInfo) => {

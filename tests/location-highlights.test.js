@@ -10,7 +10,14 @@ test('table locations resolve to their displayed cluster and to individual marke
   ].map((coordinates, i) => ({
     type: 'Feature',
     geometry: { type: 'Point', coordinates },
-    properties: { id: `L${i}`, speciesIds: ['bird'], checklistIds: [`S${i}`], observations: 1, locations: 1 },
+    properties: {
+      id: `L${i}`,
+      speciesIds: ['bird'],
+      checklistIds: [`S${i}`],
+      observations: 1,
+      individuals: 1,
+      locations: 1,
+    },
   }));
   const index = indexMapLocations(points);
   const features = clusteredMapFeatures(index, 0);

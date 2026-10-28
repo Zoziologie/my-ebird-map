@@ -1,6 +1,6 @@
 import { groupMapRecords, indexMapLocations, clusteredMapFeatures } from './map-data.js';
 
-const metrics = ['species', 'checklists', 'observations', 'locations'];
+const metrics = ['species', 'checklists', 'observations', 'individuals', 'locations'];
 
 function niceNumber(value, roundUp = false) {
   const magnitude = 10 ** Math.floor(Math.log10(value));

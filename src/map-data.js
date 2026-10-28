@@ -14,6 +14,7 @@ export function groupMapRecords(records, grouping = 'auto') {
         locations: new Map(),
         countries: new Set(),
         observations: 0,
+        individuals: 0,
         additional: 0,
       });
     const group = groups.get(key);
@@ -22,6 +23,7 @@ export function groupMapRecords(records, grouping = 'auto') {
     if (record.country !== 'XX') group.countries.add(record.country);
     if (record.count === 0) continue;
     group.observations++;
+    group.individuals += record.count ?? 0;
     if (record.species && record.exotic !== 'X') group.species.add(record.species);
     else group.additional++;
   }
@@ -52,6 +54,7 @@ export function groupMapRecords(records, grouping = 'auto') {
         locations: group.locations.size,
         countries: group.countries.size,
         observations: group.observations,
+        individuals: group.individuals,
         additional: group.additional,
         speciesIds: [...group.species],
         checklistIds: [...group.checklists],
@@ -100,6 +103,7 @@ export function indexMapLocations(points) {
       speciesIds: new Set(props.speciesIds),
       checklistIds: new Set(props.checklistIds),
       observations: props.observations,
+      individuals: props.individuals,
       locations: props.locations,
     }),
     reduce(accumulated, props) {
@@ -109,6 +113,7 @@ export function indexMapLocations(points) {
       accumulated.checklistIds = new Set(accumulated.checklistIds);
       for (const id of props.checklistIds) accumulated.checklistIds.add(id);
       accumulated.observations += props.observations;
+      accumulated.individuals += props.individuals;
       accumulated.locations += props.locations;
     },
   }).load(points);
@@ -127,6 +132,7 @@ export function clusteredMapFeatures(index, zoom) {
         species: p.speciesIds.size,
         checklists: p.checklistIds.size,
         observations: p.observations,
+        individuals: p.individuals,
         locations: p.locations,
       },
     };
@@ -145,7 +151,8 @@ export function indexLocationHighlights(features, clusterIndex) {
   return highlights;
 }
 
-export function formatMapObservation(value) {
+export function formatMapCount(value, observations = 0) {
+  if (value === 0 && observations > 0) return 'X';
   if (value >= 999950) return `${Math.round(value / 100000) / 10}M`;
   if (value >= 1000) return `${Math.round(value / 100) / 10}K`;
   return String(value);
@@ -155,7 +162,11 @@ export function formatMapObservation(value) {
 export function renderMapFeatures(features) {
   return features.map(({ properties: { speciesIds, checklistIds, ...properties }, ...feature }) => ({
     ...feature,
-    properties: { ...properties, observationLabel: formatMapObservation(properties.observations) },
+    properties: {
+      ...properties,
+      observationLabel: formatMapCount(properties.observations),
+      individualsLabel: formatMapCount(properties.individuals, properties.observations),
+    },
   }));
 }
 

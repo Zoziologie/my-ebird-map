@@ -16,7 +16,7 @@ import {
   clusteredMapFeatures,
   renderMapFeatures,
   boundaryMapFeatures,
-  formatMapObservation,
+  formatMapCount,
 } from '../src/map-data.js';
 
 const taxonomy = JSON.parse(fs.readFileSync('src/assets/eBird_taxonomy.json', 'utf8'));
@@ -232,7 +232,7 @@ assert.equal(rendered.length, points.length, 'Unclustered rendering must retain 
 for (let i = 0; i < rendered.length; i++) {
   assert.equal(rendered[i].properties.speciesIds, undefined, 'Large ID sets stay out of the rendering payload');
   assert.equal(rendered[i].properties.checklistIds, undefined);
-  for (const key of ['id', 'species', 'checklists', 'observations', 'locations'])
+  for (const key of ['id', 'species', 'checklists', 'observations', 'individuals', 'locations'])
     assert.equal(rendered[i].properties[key], points[i].properties[key]);
 }
 assert.ok(points[0].properties.speciesIds, 'Rendering must not mutate counting data');
@@ -241,6 +241,8 @@ const root = clusteredMapFeatures(clusterIndex, 0)[0].properties;
 assert.equal(root.species, 2, 'A shared species is counted once across locations');
 assert.equal(root.checklists, 4, 'Repeated checklist IDs are counted once across locations');
 assert.equal(root.observations, 5, 'Observation records include X but exclude zeros');
+assert.equal(root.individuals, 7, 'Numeric counts are summed; X and zeros add nothing');
+assert.equal(summarize(clusterRows).individuals, 7);
 assert.equal(root.locations, 4, 'Zero-only locations are retained');
 for (const zoom of [0, 5, 10, 14, 16]) {
   for (const feature of clusteredMapFeatures(clusterIndex, zoom)) {
@@ -249,7 +251,7 @@ for (const zoom of [0, 5, 10, 14, 16]) {
       : [feature];
     const ids = new Set(members.map((point) => point.properties.id));
     const expected = summarize(clusterRows.filter((record) => ids.has(record.locationId)));
-    for (const key of ['species', 'checklists', 'observations', 'locations'])
+    for (const key of ['species', 'checklists', 'observations', 'individuals', 'locations'])
       assert.equal(feature.properties[key], expected[key], `${key} at zoom ${zoom} must match its own cluster members`);
   }
 }
@@ -300,7 +302,7 @@ assert.equal(countryView.polygons.length, 1);
 assert.equal(countryView.circles.length, 1);
 assert.equal(countryView.circles[0].properties.id, 'XX', 'Missing countries retain their circle and exact counts');
 assert.equal(countryView.labels.length, 1);
-for (const key of ['species', 'checklists', 'observations', 'locations'])
+for (const key of ['species', 'checklists', 'observations', 'individuals', 'locations'])
   assert.equal(
     countryView.polygons[0].properties[key],
     countryPoints[0].properties[key],
@@ -350,12 +352,24 @@ for (const [value, expected] of [
   [1000000, '1M'],
   [2450000, '2.5M'],
 ])
-  assert.equal(formatMapObservation(value), expected);
+  assert.equal(formatMapCount(value), expected);
 const compactPoint = renderMapFeatures([
-  { ...points[0], properties: { ...points[0].properties, observations: 1250 } },
+  { ...points[0], properties: { ...points[0].properties, observations: 1250, individuals: 2450000 } },
 ])[0];
 assert.equal(compactPoint.properties.observations, 1250, 'Compact labels must not replace numerical totals');
 assert.equal(compactPoint.properties.observationLabel, '1.3K');
+assert.equal(compactPoint.properties.individuals, 2450000);
+assert.equal(compactPoint.properties.individualsLabel, '2.5M');
+assert.equal(formatMapCount(0, 1), 'X', 'Presence without numeric counts is displayed as X');
+assert.equal(formatMapCount(0, 0), '0', 'Empty and zero-only groups still display zero');
+assert.equal(formatMapCount(5, 2), '5', 'Mixed numeric and X observations keep the numeric sum');
+for (const grouping of ['off', 'country', 'region']) {
+  const unknownPoints = groupMapRecords([row(species)], grouping);
+  assert.equal(renderMapFeatures(unknownPoints)[0].properties.individualsLabel, 'X');
+  const unknownCluster = clusteredMapFeatures(indexMapLocations(unknownPoints), 0);
+  assert.equal(renderMapFeatures(unknownCluster)[0].properties.individualsLabel, 'X');
+}
+
 console.log('Passed: K/M map labels, million-boundary rounding, and preservation of exact observation totals.');
 
 const regionLevels = ['FR-', 'FR-ARA', 'CH-VD', 'XX-'].map((region, i) =>
