@@ -1,6 +1,6 @@
+import { continuousMapColorValue } from './map-colors.js';
 import { formatMapCount } from './map-data.js';
 
-const palette = ['#440154', '#414487', '#2a788e', '#22a884', '#7ad151', '#fde725'];
 const cachedValues = new WeakMap();
 
 export function regionMarkerRadius(value) {
@@ -8,7 +8,7 @@ export function regionMarkerRadius(value) {
 }
 
 // A single icon keeps the number, fill and rings in the same stacking order.
-export function updateRegionMarkers(map, points, metric, breaks) {
+export function updateRegionMarkers(map, points, metric, maximum) {
   if (!cachedValues.has(map)) cachedValues.set(map, new Map());
   const cache = cachedValues.get(map);
   const canvas = document.createElement('canvas');
@@ -18,10 +18,7 @@ export function updateRegionMarkers(map, points, metric, breaks) {
   for (const { properties } of points) {
     const id = `region:${properties.id}`;
     const value = properties[metric];
-    const colorIndex = breaks.length
-      ? Math.round((breaks.filter((threshold) => value >= threshold).length * 5) / breaks.length)
-      : 2;
-    const color = value === 0 ? '#87939b' : palette[colorIndex];
+    const color = continuousMapColorValue(value, maximum);
     const label =
       metric === 'individuals'
         ? formatMapCount(value, properties.observations)
@@ -47,7 +44,10 @@ export function updateRegionMarkers(map, points, metric, breaks) {
     context.font = 'bold 10px Lato, Arial, sans-serif';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    context.fillStyle = colorIndex >= 3 ? '#102a36' : '#ffffff';
+    context.fillStyle =
+      value === 0 || maximum <= 1 || Math.log(value + 1) >= Math.log(2) + (Math.log(maximum + 1) - Math.log(2)) * 0.6
+        ? '#102a36'
+        : '#ffffff';
     context.fillText(label, 34, 34);
     const image = context.getImageData(0, 0, 136, 136);
     if (map.hasImage(id)) map.updateImage(id, image);

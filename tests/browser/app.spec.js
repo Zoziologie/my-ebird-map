@@ -116,8 +116,10 @@ test('import, reload, search, sorting and bounded rendering across devices', asy
     await page.locator('#results .table-name').first().click();
     const expectedMetric = initialMetric === 'species' ? 'individuals' : initialMetric;
     await expect(page.locator(`[data-metric="${expectedMetric}"]`)).toHaveAttribute('aria-pressed', 'true');
+    if (isMobile) await page.locator('#close-results').click();
     await page.locator('#clear-species-selection').click();
     await expect(page.locator(`[data-metric="${expectedMetric}"]`)).toHaveAttribute('aria-pressed', 'true');
+    if (isMobile) await page.locator('#mobile-results').click();
   }
 
   const session = browserName === 'chromium' ? await page.context().newCDPSession(page) : null;

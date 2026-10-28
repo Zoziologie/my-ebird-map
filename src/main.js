@@ -1,4 +1,5 @@
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import { buildReplay, createReplay } from './replay.js';
 import regionNames from './assets/region-names.json';
 import ebirdCountryNames from './assets/country-names.json';
 import taxonomyMetadata from './assets/taxonomy-source.json';
@@ -7,7 +8,7 @@ import { loadSnapshot, saveSnapshotMetadata } from './storage.js';
 import { exoticStatusSummary } from './exotic-rules.js';
 import { driveClientId, prepareDrive, saveToDrive, loadFromDrive } from './drive.js';
 import { initializeAnalyticsChoice, trackEvent } from './analytics.js';
-import { datasetMapColorBreaks } from './map-colors.js';
+import { datasetMapScales, mapMetricColor, mapPalette } from './map-colors.js';
 import { regionMarkerRadius, updateRegionMarkers } from './region-markers.js';
 import { readUrlSettings, writeUrlSettings } from './url-state.js';
 import {
@@ -18,6 +19,7 @@ import {
   renderMapFeatures,
   formatMapCount,
   boundaryMapFeatures,
+  geometryBounds,
 } from './map-data.js';
 
 const $ = (selector) => document.querySelector(selector);
@@ -61,12 +63,13 @@ let countryBoundaries, countryBoundaryRequest;
 const regionBoundaries = new Map(),
   regionBoundaryRequests = new Map();
 let regionBoundaryFrame;
+let replay, replayLayerVisibility;
 const regionBoundaryFiles = import.meta.glob('./assets/regions-v1/*.json', {
   query: '?url&no-inline',
   import: 'default',
   eager: true,
 });
-let colorBreaks, selectionColorBreaks, colorSelectionKey;
+let colorScales, selectionColorScales, colorSelectionKey;
 let yearFrom = preferences.yearFrom || '',
   yearTo = preferences.yearTo || '',
   monthFrom = preferences.monthFrom || '',
@@ -154,6 +157,27 @@ function savePreferences() {
   scheduleUrlUpdate();
 }
 
+function updateMapLegend(metric) {
+  const maximum = (selectionColorScales || colorScales).maxima[clustering][metric];
+  const ticks = [
+    ...new Set(
+      maximum > 1
+        ? [
+            1,
+            ...[1, 2].map((i) =>
+              Math.round(Math.exp(Math.log(2) + ((Math.log(maximum + 1) - Math.log(2)) * i) / 3) - 1),
+            ),
+            maximum,
+          ]
+        : [maximum],
+    ),
+  ];
+  $('#map-legend').title =
+    `Continuous logarithmic scale from ${maximum ? 1 : 0} to ${format(maximum)}; zero is gray. Based on the full file${selectedCodes.size ? ' for the selected taxa' : ''}; stable across zoom, date and area filters.`;
+  $('#map-legend').innerHTML =
+    `<strong>${{ species: 'Species', checklists: 'Checklists', observations: 'Observations', individuals: 'Count', locations: 'Locations' }[metric]}</strong><div class="continuous-map-ramp" style="background:${maximum > 1 ? `linear-gradient(to right, ${mapPalette.join(',')})` : maximum ? mapPalette.at(-1) : '#87939b'}"></div><div class="continuous-map-ticks">${ticks.map((value) => `<span style="left:${maximum <= 1 ? 100 : ((Math.log(value + 1) - Math.log(2)) / (Math.log(maximum + 1) - Math.log(2))) * 100}%" title="${format(value)}">${format(value)}</span>`).join('')}</div>`;
+}
+
 function updateMapMetric() {
   highlightLocation();
   document.querySelectorAll('[data-metric]').forEach((button) => {
@@ -170,33 +194,9 @@ function updateMapMetric() {
       : metric === 'individuals'
         ? ['get', 'individualsLabel']
         : ['to-string', count];
-  const breaks = (selectionColorBreaks || colorBreaks)[clustering][metric];
-  const palette = ['#440154', '#414487', '#2a788e', '#22a884', '#7ad151', '#fde725'];
-  const colorIndices = Array.from({ length: breaks.length + 1 }, (_, i) =>
-    breaks.length ? Math.round((i * 5) / breaks.length) : 2,
-  );
-  const steps = breaks.flatMap((value, i) => [value, palette[colorIndices[i + 1]]]);
-  const colors = [
-    'case',
-    ['==', count, 0],
-    '#87939b',
-    breaks.length ? ['step', count, palette[colorIndices[0]], ...steps] : palette[colorIndices[0]],
-  ];
-  $('#map-legend').title =
-    `Categories based on the full file${selectedCodes.size ? ' for the selected taxa' : ''}; stable across zoom, date and area filters.`;
-  $('#map-legend').innerHTML =
-    `<strong>${{ species: 'Species', checklists: 'Checklists', observations: 'Observations', individuals: 'Count', locations: 'Locations' }[metric]}</strong><div class="legend-colors">${[
-      1,
-      ...breaks,
-    ]
-      .map((value, i) => {
-        const end = breaks[i] - 1;
-        const range =
-          i === breaks.length ? `${format(value)}+` : value === end ? format(value) : `${format(value)}–${format(end)}`;
-        const label = formatMapCount(value);
-        return `<span style="background: ${palette[colorIndices[i]]}" title="${range}"><span class="legend-boundary">${label}${i === breaks.length ? '+' : ''}</span></span>`;
-      })
-      .join('')}</div>`;
+  const maximum = (selectionColorScales || colorScales).maxima[clustering][metric];
+  const colors = mapMetricColor(count, clustering, selectionColorScales || colorScales, metric);
+  updateMapLegend(metric);
   if (!map?.getLayer('map-labels')) return;
   for (const layer of ['clusters', 'locations']) {
     map.setPaintProperty(layer, 'circle-radius-transition', { duration: 0 });
@@ -224,7 +224,7 @@ function updateMapMetric() {
     map.setPaintProperty(layer, 'circle-stroke-width', clustering === 'off' ? 1.5 : 2);
   }
   map.setPaintProperty('country-fill', 'fill-color', colors);
-  map.setPaintProperty('country-fill', 'fill-opacity', ['case', ['==', ['get', 'approximate'], true], 0.35, 0.72]);
+  map.setPaintProperty('country-fill', 'fill-opacity', 0.72);
   map.setLayoutProperty('country-labels', 'text-field', label);
   map.setPaintProperty('point-outlines', 'circle-radius-transition', { duration: 0 });
   map.setPaintProperty('point-outlines', 'circle-radius', [
@@ -238,18 +238,14 @@ function updateMapMetric() {
     12,
     ['+', radius, 3],
   ]);
-  map.setPaintProperty(
-    'map-labels',
-    'text-color',
-    breaks.length
-      ? [
-          'step',
-          count,
-          '#ffffff',
-          ...breaks.flatMap((value, i) => [value, colorIndices[i + 1] >= 3 ? '#102a36' : '#ffffff']),
-        ]
-      : '#ffffff',
-  );
+  map.setPaintProperty('map-labels', 'text-color', [
+    'case',
+    ['==', count, 0],
+    '#102a36',
+    ['>=', count, Math.exp(Math.log(2) + (Math.log(Math.max(1, maximum) + 1) - Math.log(2)) * 0.6) - 1],
+    '#102a36',
+    '#ffffff',
+  ]);
   map.setLayoutProperty('map-labels', 'text-allow-overlap', clustering !== 'off');
   map.setLayerZoomRange('map-labels', clustering === 'off' ? 8 : 0, 24);
   map.setLayoutProperty('map-labels', 'text-field', label);
@@ -261,7 +257,7 @@ function updateMapMetric() {
       map,
       mapPoints.filter((point) => point.properties.highSeas),
       metric,
-      breaks,
+      maximum,
     );
     map.setLayoutProperty('region-markers', 'symbol-sort-key', count);
   }
@@ -309,7 +305,7 @@ function finishOperation() {
 }
 
 function updateDataActions() {
-  $('#data-button').disabled = dataBusy;
+  $('#data-button').disabled = dataBusy || Boolean(replay);
   $('#choose-export').disabled = dataBusy;
   $('#explore-demo').disabled = dataBusy;
   $('#drive-backups').hidden = !driveClientId;
@@ -529,11 +525,12 @@ function renderResults() {
 }
 
 function refresh(updateSource = true) {
+  if (replay) return;
   resultGroups.clear();
   scheduleUrlUpdate();
   const selectionKey = JSON.stringify([...selectedCodes].sort());
   if (selectionKey !== colorSelectionKey) {
-    selectionColorBreaks = selectedCodes.size ? datasetMapColorBreaks(records, selectedCodes) : null;
+    selectionColorScales = selectedCodes.size ? datasetMapScales(records, selectedCodes) : null;
     colorSelectionKey = selectionKey;
     updateMapMetric();
   }
@@ -563,6 +560,8 @@ function refresh(updateSource = true) {
       ? areaRecords.filter((record) => bounds.contains([record.longitude, record.latitude]))
       : areaRecords
     : filtered;
+  $('#replay-start').hidden = !['off', 'country', 'region'].includes(grouping);
+  $('#replay-start').disabled = !mapRecords.length || !map?.getSource('observations') || drawing;
   const totals = summarize(filtered);
   for (const [id, key] of [
     ['species', 'species'],
@@ -589,8 +588,8 @@ function refresh(updateSource = true) {
 }
 
 function loadCountryBoundaries() {
-  if (countryBoundaryRequest) return;
-  countryBoundaryRequest = fetch(new URL('./assets/countries-v1.json', import.meta.url))
+  if (countryBoundaryRequest) return countryBoundaryRequest;
+  return (countryBoundaryRequest = fetch(new URL('./assets/countries-v1.json', import.meta.url))
     .then((response) => {
       if (!response.ok) throw new Error('Country boundary download failed');
       return response.json();
@@ -600,11 +599,12 @@ function loadCountryBoundaries() {
       renderedKey = null;
       updateMap(false);
     })
-    .catch(() => toast('Country boundaries could not load. Showing country circles instead.'));
+    .catch(() => toast('Country boundaries could not load. Showing country circles instead.')));
 }
 
 function loadRegionBoundaries(points) {
-  for (const country of new Set(points.map((point) => point.properties.id.split('-')[0]))) {
+  const countries = [...new Set(points.map((point) => point.properties.id.split('-')[0]))];
+  for (const country of countries) {
     const url = regionBoundaryFiles[`./assets/regions-v1/${country}.json`];
     if (!url || regionBoundaryRequests.has(country)) continue;
     regionBoundaryRequests.set(
@@ -626,9 +626,11 @@ function loadRegionBoundaries(points) {
         .catch(() => toast(`Region boundaries for ${countryNames.of(country)} could not load. Reload to try again.`)),
     );
   }
+  return Promise.all(countries.map((country) => regionBoundaryRequests.get(country)));
 }
 
 function updateMap(rebuild = true) {
+  if (replay) return;
   if (rebuild) {
     mapGroups.clear();
     renderedKey = null;
@@ -655,7 +657,7 @@ function updateMap(rebuild = true) {
       map,
       areas.circles.filter((point) => point.properties.highSeas),
       metric,
-      (selectionColorBreaks || colorBreaks).region[metric],
+      (selectionColorScales || colorScales).maxima.region[metric],
     );
   map.setFilter(
     'clusters',
@@ -814,15 +816,7 @@ function addMapLayers() {
     id: 'country-borders',
     type: 'line',
     source: 'countries',
-    filter: ['!=', ['get', 'approximate'], true],
     paint: { 'line-color': theme === 'night' ? '#e3edf3' : '#385b75', 'line-width': 1.2, 'line-opacity': 0.9 },
-  });
-  map.addLayer({
-    id: 'approximate-borders',
-    type: 'line',
-    source: 'countries',
-    filter: ['==', ['get', 'approximate'], true],
-    paint: { 'line-color': '#b27917', 'line-width': 1.6, 'line-dasharray': [3, 2] },
   });
   map.addSource('country-labels', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
   map.addSource('observations', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
@@ -944,7 +938,7 @@ function addMapLayers() {
       source: 'location-highlight',
       filter:
         layer.id === 'region-markers'
-          ? ['all', ['==', '$type', 'Point'], ['==', ['get', 'highSeas'], true]]
+          ? ['all', ['==', ['geometry-type'], 'Point'], ['==', ['get', 'highSeas'], true]]
           : ['==', '$type', 'Point'],
     });
   map.addSource('selection', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
@@ -975,6 +969,7 @@ function addMapLayers() {
 }
 
 function changeMapStyle() {
+  $('#replay-start').disabled = true;
   const styles = {
     atlas: `${theme === 'night' ? 'dark' : 'light'}-v11`,
     streets: 'streets-v12',
@@ -1026,6 +1021,7 @@ async function initializeMap() {
     refresh(false);
   });
   map.on('moveend', () => {
+    if (replay) return;
     refresh(false);
     savePreferences();
   });
@@ -1037,6 +1033,7 @@ async function initializeMap() {
     } else console.error(event.error);
   });
   map.on('click', (event) => {
+    if (replay) return;
     if (drawing) {
       if (event.originalEvent.detail > 1) return;
       const last = vertices.at(-1);
@@ -1095,17 +1092,29 @@ async function initializeMap() {
         p.grouping === 'country' || p.grouping === 'region' || dataset.kind !== 'synthetic'
           ? `<a href="https://ebird.org/${p.grouping === 'country' || p.grouping === 'region' ? 'region' : 'hotspot'}/${encodeURIComponent(p.id)}" target="_blank" rel="noopener" title="View ${p.grouping === 'country' || p.grouping === 'region' ? p.grouping : 'location'} on eBird">${escapeHtml(name)}</a>`
           : escapeHtml(name);
+      const boundary =
+        p.grouping === 'country'
+          ? countryBoundaries?.get(p.id)
+          : p.grouping === 'region'
+            ? regionBoundaries.get(p.id)
+            : null;
+      const polygonBounds = boundary ? new mapboxgl.LngLatBounds(geometryBounds(boundary.geometry)) : null;
       locationPopup = new mapboxgl.Popup({ maxWidth: '340px' })
-        .setLngLat(feature.geometry.type === 'Point' ? feature.geometry.coordinates : event.lngLat)
+        .setLngLat(
+          polygonBounds
+            ? polygonBounds.getCenter()
+            : feature.geometry.type === 'Point'
+              ? feature.geometry.coordinates
+              : event.lngLat,
+        )
         .setHTML(
           `<section class="location-popup"><h3>${title}</h3><div class="popup-stats">${stats}</div>${p.approximate ? `<p class="popup-note">Illustrative area: ${p.boundaryMethod === 'eBird bounding box' ? 'eBird bounding box, not a land or reef outline' : 'country land divided by nearest region centre; not an administrative boundary'}. Counts follow your eBird region code.</p>` : ''}${p.highSeas ? '<p class="popup-note">All High Seas observations in this selection, shown at one representative observation site. No maritime boundary is implied.</p>' : ''}${dataset.kind === 'synthetic' ? '<p class="popup-note">Demonstration data</p>' : ''}</section>`,
         )
         .addTo(map);
       if (!p.highSeas && (p.grouping === 'country' || p.grouping === 'region')) {
-        const bounds = new mapboxgl.LngLatBounds();
-        for (const record of rows) bounds.extend([record.longitude, record.latitude]);
-        if (feature.geometry.type !== 'Point') locationPopup.setLngLat(bounds.getCenter());
-        map.fitBounds(bounds, { padding: 50, maxZoom: 10 });
+        const bounds = polygonBounds || new mapboxgl.LngLatBounds();
+        if (!polygonBounds) for (const record of rows) bounds.extend([record.longitude, record.latitude]);
+        map.fitBounds(bounds, { padding: 50, maxZoom: 12, retainPadding: false });
       } else if (!p.highSeas) map.flyTo({ center: feature.geometry.coordinates, zoom: Math.max(15, map.getZoom()) });
     }
   });
@@ -1116,13 +1125,144 @@ async function initializeMap() {
     }
   });
   map.on('mousemove', (event) => {
-    if (!map.getLayer('locations')) return;
+    if (replay || !map.getLayer('locations')) return;
     const feature = drawing ? null : mapFeaturesAt(event.point)[0];
     map.getCanvas().style.cursor = drawing ? 'crosshair' : feature ? 'pointer' : '';
     highlightLocation(feature ? feature.properties.id || `cluster:${feature.properties.cluster_id}` : '');
   });
   map.getCanvas().addEventListener('mouseleave', () => highlightLocation());
 }
+
+async function enterReplay(resume) {
+  if (dataBusy || !['off', 'country', 'region'].includes(grouping)) return;
+  map.getCanvas().style.cursor = '';
+  locationPopup?.remove();
+  hideSpeciesTooltip();
+  highlightLocation();
+  if (!resume?.settingsOpen) $('#settings-dialog').hidePopover();
+  // Replay ignores the viewport while retaining explicit species, date and area selections.
+  const replayGrouping = ['country', 'region'].includes(grouping) ? grouping : 'off';
+  let data;
+  if (replayGrouping === 'off') data = buildReplay(mapRecords);
+  else {
+    beginOperation(
+      'Preparing replay',
+      `Loading ${replayGrouping === 'country' ? 'country' : 'region'} boundaries and daily totals…`,
+    );
+    $('#replay-start').disabled = true;
+    try {
+      await new Promise(requestAnimationFrame);
+      data = buildReplay(mapRecords, replayGrouping);
+      if (replayGrouping === 'country') await loadCountryBoundaries();
+      else await loadRegionBoundaries(data.areaPoints);
+      for (const point of data.areaPoints)
+        point.properties.name = point.properties.highSeas
+          ? 'High Seas'
+          : replayGrouping === 'country'
+            ? countryNames.of(point.properties.id)
+            : regionNames[point.properties.id] || point.properties.name;
+      data.geometry = boundaryMapFeatures(
+        data.areaPoints,
+        (replayGrouping === 'country' ? countryBoundaries : regionBoundaries) || new Map(),
+      );
+      // Fallback circles also need labels when a boundary is unavailable.
+      data.geometry.labels.push(...data.geometry.circles);
+      for (const features of Object.values(data.geometry))
+        for (const feature of features) feature.id = feature.properties.id;
+    } catch (error) {
+      toast(`Replay could not start: ${error.message}`, true);
+      return;
+    } finally {
+      finishOperation();
+      $('#replay-start').disabled = !mapRecords.length;
+    }
+  }
+  if (!data.days.length) {
+    if (resume) toast('No observations match these filters. Replay stopped.');
+    return;
+  }
+  replayLayerVisibility = new Map(
+    map
+      .getStyle()
+      .layers.filter((layer) =>
+        ['observations', 'countries', 'country-labels', 'location-highlight', 'selection'].includes(layer.source),
+      )
+      .map((layer) => [layer.id, layer.layout?.visibility || 'visible']),
+  );
+  for (const [id] of replayLayerVisibility) map.setLayoutProperty(id, 'visibility', 'none');
+  document.body.classList.add('replaying');
+  $('.sidebar').inert = true;
+  $('#clustering').disabled = true;
+  $('#clustering').value = replayGrouping;
+  $('#replay-view').value = replayGrouping;
+  $('#map-legend').hidden = false;
+  $('#clear-species-selection').disabled = false;
+  $('#replay-start').setAttribute('aria-pressed', 'true');
+  $('#data-button').disabled = true;
+  $('#replay-controls').hidden = false;
+  data.scales = selectionColorScales || colorScales;
+  replay = createReplay(map, data, resume?.metric || metric, updateMapLegend, resume);
+  map.stop();
+  map.resize();
+  const bounds = new mapboxgl.LngLatBounds();
+  for (const point of data.points) bounds.extend(point.geometry.coordinates);
+  for (const feature of data.geometry?.polygons || []) {
+    const rings =
+      feature.geometry.type === 'Polygon' ? feature.geometry.coordinates : feature.geometry.coordinates.flat();
+    for (const ring of rings) for (const coordinate of ring) bounds.extend(coordinate);
+  }
+  const height = map.getContainer().clientHeight;
+  map.fitBounds(bounds, {
+    padding: { top: Math.min(100, height * 0.2), bottom: Math.min(230, height * 0.4), left: 45, right: 45 },
+    maxZoom: 12,
+    duration: 0,
+    retainPadding: false,
+  });
+  if (resume?.settingsOpen) $('#settings-dialog').showPopover();
+  else $('#replay-toggle').focus();
+}
+
+function exitReplay(focus = true) {
+  replay.destroy();
+  replay = null;
+  for (const [id, visibility] of replayLayerVisibility) map.setLayoutProperty(id, 'visibility', visibility);
+  replayLayerVisibility = null;
+  document.body.classList.remove('replaying');
+  $('.sidebar').inert = false;
+  $('#clustering').disabled = false;
+  $('#clustering').value = grouping;
+  $('#clear-species-selection').disabled = false;
+  $('#replay-start').setAttribute('aria-pressed', 'false');
+  for (const button of document.querySelectorAll('[data-metric], #settings-button')) button.disabled = false;
+  $('#replay-controls').hidden = true;
+  $('#map-legend').hidden = false;
+  map.resize();
+  updateDataActions();
+  updateMapMetric();
+  refresh(false);
+  savePreferences();
+  if (focus) $('#replay-start').focus();
+  if (themeMode === 'system') {
+    const systemTheme = matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'atlas';
+    if (theme !== systemTheme) {
+      theme = systemTheme;
+      document.body.classList.toggle('night', theme === 'night');
+      changeMapStyle();
+    }
+  }
+}
+$('#replay-start').onclick = () => (replay ? exitReplay() : enterReplay());
+$('#replay-exit').onclick = () => exitReplay();
+$('#replay-view').onchange = async () => {
+  const state = replay.snapshot();
+  const view = $('#replay-view').value;
+  exitReplay(false);
+  grouping = clustering = view;
+  $('#clustering').value = view;
+  savePreferences();
+  refresh();
+  await enterReplay(state);
+};
 
 function resetSelection(keepView = false) {
   if (keepView) {
@@ -1202,17 +1342,24 @@ $('#results').onclick = (event) => {
   } else {
     $('.sidebar').classList.remove('open');
     if (map && ['country', 'region'].includes(grouping)) {
-      const bounds = new mapboxgl.LngLatBounds();
-      for (const row of filtered)
+      const boundary =
+        grouping === 'country' ? countryBoundaries?.get(button.dataset.key) : regionBoundaries.get(button.dataset.key);
+      const bounds = boundary
+        ? new mapboxgl.LngLatBounds(geometryBounds(boundary.geometry))
+        : new mapboxgl.LngLatBounds();
+      for (const row of boundary ? [] : filtered)
         if (row[grouping] === button.dataset.key) bounds.extend([row.longitude, row.latitude]);
-      map.fitBounds(bounds, { padding: 50, maxZoom: 10 });
+      map.fitBounds(bounds, { padding: 50, maxZoom: 12, retainPadding: false });
     } else map?.flyTo({ center: [record.longitude, record.latitude], zoom: 15, essential: false });
   }
 };
-$('#clear-species-selection').onclick = () => {
+$('#clear-species-selection').onclick = async () => {
+  const state = replay?.snapshot();
+  if (state) exitReplay(false);
   selectedCodes.clear();
   selectionAnchor = '';
   refresh();
+  if (state) await enterReplay({ ...state, position: 0 });
 };
 $('#search').oninput = () => {
   searchText[tab] = $('#search').value;
@@ -1274,6 +1421,10 @@ $('#polygon-clear').onclick = () => {
 };
 $('#polygon-delete').onclick = $('#polygon-clear').onclick;
 document.onkeydown = (event) => {
+  if (replay) {
+    if (event.key === 'Escape' && !$('#settings-dialog').matches(':popover-open')) exitReplay();
+    return;
+  }
   if (
     event.key === '/' &&
     !['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName) &&
@@ -1295,6 +1446,7 @@ document.onkeydown = (event) => {
 $('#clustering').onchange = () => {
   const hadArea = Boolean(polygon || previewPolygon);
   grouping = $('#clustering').value;
+  $('#replay-start').hidden = !['off', 'country', 'region'].includes(grouping);
   clustering = grouping === 'polygon' ? 'off' : grouping;
   polygon = null;
   endDrawing();
@@ -1313,31 +1465,48 @@ $('#settings-form').onsubmit = (event) => {
   event.preventDefault();
   $('#settings-dialog').hidePopover();
 };
-$('#settings-form').onchange = (event) => {
+$('#settings-form').onchange = async (event) => {
   if (event.target.id.startsWith('date-')) {
-    yearFrom = $('#date-from-year').value;
-    yearTo = $('#date-to-year').value;
+    const from = $('#date-from-year').value,
+      to = $('#date-to-year').value;
+    $('#date-to-year').setCustomValidity(from && to && from > to ? 'Choose a To year on or after From.' : '');
+    if (!$('#date-to-year').reportValidity()) return;
+    yearFrom = from;
+    yearTo = to;
     monthFrom = $('#date-from-month').value;
     monthTo = $('#date-to-month').value;
-    $('#date-to-year').setCustomValidity(
-      yearFrom && yearTo && yearFrom > yearTo ? 'Choose a To year on or after From.' : '',
-    );
-    if (!$('#date-to-year').reportValidity()) return;
   }
 
+  const state = replay?.snapshot();
+  if (state) exitReplay(false);
   themeMode = $('input[name="theme"]:checked').value;
   theme = themeMode === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'night' : 'atlas') : themeMode;
   projection = $('#projection').value;
   mapStyle = $('#background').value;
   document.body.classList.toggle('night', theme === 'night');
   savePreferences();
+  let styleReady;
   if (event.target.id === 'projection') map?.setProjection(projection);
-  else if (event.target.name === 'theme' || event.target.id === 'background') changeMapStyle();
-  else refresh();
+  else if (event.target.name === 'theme' || event.target.id === 'background') {
+    if (state && map) styleReady = new Promise((resolve) => map.once('style.load', resolve));
+    changeMapStyle();
+  } else refresh();
+  if (state) {
+    await styleReady;
+    await enterReplay({
+      ...state,
+      position: event.target.id.startsWith('date-') || event.target.id === 'additional' ? 0 : state.position,
+      settingsOpen: true,
+    });
+  }
 };
 document.querySelectorAll('[data-metric]').forEach(
   (button) =>
     (button.onclick = () => {
+      if (replay) {
+        replay.setMetric(button.dataset.metric);
+        return;
+      }
       metric = button.dataset.metric;
       savePreferences();
       updateMapMetric();
@@ -1379,7 +1548,7 @@ function importCsv(file, options = {}) {
       const keepView = !records.length;
       dataset = data.metadata;
       records = data.records;
-      colorBreaks = datasetMapColorBreaks(records);
+      colorScales = datasetMapScales(records);
       colorSelectionKey = null;
       activeSource = data.source;
       locallySaved = data.saved;
@@ -1433,7 +1602,7 @@ $('#explore-demo').onclick = async () => {
   const keepView = !records.length;
   dataset = await (await import('./demo.js')).default();
   records = dataset.records;
-  colorBreaks = datasetMapColorBreaks(records);
+  colorScales = datasetMapScales(records);
   colorSelectionKey = null;
   delete dataset.records;
   setDateBounds();
@@ -1465,7 +1634,7 @@ $('#progress-dialog').oncancel = (event) => event.preventDefault();
 $('#drive-save').onclick = () => transferDrive('save');
 $('#drive-load').onclick = () => transferDrive('load');
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (event) => {
-  if (themeMode !== 'system') return;
+  if (themeMode !== 'system' || replay) return;
   theme = event.matches ? 'night' : 'atlas';
   document.body.classList.toggle('night', theme === 'night');
   changeMapStyle();
@@ -1483,7 +1652,7 @@ if (stored) {
   locallySaved = true;
 } else dataset = { kind: 'empty', label: '', records: [] };
 records = dataset.records;
-colorBreaks = datasetMapColorBreaks(records);
+colorScales = datasetMapScales(records);
 delete dataset.records;
 $('#import-status').textContent = dataset.label;
 document.body.classList.toggle('night', theme === 'night');

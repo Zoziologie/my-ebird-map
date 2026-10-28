@@ -117,6 +117,16 @@
             ><span id="places-count">—</span></span
           ><span class="metric-label">Locations</span>
         </button>
+        <button
+          id="replay-start"
+          class="replay-launch"
+          type="button"
+          aria-pressed="false"
+          disabled
+          title="Replay the checklists in your current selection"
+        >
+          <i class="bi bi-play-circle" aria-hidden="true"></i><span>Replay</span>
+        </button>
       </div>
       <div class="header-actions">
         <span id="data-state" class="data-state" role="status">No data loaded</span>
@@ -250,6 +260,59 @@
             </button>
           </div>
         </div>
+        <section id="replay-controls" class="replay-controls" aria-label="Checklist replay" hidden>
+          <div class="replay-transport">
+            <button id="replay-toggle" type="button" aria-label="Play replay" aria-pressed="false">
+              <i class="bi bi-play-fill" aria-hidden="true"></i>
+            </button>
+            <span id="replay-date" class="replay-date"></span>
+            <div class="replay-cumulative">
+              <strong id="replay-count">0</strong><span id="replay-count-label">checklists so far</span>
+            </div>
+            <label class="replay-speed"
+              ><span class="visually-hidden">Replay speed</span
+              ><select id="replay-speed" aria-label="Replay speed">
+                <option value="0.5">0.5×</option>
+                <option value="1" selected>1×</option>
+                <option value="2">2×</option>
+              </select></label
+            >
+            <button id="replay-exit" type="button" aria-label="Exit replay" title="Exit replay">
+              <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+          </div>
+          <label class="replay-view"
+            >View
+            <select id="replay-view" aria-label="Replay view">
+              <option value="off">Individual locations</option>
+              <option value="country">Country</option>
+              <option value="region">Region</option>
+            </select></label
+          >
+          <div class="replay-timeline">
+            <div class="replay-chart">
+              <svg
+                id="replay-activity"
+                class="replay-bars"
+                viewBox="0 0 960 64"
+                preserveAspectRatio="none"
+                role="img"
+                aria-label="Checklist activity over time"
+              ></svg>
+              <span class="replay-cursor" aria-hidden="true"></span>
+              <input
+                id="replay-slider"
+                type="range"
+                min="0"
+                max="10000"
+                step="1"
+                value="0"
+                aria-label="Replay timeline"
+              />
+            </div>
+            <div id="replay-years" class="replay-years" aria-label="Timeline years"></div>
+          </div>
+        </section>
         <div class="map-tools">
           <button id="zoom-in" aria-label="Zoom in"><i class="bi bi-plus-lg" aria-hidden="true"></i></button
           ><button id="zoom-out" aria-label="Zoom out"><i class="bi bi-dash-lg" aria-hidden="true"></i></button>

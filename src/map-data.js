@@ -191,3 +191,32 @@ export function boundaryMapFeatures(points, boundaries) {
   }
   return { polygons, circles, labels };
 }
+
+const boundaryBounds = new WeakMap();
+
+export function geometryBounds(geometry) {
+  if (boundaryBounds.has(geometry)) return boundaryBounds.get(geometry);
+  const rings =
+    geometry.type === 'Point'
+      ? [[geometry.coordinates]]
+      : geometry.type === 'Polygon'
+        ? geometry.coordinates
+        : geometry.coordinates.flat();
+  let west = Infinity,
+    south = Infinity,
+    east = -Infinity,
+    north = -Infinity;
+  for (const ring of rings)
+    for (const [longitude, latitude] of ring) {
+      west = Math.min(west, longitude);
+      east = Math.max(east, longitude);
+      south = Math.min(south, latitude);
+      north = Math.max(north, latitude);
+    }
+  const bounds = [
+    [west, south],
+    [east, north],
+  ];
+  boundaryBounds.set(geometry, bounds);
+  return bounds;
+}
