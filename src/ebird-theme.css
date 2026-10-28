@@ -525,7 +525,7 @@ nav .nav-active {
 }
 .popup-stats {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
 }
 .popup-stat {
@@ -2514,10 +2514,7 @@ body {
 .replaying .mobile-results {
   display: none;
 }
-.replaying .polygon-control > :not(#species-selection):not(.map-legend) {
-  display: none;
-}
-.replaying .polygon-control:has(#map-legend[hidden]):has(#species-selection[hidden]) {
+.replaying .polygon-control > :not(#species-selection):not(.map-legend):not(.map-grouping) {
   display: none;
 }
 .replaying .polygon-control .map-legend {
@@ -2638,22 +2635,4 @@ body {
 }
 .continuous-map-ticks > span:last-child {
   transform: translateX(-100%);
-}
-
-.replay-view {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 8px;
-  color: var(--muted);
-  font-size: 11px;
-}
-.replay-view select {
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  background: var(--paper);
-  color: var(--ink);
-  padding: 4px 6px;
-  font-size: 12px;
 }

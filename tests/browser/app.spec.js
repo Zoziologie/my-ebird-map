@@ -88,7 +88,7 @@ test('import, reload, search, sorting and bounded rendering across devices', asy
   await expect(page.locator('#individuals-count')).toHaveAttribute('title', '20,000');
   await page.locator('[data-metric="individuals"]').click();
   await expect(page.locator('[data-metric="individuals"]')).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('#map-legend strong')).toHaveText('Count');
+  await expect(page.locator('#map-legend strong')).toHaveText('Birds');
   await expect(page).toHaveURL(/metric=individuals/);
   await page.reload();
   await expect(page.locator('#observations-count')).toHaveText('20,000');

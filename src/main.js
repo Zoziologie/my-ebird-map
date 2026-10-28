@@ -175,7 +175,7 @@ function updateMapLegend(metric) {
   $('#map-legend').title =
     `Continuous logarithmic scale from ${maximum ? 1 : 0} to ${format(maximum)}; zero is gray. Based on the full file${selectedCodes.size ? ' for the selected taxa' : ''}; stable across zoom, date and area filters.`;
   $('#map-legend').innerHTML =
-    `<strong>${{ species: 'Species', checklists: 'Checklists', observations: 'Observations', individuals: 'Count', locations: 'Locations' }[metric]}</strong><div class="continuous-map-ramp" style="background:${maximum > 1 ? `linear-gradient(to right, ${mapPalette.join(',')})` : maximum ? mapPalette.at(-1) : '#87939b'}"></div><div class="continuous-map-ticks">${ticks.map((value) => `<span style="left:${maximum <= 1 ? 100 : ((Math.log(value + 1) - Math.log(2)) / (Math.log(maximum + 1) - Math.log(2))) * 100}%" title="${format(value)}">${format(value)}</span>`).join('')}</div>`;
+    `<strong>${{ species: 'Species', checklists: 'Checklists', observations: 'Observations', individuals: 'Birds', locations: 'Locations' }[metric]}</strong><div class="continuous-map-ramp" style="background:${maximum > 1 ? `linear-gradient(to right, ${mapPalette.join(',')})` : maximum ? mapPalette.at(-1) : '#87939b'}"></div><div class="continuous-map-ticks">${ticks.map((value) => `<span style="left:${maximum <= 1 ? 100 : ((Math.log(value + 1) - Math.log(2)) / (Math.log(maximum + 1) - Math.log(2))) * 100}%" title="${format(value)}">${format(value)}</span>`).join('')}</div>`;
 }
 
 function updateMapMetric() {
@@ -1077,7 +1077,7 @@ async function initializeMap() {
         ['species', 'Species', 'species'],
         ['checklists', 'Checklists', 'checklist'],
         ['observations', 'Observations', 'check'],
-        ['individuals', 'Count', 'species'],
+        ['individuals', 'Birds', 'count'],
       ]
         .map(([key, label, icon]) => {
           const linked = links[key];
@@ -1089,7 +1089,7 @@ async function initializeMap() {
         })
         .join('');
       const title =
-        p.grouping === 'country' || p.grouping === 'region' || dataset.kind !== 'synthetic'
+        p.grouping === 'country' || p.grouping === 'region'
           ? `<a href="https://ebird.org/${p.grouping === 'country' || p.grouping === 'region' ? 'region' : 'hotspot'}/${encodeURIComponent(p.id)}" target="_blank" rel="noopener" title="View ${p.grouping === 'country' || p.grouping === 'region' ? p.grouping : 'location'} on eBird">${escapeHtml(name)}</a>`
           : escapeHtml(name);
       const boundary =
@@ -1099,7 +1099,7 @@ async function initializeMap() {
             ? regionBoundaries.get(p.id)
             : null;
       const polygonBounds = boundary ? new mapboxgl.LngLatBounds(geometryBounds(boundary.geometry)) : null;
-      locationPopup = new mapboxgl.Popup({ maxWidth: '340px' })
+      locationPopup = new mapboxgl.Popup({ maxWidth: '440px' })
         .setLngLat(
           polygonBounds
             ? polygonBounds.getCenter()
@@ -1192,9 +1192,8 @@ async function enterReplay(resume) {
   for (const [id] of replayLayerVisibility) map.setLayoutProperty(id, 'visibility', 'none');
   document.body.classList.add('replaying');
   $('.sidebar').inert = true;
-  $('#clustering').disabled = true;
   $('#clustering').value = replayGrouping;
-  $('#replay-view').value = replayGrouping;
+  for (const option of $('#clustering').options) option.hidden = !['off', 'country', 'region'].includes(option.value);
   $('#map-legend').hidden = false;
   $('#clear-species-selection').disabled = false;
   $('#replay-start').setAttribute('aria-pressed', 'true');
@@ -1229,7 +1228,7 @@ function exitReplay(focus = true) {
   replayLayerVisibility = null;
   document.body.classList.remove('replaying');
   $('.sidebar').inert = false;
-  $('#clustering').disabled = false;
+  for (const option of $('#clustering').options) option.hidden = false;
   $('#clustering').value = grouping;
   $('#clear-species-selection').disabled = false;
   $('#replay-start').setAttribute('aria-pressed', 'false');
@@ -1253,16 +1252,6 @@ function exitReplay(focus = true) {
 }
 $('#replay-start').onclick = () => (replay ? exitReplay() : enterReplay());
 $('#replay-exit').onclick = () => exitReplay();
-$('#replay-view').onchange = async () => {
-  const state = replay.snapshot();
-  const view = $('#replay-view').value;
-  exitReplay(false);
-  grouping = clustering = view;
-  $('#clustering').value = view;
-  savePreferences();
-  refresh();
-  await enterReplay(state);
-};
 
 function resetSelection(keepView = false) {
   if (keepView) {
@@ -1443,7 +1432,18 @@ document.onkeydown = (event) => {
     $('.sidebar').classList.remove('open');
   }
 };
-$('#clustering').onchange = () => {
+$('#clustering').onchange = async () => {
+  if (replay) {
+    const state = replay.snapshot();
+    const view = $('#clustering').value;
+    exitReplay(false);
+    grouping = clustering = view;
+    $('#clustering').value = view;
+    savePreferences();
+    refresh();
+    await enterReplay(state);
+    return;
+  }
   const hadArea = Boolean(polygon || previewPolygon);
   grouping = $('#clustering').value;
   $('#replay-start').hidden = !['off', 'country', 'region'].includes(grouping);

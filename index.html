@@ -26,6 +26,15 @@
         </defs>
         <use fill-rule="evenodd" xlink:href="#dna"></use>
       </symbol>
+      <symbol viewBox="0 0 24 24" id="Icon--count">
+        <path
+          d="M9 3 7 21M17 3l-2 18M4 9h16M3 15h16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
+      </symbol>
       <symbol viewBox="0 0 24 24" id="Icon--checklist" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <path
@@ -97,9 +106,9 @@
           title="Show the sum of numeric bird counts on the map; X is excluded. K = thousand, M = million. Purple → teal → yellow indicates increasing counts."
         >
           <span class="stat-value"
-            ><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--species" /></svg
+            ><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--count" /></svg
             ><span id="individuals-count">—</span></span
-          ><span class="metric-label">Count</span>
+          ><span class="metric-label">Birds</span>
         </button>
         <button
           type="button"
@@ -281,14 +290,6 @@
               <i class="bi bi-x-lg" aria-hidden="true"></i>
             </button>
           </div>
-          <label class="replay-view"
-            >View
-            <select id="replay-view" aria-label="Replay view">
-              <option value="off">Individual locations</option>
-              <option value="country">Country</option>
-              <option value="region">Region</option>
-            </select></label
-          >
           <div class="replay-timeline">
             <div class="replay-chart">
               <svg

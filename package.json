@@ -42,12 +42,12 @@
     "globals": "^17.13.0",
     "mapshaper": "0.7.100",
     "prettier": "^3.9.10",
-    "vite": "^7.3.7"
+    "vite": "^8.3.5"
   },
   "dependencies": {
     "@zip.js/zip.js": "^2.24.0",
-    "bootstrap-icons": "^1.13.1",
-    "papaparse": "^5.5.3",
+    "bootstrap-icons": "^1.13.2",
+    "papaparse": "^5.7.0",
     "supercluster": "^9.1.0"
   },
   "engines": {
