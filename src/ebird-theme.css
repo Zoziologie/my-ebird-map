@@ -407,18 +407,6 @@ nav .nav-active {
   color: var(--green);
   padding: 5px 0;
 }
-.settings-actions {
-  border-top: 1px solid var(--line);
-  padding-top: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.settings-done {
-  background: var(--green);
-  color: var(--paper);
-  border: 0;
-}
 .setting-help {
   margin: -8px 0 22px;
   color: var(--muted);
@@ -509,6 +497,13 @@ nav .nav-active {
   font-weight: 500;
   letter-spacing: 0;
 }
+.location-popup h3 a {
+  color: inherit;
+}
+.location-popup a,
+.location-popup a:hover {
+  text-decoration: none;
+}
 .popup-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -550,10 +545,6 @@ nav .nav-active {
 a.popup-stat:hover {
   background: #ffffff0c;
   color: #fff !important;
-}
-a.popup-stat:hover .stat-value > span {
-  text-decoration: underline;
-  text-underline-offset: 4px;
 }
 a.popup-stat:focus-visible {
   outline: 2px solid #b4cfdf;
@@ -1108,9 +1099,6 @@ svg.metric-icon {
   border-radius: 5px;
   padding: 9px 7px;
 }
-.settings-actions {
-  justify-content: flex-end;
-}
 .polygon-control {
   border-radius: 4px;
   min-width: 230px;
@@ -1169,27 +1157,22 @@ svg.metric-icon {
 }
 .legend-colors {
   display: flex;
+  padding-bottom: 17px;
 }
-.legend-colors span {
-  min-width: 48px;
-  padding: 7px 4px 0;
-  border-top: 7px solid #440154;
-  text-align: center;
+.legend-colors > span {
+  position: relative;
+  width: 34px;
+  height: 7px;
 }
-.legend-colors span:nth-child(2) {
-  border-color: #414487;
+.legend-boundary {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  transform: translateX(-50%);
+  white-space: nowrap;
 }
-.legend-colors span:nth-child(3) {
-  border-color: #2a788e;
-}
-.legend-colors span:nth-child(4) {
-  border-color: #22a884;
-}
-.legend-colors span:nth-child(5) {
-  border-color: #7ad151;
-}
-.legend-colors span:nth-child(6) {
-  border-color: #fde725;
+.legend-colors > span:first-child .legend-boundary {
+  transform: none;
 }
 .stat.active[aria-pressed='true'],
 .night .stat.active[aria-pressed='true'] {
@@ -1243,8 +1226,10 @@ svg.metric-icon {
     padding: 8px;
     max-width: calc(100% - 24px);
   }
-  .legend-colors span {
-    min-width: 39px;
+  .legend-colors > span {
+    width: 30px;
+  }
+  .legend-boundary {
     font-size: 9px;
   }
   .mobile-results > .bi:last-child {
@@ -1482,12 +1467,6 @@ svg.metric-icon {
 }
 .setting-check {
   margin: 9px 0;
-}
-.settings-actions {
-  padding-top: 12px;
-}
-.settings-done {
-  padding: 8px 16px;
 }
 @media (max-width: 760px) {
   .date-range {
@@ -1757,11 +1736,6 @@ svg.metric-icon {
   letter-spacing: -0.8px;
   margin: 0 32px 24px 0;
 }
-#data-intro {
-  color: var(--muted);
-  font-size: 14px;
-  margin: 0 0 28px;
-}
 .setup-steps {
   list-style: none;
   margin: 0;
@@ -1854,7 +1828,11 @@ svg.metric-icon {
   color: var(--green);
 }
 .backup-section {
-  border-top: 1px solid var(--line);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  padding: 0 18px;
+  margin-bottom: 20px;
 }
 .backup-heading {
   display: flex;
@@ -1865,16 +1843,12 @@ svg.metric-icon {
 }
 #data-dialog .backup-heading h2 {
   margin: 0;
-  font-size: 14px;
+  font-size: 16px;
   color: var(--ink);
 }
 .backup-heading h2 > .bi {
   margin-right: 6px;
   color: var(--accent);
-}
-.backup-heading > span {
-  font-size: 10px;
-  color: var(--muted);
 }
 .backup-content {
   padding-bottom: 18px;
@@ -1886,8 +1860,15 @@ svg.metric-icon {
 }
 .backup-actions .header-button {
   border: 1px solid var(--line);
-  font-size: 12px;
-  padding: 9px 12px;
+  background: var(--paper);
+  font-size: 14px;
+  padding: 12px 16px;
+}
+.backup-actions .header-button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.step-hint:empty {
+  display: none;
 }
 .step-hint {
   display: block;
@@ -1974,10 +1955,6 @@ svg.metric-icon {
   font-size: 13px;
   font-weight: 700;
   padding: 4px 0;
-}
-#demo-invitation > span {
-  color: var(--muted);
-  font-size: 11px;
 }
 .current-data {
   display: flex;
@@ -2098,6 +2075,31 @@ body {
   width: calc(100% - 40px);
   max-width: 800px;
   transform: translateX(-50%);
+}
+.counting-help {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.counting-help:hover {
+  color: var(--ink);
+}
+#counting-dialog {
+  width: 520px;
+}
+#counting-dialog .dialog-heading {
+  gap: 16px;
+}
+#counting-dialog h2 {
+  margin-top: 0;
+}
+#counting-dialog li + li {
+  margin-top: 8px;
 }
 .project-links {
   display: flex;

@@ -13,6 +13,10 @@ export default [
     languageOptions: { globals: globals.node },
   },
   {
+    files: ['tests/browser/**/*.js'],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+  },
+  {
     rules: {
       'no-unused-vars': [
         'error',

@@ -1,0 +1,637 @@
+{
+  "retrieved": "2026-10-28",
+  "source": "https://api.ebird.org/v2/ref/region/info/{regionCode}",
+  "regions": {
+    "DK-01": {
+      "name": "København, Denmark",
+      "bounds": {
+        "minX": 11.779018001000168,
+        "maxX": 12.794721999999979,
+        "minY": 55.23541641300005,
+        "maxY": 55.85150146500007
+      },
+      "longitude": 12.286870000500073,
+      "latitude": 55.54345893900006
+    },
+    "DK-02": {
+      "name": "Nordsjælland, Denmark",
+      "bounds": {
+        "minX": 11.694168000000047,
+        "maxX": 12.62583299900001,
+        "minY": 55.72041700000011,
+        "maxY": 56.20041700000007
+      },
+      "longitude": 12.160000499500029,
+      "latitude": 55.96041700000009
+    },
+    "DK-03": {
+      "name": "Vestsjælland, Denmark",
+      "bounds": {
+        "minX": 10.868610000000047,
+        "maxX": 11.979552268000134,
+        "minY": 55.13958400100012,
+        "maxY": 56.01097107000015
+      },
+      "longitude": 11.42408113400009,
+      "latitude": 55.575277535500135
+    },
+    "DK-04": {
+      "name": "Storstrøm, Denmark",
+      "bounds": {
+        "minX": 10.954167000000098,
+        "maxX": 12.55417000000017,
+        "minY": 54.559029000000066,
+        "maxY": 55.408253000000116
+      },
+      "longitude": 11.754168500000134,
+      "latitude": 54.98364100000009
+    },
+    "DK-05": {
+      "name": "Bornholm, Denmark",
+      "bounds": {
+        "minX": 14.685277939000116,
+        "maxX": 15.19305600000007,
+        "minY": 54.987361908000196,
+        "maxY": 55.32513800000015
+      },
+      "longitude": 14.939166969500093,
+      "latitude": 55.156249954000174
+    },
+    "DK-06": {
+      "name": "Fyn, Denmark",
+      "bounds": {
+        "minX": 9.675278000000162,
+        "maxX": 10.955833000000098,
+        "minY": 54.72124900000006,
+        "maxY": 55.646525999999994
+      },
+      "longitude": 10.31555550000013,
+      "latitude": 55.183887500000026
+    },
+    "DK-07": {
+      "name": "Sønderjylland, Denmark",
+      "bounds": {
+        "minX": 8.464168000000143,
+        "maxX": 10.07138900000001,
+        "minY": 54.80024700000007,
+        "maxY": 55.38215600000018
+      },
+      "longitude": 9.267778500000077,
+      "latitude": 55.091201500000125
+    },
+    "DK-08": {
+      "name": "Sydvestjylland, Denmark",
+      "bounds": {
+        "minX": 8.076389000000063,
+        "maxX": 9.30338668800016,
+        "minY": 55.22066500000011,
+        "maxY": 55.89570236200001
+      },
+      "longitude": 8.689887844000111,
+      "latitude": 55.55818368100006
+    },
+    "DK-09": {
+      "name": "Sydøstjylland, Denmark",
+      "bounds": {
+        "minX": 9.05483100000015,
+        "maxX": 10.328612000000078,
+        "minY": 55.30871203000015,
+        "maxY": 56.07291786900004
+      },
+      "longitude": 9.691721500000114,
+      "latitude": 55.690814949500094
+    },
+    "DK-10": {
+      "name": "Vestjylland, Denmark",
+      "bounds": {
+        "minX": 8.096388000000104,
+        "maxX": 9.558903678000036,
+        "minY": 55.7731060000001,
+        "maxY": 56.70708500000012
+      },
+      "longitude": 8.82764583900007,
+      "latitude": 56.24009550000011
+    },
+    "DK-11": {
+      "name": "Østjylland, Denmark",
+      "bounds": {
+        "minX": 9.222243310000067,
+        "maxX": 11.658055000000047,
+        "minY": 55.76430499999998,
+        "maxY": 56.73791500000016
+      },
+      "longitude": 10.440149155000057,
+      "latitude": 56.25111000000007
+    },
+    "DK-12": {
+      "name": "Nordvestjylland, Denmark",
+      "bounds": {
+        "minX": 8.21138900000011,
+        "maxX": 9.79582399100019,
+        "minY": 56.219131470000036,
+        "maxY": 57.15902700000004
+      },
+      "longitude": 9.00360649550015,
+      "latitude": 56.68907923500004
+    },
+    "DK-13": {
+      "name": "Nordjylland, Denmark",
+      "bounds": {
+        "minX": 9.029349000000138,
+        "maxX": 11.200277000000085,
+        "minY": 56.5504380000001,
+        "maxY": 57.75152600000007
+      },
+      "longitude": 10.114813000000112,
+      "latitude": 57.150982000000084
+    },
+    "LY-AJ": {
+      "name": "Ajdabiya, Libya",
+      "bounds": {
+        "minX": 18.50708,
+        "maxX": 21.000122,
+        "minY": 28.000122,
+        "maxY": 31.203674
+      },
+      "longitude": 19.753601,
+      "latitude": 29.601898
+    },
+    "LY-BA": {
+      "name": "Banghazi, Libya",
+      "bounds": {
+        "minX": 20.116225,
+        "maxX": 20.505493,
+        "minY": 32.104309,
+        "maxY": 32.400848
+      },
+      "longitude": 20.310859,
+      "latitude": 32.2525785
+    },
+    "LY-BU": {
+      "name": "Al Butnan, Libya",
+      "bounds": {
+        "minX": 22.94928,
+        "maxX": 25.148471,
+        "minY": 27.999512,
+        "maxY": 32.214583
+      },
+      "longitude": 24.0488755,
+      "latitude": 30.1070475
+    },
+    "LY-BW": {
+      "name": "Bani Walid, Libya",
+      "bounds": {
+        "minX": 13.25592,
+        "maxX": 15.334473,
+        "minY": 30.399292,
+        "maxY": 31.865906
+      },
+      "longitude": 14.2951965,
+      "latitude": 31.132599
+    },
+    "LY-DR": {
+      "name": "Darnah, Libya",
+      "bounds": {
+        "minX": 22.313721,
+        "maxX": 23.246438,
+        "minY": 32.106506,
+        "maxY": 32.874863
+      },
+      "longitude": 22.7800795,
+      "latitude": 32.4906845
+    },
+    "LY-GD": {
+      "name": "Ghadamis, Libya",
+      "bounds": {
+        "minX": 9.39172300000001,
+        "maxX": 11.974304,
+        "minY": 28.617493,
+        "maxY": 31.47449
+      },
+      "longitude": 10.683013500000005,
+      "latitude": 30.0459915
+    },
+    "LY-GR": {
+      "name": "Gharyan, Libya",
+      "bounds": {
+        "minX": 12.430725,
+        "maxX": 13.25592,
+        "minY": 31.400879,
+        "maxY": 32.156311
+      },
+      "longitude": 12.8433225,
+      "latitude": 31.778595000000003
+    },
+    "LY-GT": {
+      "name": "Ghat, Libya",
+      "bounds": {
+        "minX": 9.39959300000004,
+        "maxX": 12.121521,
+        "minY": 24.199551,
+        "maxY": 27.821747
+      },
+      "longitude": 10.76055700000002,
+      "latitude": 26.010649
+    },
+    "LY-HZ": {
+      "name": "Al hizam al Akhdar, Libya",
+      "bounds": {
+        "minX": 19.920972,
+        "maxX": 21.32373,
+        "minY": 30.942505,
+        "maxY": 32.547916
+      },
+      "longitude": 20.622351000000002,
+      "latitude": 31.7452105
+    },
+    "LY-JA": {
+      "name": "Al Jabal al Akhdar, Libya",
+      "bounds": {
+        "minX": 21.316711,
+        "maxX": 22.005127,
+        "minY": 31.170898,
+        "maxY": 32.940971
+      },
+      "longitude": 21.660919,
+      "latitude": 32.0559345
+    },
+    "LY-JB": {
+      "name": "Jaghbub, Libya",
+      "longitude": 0,
+      "latitude": 0
+    },
+    "LY-JI": {
+      "name": "Al Jifarah, Libya",
+      "bounds": {
+        "minX": 12.558105,
+        "maxX": 13.178284,
+        "minY": 32.036499,
+        "maxY": 32.537476
+      },
+      "longitude": 12.8681945,
+      "latitude": 32.286987499999995
+    },
+    "LY-JU": {
+      "name": "Al Jufrah, Libya",
+      "bounds": {
+        "minX": 14.274902,
+        "maxX": 20.000122,
+        "minY": 26.977905,
+        "maxY": 29.966675
+      },
+      "longitude": 17.137512,
+      "latitude": 28.47229
+    },
+    "LY-KF": {
+      "name": "Al Kufrah, Libya",
+      "bounds": {
+        "minX": 20.000122,
+        "maxX": 24.999999,
+        "minY": 19.508173,
+        "maxY": 28.000122
+      },
+      "longitude": 22.5000605,
+      "latitude": 23.754147500000002
+    },
+    "LY-MB": {
+      "name": "Al Marqab, Libya",
+      "bounds": {
+        "minX": 13.44812,
+        "maxX": 14.744324,
+        "minY": 32.081909,
+        "maxY": 32.802639
+      },
+      "longitude": 14.096222000000001,
+      "latitude": 32.442274
+    },
+    "LY-MI": {
+      "name": "Misratah, Libya",
+      "bounds": {
+        "minX": 14.505127,
+        "maxX": 15.364306,
+        "minY": 31.851318,
+        "maxY": 32.450139
+      },
+      "longitude": 14.9347165,
+      "latitude": 32.1507285
+    },
+    "LY-MJ": {
+      "name": "Al Marj, Libya",
+      "bounds": {
+        "minX": 20.580688,
+        "maxX": 21.694275,
+        "minY": 31.102478,
+        "maxY": 32.777893
+      },
+      "longitude": 21.1374815,
+      "latitude": 31.9401855
+    },
+    "LY-MQ": {
+      "name": "Murzuq, Libya",
+      "bounds": {
+        "minX": 11.312317,
+        "maxX": 20.000122,
+        "minY": 21.544922,
+        "maxY": 27.000122
+      },
+      "longitude": 15.6562195,
+      "latitude": 24.272522000000002
+    },
+    "LY-MZ": {
+      "name": "Mizdah, Libya",
+      "bounds": {
+        "minX": 11.53949,
+        "maxX": 14.832886,
+        "minY": 28.414673,
+        "maxY": 31.508728
+      },
+      "longitude": 13.186188000000001,
+      "latitude": 29.9617005
+    },
+    "LY-NL": {
+      "name": "Nalut, Libya",
+      "bounds": {
+        "minX": 10.137505,
+        "maxX": 12.414673,
+        "minY": 30.858093,
+        "maxY": 32.401299
+      },
+      "longitude": 11.276089,
+      "latitude": 31.629696000000003
+    },
+    "LY-NQ": {
+      "name": "An Nuqat al Khams, Libya",
+      "bounds": {
+        "minX": 11.488797,
+        "maxX": 12.253296,
+        "minY": 32.071899,
+        "maxY": 33.165416
+      },
+      "longitude": 11.8710465,
+      "latitude": 32.6186575
+    },
+    "LY-QB": {
+      "name": "Al Qubbah, Libya",
+      "bounds": {
+        "minX": 21.919312,
+        "maxX": 23.187927,
+        "minY": 30.975281,
+        "maxY": 32.938473
+      },
+      "longitude": 22.5536195,
+      "latitude": 31.956877
+    },
+    "LY-QT": {
+      "name": "Al Qatrun, Libya",
+      "longitude": 0,
+      "latitude": 0
+    },
+    "LY-SB": {
+      "name": "Sabha, Libya",
+      "bounds": {
+        "minX": 13.907288,
+        "maxX": 15.999329,
+        "minY": 26.230286,
+        "maxY": 27.743103
+      },
+      "longitude": 14.953308499999999,
+      "latitude": 26.9866945
+    },
+    "LY-SH": {
+      "name": "Ash Shati', Libya",
+      "bounds": {
+        "minX": 9.83354500000002,
+        "maxX": 15.763672,
+        "minY": 26.215271,
+        "maxY": 29.513672
+      },
+      "longitude": 12.798608500000011,
+      "latitude": 27.8644715
+    },
+    "LY-SR": {
+      "name": "Surt, Libya",
+      "bounds": {
+        "minX": 14.731506,
+        "maxX": 18.795139,
+        "minY": 28.501526,
+        "maxY": 31.950204
+      },
+      "longitude": 16.7633225,
+      "latitude": 30.225865
+    },
+    "LY-SS": {
+      "name": "Sabratah Surman, Libya",
+      "bounds": {
+        "minX": 12.178711,
+        "maxX": 12.655083,
+        "minY": 32.455322,
+        "maxY": 32.867916
+      },
+      "longitude": 12.416896999999999,
+      "latitude": 32.661619
+    },
+    "LY-TB": {
+      "name": "Tarabulus, Libya",
+      "bounds": {
+        "minX": 12.95813,
+        "maxX": 13.216528,
+        "minY": 32.536682,
+        "maxY": 32.921528
+      },
+      "longitude": 13.087329,
+      "latitude": 32.729105000000004
+    },
+    "LY-TM": {
+      "name": "Tarhunah-Masallatah, Libya",
+      "bounds": {
+        "minX": 13.13208,
+        "maxX": 14.669128,
+        "minY": 31.49353,
+        "maxY": 32.537476
+      },
+      "longitude": 13.900604000000001,
+      "latitude": 32.015502999999995
+    },
+    "LY-TN": {
+      "name": "Tajura wa al Nawahi AlArba', Libya",
+      "bounds": {
+        "minX": 13.178284,
+        "maxX": 13.619497,
+        "minY": 32.499084,
+        "maxY": 32.916527
+      },
+      "longitude": 13.3988905,
+      "latitude": 32.707805500000006
+    },
+    "LY-WA": {
+      "name": "Al Wahah, Libya",
+      "bounds": {
+        "minX": 20.999329,
+        "maxX": 22.999878,
+        "minY": 28.000122,
+        "maxY": 31.235291
+      },
+      "longitude": 21.9996035,
+      "latitude": 29.6177065
+    },
+    "LY-WD": {
+      "name": "Wadi al Hayat, Libya",
+      "bounds": {
+        "minX": 11.757324,
+        "maxX": 14.165894,
+        "minY": 25.57428,
+        "maxY": 27.303894
+      },
+      "longitude": 12.961609,
+      "latitude": 26.439087
+    },
+    "LY-YJ": {
+      "name": "Yafran-Jadu, Libya",
+      "bounds": {
+        "minX": 11.798523,
+        "maxX": 12.65448,
+        "minY": 31.297913,
+        "maxY": 32.474121
+      },
+      "longitude": 12.2265015,
+      "latitude": 31.886017
+    },
+    "LY-ZA": {
+      "name": "Az Zawiyah, Libya",
+      "bounds": {
+        "minX": 12.619324,
+        "maxX": 12.964893,
+        "minY": 32.474121,
+        "maxY": 32.826249
+      },
+      "longitude": 12.792108500000001,
+      "latitude": 32.65018499999999
+    },
+    "MU-CC": {
+      "name": "Cargados Carajos Shoals, Mauritius",
+      "longitude": 0,
+      "latitude": 0
+    },
+    "QA-DA": {
+      "name": "Ad Dawhah, Qatar",
+      "bounds": {
+        "minX": 51.448037,
+        "maxX": 51.647361,
+        "minY": 25.21551,
+        "maxY": 25.385304
+      },
+      "longitude": 51.547698999999994,
+      "latitude": 25.300407
+    },
+    "QA-GH": {
+      "name": "Al Ghuwayriyah, Qatar",
+      "bounds": {
+        "minX": 50.904862,
+        "maxX": 51.352833,
+        "minY": 25.705684,
+        "maxY": 25.901405
+      },
+      "longitude": 51.1288475,
+      "latitude": 25.8035445
+    },
+    "QA-JB": {
+      "name": "Jariyan al Batnah, Qatar",
+      "bounds": {
+        "minX": 50.736528,
+        "maxX": 51.480973,
+        "minY": 24.548483,
+        "maxY": 25.318176
+      },
+      "longitude": 51.1087505,
+      "latitude": 24.9333295
+    },
+    "QA-JU": {
+      "name": "Al Jumayliyah, Qatar",
+      "bounds": {
+        "minX": 50.731803,
+        "maxX": 51.294209,
+        "minY": 25.128402,
+        "maxY": 25.757639
+      },
+      "longitude": 51.013006000000004,
+      "latitude": 25.443020500000003
+    },
+    "QA-KH": {
+      "name": "Al Khawr, Qatar",
+      "bounds": {
+        "minX": 51.254169,
+        "maxX": 51.623196,
+        "minY": 25.55236,
+        "maxY": 25.961526
+      },
+      "longitude": 51.4386825,
+      "latitude": 25.756943
+    },
+    "QA-MS": {
+      "name": "Madinat ash Shamal, Qatar",
+      "bounds": {
+        "minX": 50.95486,
+        "maxX": 51.42495,
+        "minY": 25.831027,
+        "maxY": 26.184029
+      },
+      "longitude": 51.189904999999996,
+      "latitude": 26.007528
+    },
+    "QA-RA": {
+      "name": "Ar Rayyan, Qatar",
+      "bounds": {
+        "minX": 51.147481,
+        "maxX": 51.549149,
+        "minY": 25.047018,
+        "maxY": 25.489994
+      },
+      "longitude": 51.348315,
+      "latitude": 25.268506000000002
+    },
+    "QA-US": {
+      "name": "Umm Salal, Qatar",
+      "bounds": {
+        "minX": 51.291424,
+        "maxX": 51.575416,
+        "minY": 25.355176,
+        "maxY": 25.577253
+      },
+      "longitude": 51.43342,
+      "latitude": 25.4662145
+    },
+    "QA-WA": {
+      "name": "Al Wakrah, Qatar",
+      "bounds": {
+        "minX": 51.334924,
+        "maxX": 51.629306,
+        "minY": 24.744028,
+        "maxY": 25.238603
+      },
+      "longitude": 51.482115,
+      "latitude": 24.9913155
+    },
+    "SC-26": {
+      "name": "Perseverance, Seychelles",
+      "bounds": {
+        "minX": 55.459741200895735,
+        "maxX": 55.47076183499075,
+        "minY": -4.613577757107748,
+        "maxY": -4.598628487714507
+      },
+      "longitude": 55.465251517943244,
+      "latitude": -4.6061031224111275
+    },
+    "UM-89": {
+      "name": "Kingman Reef, United States Minor Outlying Islands",
+      "bounds": {
+        "minX": -162.384994,
+        "maxX": -162.335555,
+        "minY": 6.38333399999999,
+        "maxY": 6.43444300000004
+      },
+      "longitude": -162.3602745,
+      "latitude": 6.408888500000015
+    }
+  }
+}

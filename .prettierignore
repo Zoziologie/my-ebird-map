@@ -5,5 +5,8 @@ local/
 output/
 .playwright-cli/
 src/assets/
+scripts/data/
+public/boundary-sources.html
+docs/region-boundary-coverage.md
 package-lock.json
 .env*

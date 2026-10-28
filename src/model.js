@@ -47,12 +47,14 @@ export function summarize(records) {
     checklists = new Set(),
     locations = new Set(),
     countries = new Set();
-  let additional = 0;
+  let additional = 0,
+    observations = 0;
   for (const record of records) {
     checklists.add(record.checklist);
     locations.add(record.locationId);
     if (record.country !== 'XX') countries.add(record.country);
     if (record.count === 0) continue;
+    observations++;
     if (record.species && record.exotic !== 'X') species.add(record.species);
     else additional++;
   }
@@ -61,7 +63,7 @@ export function summarize(records) {
     checklists: checklists.size,
     locations: locations.size,
     countries: countries.size,
-    observations: records.filter((record) => record.count !== 0).length,
+    observations,
     additional,
   };
 }

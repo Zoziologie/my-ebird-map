@@ -13,7 +13,7 @@
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.33.0/mapbox-gl.css" rel="stylesheet" />
     <link href="/src/style.css" rel="stylesheet" />
     <link href="/src/ebird-theme.css" rel="stylesheet" />
-    <script src="https://api.mapbox.com/mapbox-gl-js/v3.33.0/mapbox-gl.js"></script>
+    <script defer src="https://api.mapbox.com/mapbox-gl-js/v3.33.0/mapbox-gl.js"></script>
   </head>
   <body>
     <svg class="icon-definitions" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -111,6 +111,16 @@
           <a href="https://github.com/sponsors/Zoziologie" target="_blank" rel="noopener noreferrer"
             ><i class="bi bi-heart" aria-hidden="true"></i> Support</a
           >
+          <button
+            id="counting-help"
+            class="counting-help"
+            type="button"
+            aria-haspopup="dialog"
+            aria-label="How we count your birds"
+            title="How we count your birds"
+          >
+            <i class="bi bi-question-circle" aria-hidden="true"></i>
+          </button>
         </footer>
       </aside>
       <section class="map-shell" aria-label="Observation map">
@@ -130,12 +140,6 @@
           <div id="demo-notice" class="demo-notice" hidden>
             <strong>You’re exploring a demo</strong><span>These are made-up observations.</span
             ><button id="demo-import">Use my eBird data <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
-          </div>
-          <div id="species-selection" class="species-selection" hidden>
-            <span id="species-selection-label" role="status"></span
-            ><button id="clear-species-selection" aria-label="Clear species selection" title="Clear species selection">
-              <i class="bi bi-x-lg" aria-hidden="true"></i><span>Clear</span>
-            </button>
           </div>
           <div class="polygon-buttons">
             <button id="polygon-start" class="button" aria-expanded="false" hidden>Draw polygon</button
@@ -170,6 +174,12 @@
                 <i class="bi bi-trash3" aria-hidden="true"></i>
               </button>
             </div>
+          </div>
+          <div id="species-selection" class="species-selection" hidden>
+            <span id="species-selection-label" role="status"></span
+            ><button id="clear-species-selection" aria-label="Clear species selection" title="Clear species selection">
+              <i class="bi bi-x-lg" aria-hidden="true"></i><span>Clear</span>
+            </button>
           </div>
         </div>
         <div class="map-tools">
@@ -235,10 +245,50 @@
         </div>
       </section>
     </main>
-    <dialog id="data-dialog" aria-labelledby="data-title" aria-describedby="data-intro">
+    <dialog id="counting-dialog" aria-labelledby="counting-title">
+      <div class="dialog-heading">
+        <h2 id="counting-title">What is counted?</h2>
+        <button id="close-counting" type="button" aria-label="Close counting explanation">
+          <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+      </div>
+      <p>We aim to match eBird’s species totals:</p>
+      <ul>
+        <li>Subspecies and identifiable forms count under their parent species.</li>
+        <li>
+          Unidentified birds (“spuhs”), either/or identifications (“slashes”), and hybrids are available through
+          <strong>“Include additional taxa”</strong>, but don’t add species.
+        </li>
+        <li>Zero-count records don’t count as sightings.</li>
+        <li>
+          Native, naturalized, and provisional birds count; escapees don’t.
+          <a
+            href="https://support.ebird.org/en/support/solutions/articles/48001218430-exotic-and-introduced-species-in-ebird"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Exotic status</a
+          >
+          depends on location, so totals adjust to the selected area.
+        </li>
+      </ul>
+      <p>
+        We use
+        <a
+          href="https://support.ebird.org/en/support/solutions/articles/48000837816-the-ebird-taxonomy"
+          target="_blank"
+          rel="noopener noreferrer"
+          >eBird taxonomy <span id="counting-taxonomy-version"></span></a
+        >.
+      </p>
+      <footer class="policy-links" aria-label="Privacy and legal information">
+        <a href="https://zoziologie.raphaelnussbaumer.com/privacy/">Privacy</a>
+        <a href="https://zoziologie.raphaelnussbaumer.com/terms/">Terms</a>
+        <button id="analytics-settings" type="button">Analytics settings</button>
+      </footer>
+    </dialog>
+    <dialog id="data-dialog" aria-labelledby="data-title">
       <button id="close-data" aria-label="Close my data" hidden><i class="bi bi-x-lg" aria-hidden="true"></i></button>
       <h1 id="data-title">Your birding, mapped.</h1>
-      <p id="data-intro">Your eBird export is all you need.</p>
       <div id="current-data" class="current-data" hidden>
         <i class="bi bi-check-circle" aria-hidden="true"></i>
         <div>
@@ -276,7 +326,6 @@
       <section id="drive-backups" class="backup-section" aria-labelledby="backup-title" hidden>
         <div class="backup-heading">
           <h2 id="backup-title"><i class="bi bi-cloud" aria-hidden="true"></i> Google Drive backup</h2>
-          <span>Optional</span>
         </div>
         <div class="backup-content">
           <div class="backup-actions">
@@ -293,8 +342,7 @@
       <footer id="data-footer" class="setup-footer">
         <span id="demo-invitation"
           ><button id="explore-demo">Try a demo <i class="bi bi-arrow-right" aria-hidden="true"></i></button
-          ><span>Sample observations</span></span
-        >
+        ></span>
       </footer>
     </dialog>
     <aside id="analytics-consent" class="analytics-consent" role="dialog" aria-label="Analytics choice" hidden>
@@ -373,15 +421,7 @@
             ><input id="additional" type="checkbox" checked /> Include additional taxa</label
           >
         </fieldset>
-        <div class="settings-actions">
-          <button class="button settings-done" type="button" id="settings-done">Done</button>
-        </div>
       </form>
-      <footer class="policy-links" aria-label="Privacy and legal information">
-        <a href="https://zoziologie.raphaelnussbaumer.com/privacy/">Privacy</a>
-        <a href="https://zoziologie.raphaelnussbaumer.com/terms/">Terms</a>
-        <button id="analytics-settings" type="button">Analytics settings</button>
-      </footer>
     </section>
     <div id="species-tooltip" class="species-tooltip" role="tooltip" hidden></div>
     <script type="module" src="/src/main.js"></script>

@@ -1,9 +1,78 @@
 {
   "source": "Natural Earth",
-  "scale": "1:50m",
+  "scale": "1:50m with 1:10m territory supplements",
   "revision": "ca96624a56bd078437bca8184e78163e5039ad19",
   "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_50m_admin_0_countries.geojson",
   "license": "Public domain",
-  "precisionDegrees": 0.01,
-  "features": 237
+  "features": 252,
+  "additionalSource": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/ca96624a56bd078437bca8184e78163e5039ad19/geojson/ne_10m_admin_1_states_provinces.geojson",
+  "additionalMappings": {
+    "AC": [
+      "ATC+00?"
+    ],
+    "BV": [
+      "BVT+00?"
+    ],
+    "BQ": [
+      "NLD-5147",
+      "NLD-5148",
+      "NLD-5149"
+    ],
+    "CX": [
+      "IOA-2652"
+    ],
+    "CP": [
+      "CLP+00?"
+    ],
+    "CC": [
+      "IOA-1928"
+    ],
+    "CS": [
+      "CSI+00?"
+    ],
+    "GF": [
+      "FRA-2000"
+    ],
+    "GI": [
+      "GIB+00?"
+    ],
+    "GP": [
+      "FRA-4603"
+    ],
+    "MQ": [
+      "FRA-1442"
+    ],
+    "YT": [
+      "FRA-4602"
+    ],
+    "RE": [
+      "FRA-4601"
+    ],
+    "SJ": [
+      "NOR-901"
+    ],
+    "TK": [
+      "NZL-5472"
+    ],
+    "UM": [
+      "UMI-5171",
+      "UMI-5172",
+      "UMI-5173",
+      "UMI-5174",
+      "UMI-5176",
+      "UMI-5177",
+      "UMI-5178",
+      "UMI-5179"
+    ]
+  },
+  "precisionDegrees": {
+    "base": 0.01,
+    "supplements": 0.00001
+  },
+  "simplificationMeters": 1000,
+  "bytes": 1568036,
+  "gzipBytes": 468483,
+  "missing": [
+    "XX"
+  ]
 }

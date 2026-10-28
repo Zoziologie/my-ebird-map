@@ -36,16 +36,6 @@ export function regionalExoticStatus(index, code, region) {
 
 // No exotic code means native; missing county information remains unresolved.
 export function exoticStatusSummary(counts) {
-  const exotic = ['N', 'P', 'X'].find((code) => counts[code]);
-  const code = counts.native && exotic ? 'mixed' : counts.native ? '' : exotic || 'unresolved';
-  const label = {
-    mixed: 'Native and exotic observations',
-    '': 'Native',
-    N: 'Naturalized',
-    P: 'Provisional',
-    X: 'Escapee',
-    unresolved: 'Status unavailable',
-  }[code];
   const categories = Object.entries({
     native: 'Native',
     N: 'Naturalized',
@@ -54,5 +44,7 @@ export function exoticStatusSummary(counts) {
   })
     .filter(([category]) => counts[category] > 0)
     .map(([category, name]) => ({ code: category, label: name, count: counts[category] }));
-  return { code, label, categories };
+  const code = categories.map((category) => category.code).join('-') || 'unresolved';
+  const label = categories.map((category) => category.label).join(', ') || 'Status unavailable';
+  return { code: code === 'native' ? '' : code, label, categories };
 }

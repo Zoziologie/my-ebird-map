@@ -47,7 +47,7 @@ export function initializeAnalyticsChoice() {
   const notice = document.querySelector('#analytics-consent');
   const settings = document.querySelector('#analytics-settings');
   const showNotice = () => {
-    document.querySelector('#settings-dialog').hidePopover();
+    document.querySelector('#counting-dialog').close();
     notice.hidden = false;
     document.querySelector('#analytics-accept').focus();
   };

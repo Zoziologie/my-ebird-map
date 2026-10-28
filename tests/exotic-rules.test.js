@@ -12,14 +12,14 @@ const index = exoticRulesIndex({
   domestic: { world: 'X' },
 });
 
-test('summary shows the highest category or a native/exotic mix, keeping unresolved counties separate', () => {
+test('summary shows every known category, keeping unresolved counties separate', () => {
   const counts = { native: 0, N: 0, P: 0, X: 0, unresolved: 0 };
   assert.equal(exoticStatusSummary({ ...counts, X: 4 }).code, 'X');
-  assert.equal(exoticStatusSummary({ ...counts, P: 1, X: 4 }).code, 'P');
-  assert.equal(exoticStatusSummary({ ...counts, N: 2, P: 1, X: 4 }).code, 'N');
+  assert.equal(exoticStatusSummary({ ...counts, P: 1, X: 4 }).code, 'P-X');
+  assert.equal(exoticStatusSummary({ ...counts, N: 2, P: 1, X: 4 }).code, 'N-P-X');
   assert.equal(exoticStatusSummary({ ...counts, native: 3 }).code, '');
   const mixed = exoticStatusSummary({ ...counts, native: 3, X: 4 });
-  assert.equal(mixed.code, 'mixed');
+  assert.equal(mixed.code, 'native-X');
   assert.deepEqual(mixed.categories, [
     { code: 'native', label: 'Native', count: 3 },
     { code: 'X', label: 'Escapee', count: 4 },
@@ -27,6 +27,24 @@ test('summary shows the highest category or a native/exotic mix, keeping unresol
   assert.deepEqual(exoticStatusSummary({ ...counts, unresolved: 3 }).categories, []);
   assert.equal(exoticStatusSummary({ ...counts, unresolved: 3, X: 4 }).code, 'X');
   assert.equal(exoticStatusSummary({ ...counts, unresolved: 3 }).code, 'unresolved');
+});
+
+test('all 15 category combinations have stable icons and accessible labels', () => {
+  const categories = ['native', 'N', 'P', 'X'];
+  const labels = ['Native', 'Naturalized', 'Provisional', 'Escapee'];
+  const css = fs.readFileSync('src/style.css', 'utf8');
+  for (let mask = 1; mask < 16; mask++) {
+    const counts = Object.fromEntries(categories.map((code, i) => [code, mask & (1 << i) ? i + 1 : 0]));
+    const selected = categories.filter((_, i) => mask & (1 << i));
+    const summary = exoticStatusSummary(counts);
+    assert.equal(summary.code, mask === 1 ? '' : selected.join('-'));
+    assert.equal(summary.label, labels.filter((_, i) => mask & (1 << i)).join(', '));
+    assert.deepEqual(
+      summary.categories.map((category) => category.code),
+      selected,
+    );
+    if (summary.code) assert.ok(css.includes(`.exotic-icon-${summary.code} {`), summary.code);
+  }
 });
 
 test('regional rules retain blank overrides and use the most specific scope', () => {

@@ -1,6 +1,6 @@
 {
   "name": "myebirdmap",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Visualize all your eBird observations on a map!",
   "scripts": {
     "dev": "vite",
@@ -9,6 +9,7 @@
     "check": "node scripts/check-app.mjs",
     "benchmark": "node scripts/benchmark-map.mjs",
     "prepare:local": "node scripts/prepare-local.mjs",
+    "prepare:regions": "node scripts/prepare-regions.mjs",
     "review:taxonomy": "node --env-file=.env scripts/review-taxonomy.mjs",
     "check:build": "node scripts/check-build.mjs",
     "lint": "eslint . --max-warnings 0",
@@ -18,7 +19,9 @@
     "test": "npm run check && node --test tests/*.test.js",
     "prepare:cases": "python3 scripts/prepare-export-cases.py",
     "test:export": "node scripts/check-export.mjs",
-    "benchmark:export": "node scripts/benchmark-export.mjs"
+    "benchmark:export": "node scripts/benchmark-export.mjs",
+    "test:browser": "playwright test",
+    "test:browser:report": "playwright show-report output/browser/report"
   },
   "repository": {
     "type": "git",
@@ -32,9 +35,12 @@
   },
   "homepage": "https://zoziologie.raphaelnussbaumer.com/my-ebird-map/",
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.1",
     "eslint": "^10.13.0",
     "globals": "^17.13.0",
+    "mapshaper": "0.7.100",
     "prettier": "^3.9.10",
     "vite": "^7.3.7"
   },

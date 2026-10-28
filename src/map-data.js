@@ -1,22 +1,36 @@
 import Supercluster from 'supercluster';
-import { summarize } from './model.js';
 
-// Keep original records together until distinct species/checklist counts are computed.
+// Accumulate distinct identities directly instead of retaining per-group record arrays.
 export function groupMapRecords(records, grouping = 'auto') {
   const groups = new Map();
   for (const record of records) {
     if (grouping === 'region' && !record.region.split('-')[1]) continue;
     const key = grouping === 'country' ? record.country : grouping === 'region' ? record.region : record.locationId;
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(record);
+    if (!groups.has(key))
+      groups.set(key, {
+        name: grouping === 'country' || grouping === 'region' ? key : record.location,
+        species: new Set(),
+        checklists: new Set(),
+        locations: new Map(),
+        countries: new Set(),
+        observations: 0,
+        additional: 0,
+      });
+    const group = groups.get(key);
+    group.checklists.add(record.checklist);
+    group.locations.set(record.locationId, record);
+    if (record.country !== 'XX') group.countries.add(record.country);
+    if (record.count === 0) continue;
+    group.observations++;
+    if (record.species && record.exotic !== 'X') group.species.add(record.species);
+    else group.additional++;
   }
-  return [...groups].map(([id, rows]) => {
-    const locations = new Map(rows.map((record) => [record.locationId, record]));
+  return [...groups].map(([id, group]) => {
     let x = 0,
       y = 0,
       z = 0;
     // A spherical mean also places groups correctly across the antimeridian.
-    for (const { longitude, latitude } of locations.values()) {
+    for (const { longitude, latitude } of group.locations.values()) {
       const lon = (longitude * Math.PI) / 180,
         lat = (latitude * Math.PI) / 180;
       x += Math.cos(lat) * Math.cos(lon);
@@ -31,20 +45,51 @@ export function groupMapRecords(records, grouping = 'auto') {
       },
       properties: {
         id,
-        name: grouping === 'country' || grouping === 'region' ? id : rows[0].location,
+        name: group.name,
         grouping,
-        ...summarize(rows),
-        speciesIds: [
-          ...new Set(
-            rows
-              .filter((record) => record.count !== 0 && record.species && record.exotic !== 'X')
-              .map((record) => record.species),
-          ),
-        ],
-        checklistIds: [...new Set(rows.map((record) => record.checklist))],
+        species: group.species.size,
+        checklists: group.checklists.size,
+        locations: group.locations.size,
+        countries: group.countries.size,
+        observations: group.observations,
+        additional: group.additional,
+        speciesIds: [...group.species],
+        checklistIds: [...group.checklists],
       },
     };
   });
+}
+
+// One High Seas total, anchored at the observed site nearest its spherical mean.
+export function groupMapDisplayRecords(records, grouping) {
+  const points = groupMapRecords(records, grouping);
+  if (!['country', 'region'].includes(grouping)) return points;
+  const offshore = groupMapRecords(
+    records.filter((record) => record.country === 'XX'),
+    'country',
+  );
+  if (offshore.length) {
+    const [longitude, latitude] = offshore[0].geometry.coordinates.map((value) => (value * Math.PI) / 180);
+    let site,
+      nearest = -Infinity;
+    for (const record of records) {
+      if (record.country !== 'XX') continue;
+      const distance =
+        Math.sin(latitude) * Math.sin((record.latitude * Math.PI) / 180) +
+        Math.cos(latitude) *
+          Math.cos((record.latitude * Math.PI) / 180) *
+          Math.cos((record.longitude * Math.PI) / 180 - longitude);
+      if (distance > nearest) {
+        site = record;
+        nearest = distance;
+      }
+    }
+    offshore[0].geometry.coordinates = [site.longitude, site.latitude];
+  }
+  return [
+    ...points.filter((point) => point.properties.id !== 'XX'),
+    ...offshore.map((point) => ({ ...point, properties: { ...point.properties, highSeas: true } })),
+  ];
 }
 
 export function indexMapLocations(points) {
@@ -59,8 +104,10 @@ export function indexMapLocations(points) {
     }),
     reduce(accumulated, props) {
       // Copy sets: Supercluster may shallow-copy a child cluster's properties.
-      accumulated.speciesIds = new Set([...accumulated.speciesIds, ...props.speciesIds]);
-      accumulated.checklistIds = new Set([...accumulated.checklistIds, ...props.checklistIds]);
+      accumulated.speciesIds = new Set(accumulated.speciesIds);
+      for (const id of props.speciesIds) accumulated.speciesIds.add(id);
+      accumulated.checklistIds = new Set(accumulated.checklistIds);
+      for (const id of props.checklistIds) accumulated.checklistIds.add(id);
       accumulated.observations += props.observations;
       accumulated.locations += props.locations;
     },
@@ -86,6 +133,18 @@ export function clusteredMapFeatures(index, zoom) {
   });
 }
 
+// Resolve a table location to the marker (including its cluster) currently on the map.
+export function indexLocationHighlights(features, clusterIndex) {
+  const highlights = new Map();
+  for (const feature of features) {
+    const { id, cluster_id: clusterId } = feature.properties;
+    highlights.set(clusterId === undefined ? id : `cluster:${clusterId}`, feature);
+    if (clusterId !== undefined)
+      for (const leaf of clusterIndex.getLeaves(clusterId, Infinity)) highlights.set(leaf.properties.id, feature);
+  }
+  return highlights;
+}
+
 export function formatMapObservation(value) {
   if (value >= 999950) return `${Math.round(value / 100000) / 10}M`;
   if (value >= 1000) return `${Math.round(value / 100) / 10}K`;
@@ -100,8 +159,8 @@ export function renderMapFeatures(features) {
   }));
 }
 
-// Join by exported country code; boundary geometry never determines group membership.
-export function countryMapFeatures(points, boundaries) {
+// Join by exported country/region code; geometry never determines group membership.
+export function boundaryMapFeatures(points, boundaries) {
   const polygons = [],
     circles = [],
     labels = [];
@@ -111,8 +170,13 @@ export function countryMapFeatures(points, boundaries) {
       circles.push(point);
       continue;
     }
-    polygons.push({ type: 'Feature', geometry: boundary.geometry, properties: point.properties });
-    labels.push({ ...point, geometry: { type: 'Point', coordinates: boundary.properties.label } });
+    const properties = {
+      ...point.properties,
+      approximate: Boolean(boundary.properties.approximate),
+      boundaryMethod: boundary.properties.boundaryMethod || '',
+    };
+    polygons.push({ type: 'Feature', geometry: boundary.geometry, properties });
+    labels.push({ ...point, properties, geometry: { type: 'Point', coordinates: boundary.properties.label } });
   }
   return { polygons, circles, labels };
 }

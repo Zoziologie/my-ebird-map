@@ -1,32 +1,40 @@
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import regionNames from './assets/region-names.json';
+import ebirdCountryNames from './assets/country-names.json';
+import taxonomyMetadata from './assets/taxonomy-source.json';
 import { filterRecords, summarize, pointInPolygon, unwrapPolygon, polygonError, ebirdSummaryLinks } from './model.js';
 import { loadSnapshot, saveSnapshotMetadata } from './storage.js';
 import { exoticStatusSummary } from './exotic-rules.js';
 import { driveClientId, prepareDrive, saveToDrive, loadFromDrive } from './drive.js';
 import { initializeAnalyticsChoice, trackEvent } from './analytics.js';
+import { datasetMapColorBreaks } from './map-colors.js';
+import { regionMarkerRadius, updateRegionMarkers } from './region-markers.js';
+import { readUrlSettings, writeUrlSettings } from './url-state.js';
 import {
-  groupMapRecords,
+  groupMapDisplayRecords,
   indexMapLocations,
   clusteredMapFeatures,
+  indexLocationHighlights,
   renderMapFeatures,
-  countryMapFeatures,
+  boundaryMapFeatures,
 } from './map-data.js';
 
 const $ = (selector) => document.querySelector(selector);
-const format = (value) => new Intl.NumberFormat('en').format(value);
+const numberFormat = new Intl.NumberFormat('en');
+const format = (value) => numberFormat.format(value);
 const escapeHtml = (value) =>
   String(value).replace(
     /[&<>"']/g,
     (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char],
   );
-const countryNames = new Intl.DisplayNames(['en'], { type: 'region' });
-const preferences = {
+const countryNames = { of: (code) => ebirdCountryNames[code] || code };
+const preferences = readUrlSettings(window.location.href, {
   theme: 'system',
   mapStyle: 'atlas',
   projection: 'mercator',
   clustering: 'off',
   ...JSON.parse(localStorage.getItem('myebirdmap:display') || '{}'),
-};
+});
 let activeSource,
   locallySaved = false,
   dataBusy = false;
@@ -49,11 +57,20 @@ let grouping = preferences.grouping || clustering,
   renderedSource,
   renderedKey;
 let countryBoundaries, countryBoundaryRequest;
+const regionBoundaries = new Map(),
+  regionBoundaryRequests = new Map();
+let regionBoundaryFrame;
+const regionBoundaryFiles = import.meta.glob('./assets/regions-v1/*.json', {
+  query: '?url&no-inline',
+  import: 'default',
+  eager: true,
+});
+let colorBreaks, selectionColorBreaks, colorSelectionKey;
 let yearFrom = preferences.yearFrom || '',
   yearTo = preferences.yearTo || '',
   monthFrom = preferences.monthFrom || '',
   monthTo = preferences.monthTo || '';
-const selectedCodes = new Set();
+const selectedCodes = new Set(preferences.species);
 let selectionAnchor = '',
   areaRecords = [],
   speciesRecords = [],
@@ -73,32 +90,71 @@ let resultsByCode = new Map(),
 const tableSort = { species: { key: 'observations', direction: -1 }, locations: { key: 'checklists', direction: -1 } };
 const searchText = { species: '', locations: '' };
 let visibleRows = 160;
+const resultGroups = new Map();
+let locationHighlights = new Map(),
+  hoveredLocation = '';
+
+function highlightLocation(key = '') {
+  const source = map?.getSource('location-highlight');
+  if (!source || key === hoveredLocation) return;
+  hoveredLocation = key;
+  const feature = locationHighlights.get(key);
+  const radius = feature ? regionMarkerRadius(feature.properties[metric]) + 6 : 0;
+  source.setData({
+    type: 'FeatureCollection',
+    features: feature
+      ? [
+          {
+            ...feature,
+            properties: {
+              ...feature.properties,
+              highlightRadius: clustering === 'off' ? 10 : radius,
+              highlightRadius7: clustering === 'off' ? 12 : radius,
+              highlightRadius12: radius,
+            },
+          },
+        ]
+      : [],
+  });
+}
+
+function displaySettings() {
+  return {
+    theme: themeMode,
+    mapStyle,
+    projection,
+    metric,
+    clustering,
+    grouping,
+    polygon,
+    yearFrom,
+    yearTo,
+    monthFrom,
+    monthTo,
+    followMap: $('#follow-map').checked,
+    additional: $('#additional').checked,
+    camera: map
+      ? { center: map.getCenter().toArray(), zoom: map.getZoom(), bearing: map.getBearing(), pitch: map.getPitch() }
+      : preferences.camera,
+  };
+}
+
+let urlUpdateTimer;
+function scheduleUrlUpdate() {
+  clearTimeout(urlUpdateTimer);
+  urlUpdateTimer = setTimeout(() => {
+    const url = writeUrlSettings(window.location.href, { ...displaySettings(), species: [...selectedCodes].sort() });
+    if (url !== window.location.href) history.replaceState(history.state, '', url);
+  }, 200);
+}
 
 function savePreferences() {
-  localStorage.setItem(
-    'myebirdmap:display',
-    JSON.stringify({
-      theme: themeMode,
-      mapStyle,
-      projection,
-      metric,
-      clustering,
-      grouping,
-      polygon,
-      yearFrom,
-      yearTo,
-      monthFrom,
-      monthTo,
-      followMap: $('#follow-map').checked,
-      additional: $('#additional').checked,
-      camera: map
-        ? { center: map.getCenter().toArray(), zoom: map.getZoom(), bearing: map.getBearing(), pitch: map.getPitch() }
-        : preferences.camera,
-    }),
-  );
+  localStorage.setItem('myebirdmap:display', JSON.stringify(displaySettings()));
+  scheduleUrlUpdate();
 }
 
 function updateMapMetric() {
+  highlightLocation();
   document.querySelectorAll('[data-metric]').forEach((button) => {
     const selected = button.dataset.metric === metric;
     button.classList.toggle('active', selected);
@@ -108,43 +164,33 @@ function updateMapMetric() {
   const radius = ['interpolate', ['linear'], ['ln', ['+', ['get', metric], 1]], 0, 9, 9, 30];
   const count = ['get', metric];
   const label = metric === 'observations' ? ['get', 'observationLabel'] : ['to-string', count];
-  const breaks = (
-    clustering === 'country'
-      ? {
-          species: [25, 100, 250, 500, 1000],
-          checklists: [10, 50, 200, 1000, 5000],
-          observations: [100, 1000, 5000, 20000, 100000],
-          locations: [5, 20, 100, 500, 2000],
-        }
-      : {
-          species: [5, 15, 30, 60, 100],
-          checklists: [2, 5, 20, 100, 500],
-          observations: [10, 50, 200, 1000, 5000],
-          locations: [2, 5, 20, 100, 500],
-        }
-  )[metric];
+  const breaks = (selectionColorBreaks || colorBreaks)[clustering][metric];
+  const palette = ['#440154', '#414487', '#2a788e', '#22a884', '#7ad151', '#fde725'];
+  const colorIndices = Array.from({ length: breaks.length + 1 }, (_, i) =>
+    breaks.length ? Math.round((i * 5) / breaks.length) : 2,
+  );
+  const steps = breaks.flatMap((value, i) => [value, palette[colorIndices[i + 1]]]);
   const colors = [
     'case',
     ['==', count, 0],
     '#87939b',
-    [
-      'step',
-      count,
-      '#440154',
-      breaks[0],
-      '#414487',
-      breaks[1],
-      '#2a788e',
-      breaks[2],
-      '#22a884',
-      breaks[3],
-      '#7ad151',
-      breaks[4],
-      '#fde725',
-    ],
+    breaks.length ? ['step', count, palette[colorIndices[0]], ...steps] : palette[colorIndices[0]],
   ];
+  $('#map-legend').title =
+    `Categories based on the full file${selectedCodes.size ? ' for the selected taxa' : ''}; stable across zoom, date and area filters.`;
   $('#map-legend').innerHTML =
-    `<strong>${{ species: 'Species', checklists: 'Checklists', observations: 'Observations', locations: 'Locations' }[metric]}</strong><div class="legend-colors"><span>1–${breaks[0] - 1}</span>${breaks.map((value, i) => `<span>${format(value)}${i === breaks.length - 1 ? '+' : '–' + format(breaks[i + 1] - 1)}</span>`).join('')}</div>`;
+    `<strong>${{ species: 'Species', checklists: 'Checklists', observations: 'Observations', locations: 'Locations' }[metric]}</strong><div class="legend-colors">${[
+      1,
+      ...breaks,
+    ]
+      .map((value, i) => {
+        const end = breaks[i] - 1;
+        const range =
+          i === breaks.length ? `${format(value)}+` : value === end ? format(value) : `${format(value)}–${format(end)}`;
+        const label = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(value);
+        return `<span style="background: ${palette[colorIndices[i]]}" title="${range}"><span class="legend-boundary">${label}${i === breaks.length ? '+' : ''}</span></span>`;
+      })
+      .join('')}</div>`;
   if (!map?.getLayer('map-labels')) return;
   for (const layer of ['clusters', 'locations']) {
     map.setPaintProperty(layer, 'circle-radius-transition', { duration: 0 });
@@ -163,11 +209,16 @@ function updateMapMetric() {
     map.setPaintProperty(layer, 'circle-color', colors);
     map.setLayoutProperty(layer, 'circle-sort-key', count);
     map.setPaintProperty(layer, 'circle-opacity', 1);
-    map.setPaintProperty(layer, 'circle-stroke-color', '#ffffff');
+    map.setPaintProperty(layer, 'circle-stroke-color', [
+      'case',
+      ['==', ['get', 'highSeas'], true],
+      '#087db5',
+      '#ffffff',
+    ]);
     map.setPaintProperty(layer, 'circle-stroke-width', clustering === 'off' ? 1.5 : 2);
   }
   map.setPaintProperty('country-fill', 'fill-color', colors);
-  map.setPaintProperty('country-fill', 'fill-opacity', 0.72);
+  map.setPaintProperty('country-fill', 'fill-opacity', ['case', ['==', ['get', 'approximate'], true], 0.35, 0.72]);
   map.setLayoutProperty('country-labels', 'text-field', label);
   map.setPaintProperty('point-outlines', 'circle-radius-transition', { duration: 0 });
   map.setPaintProperty('point-outlines', 'circle-radius', [
@@ -181,10 +232,44 @@ function updateMapMetric() {
     12,
     ['+', radius, 3],
   ]);
-  map.setPaintProperty('map-labels', 'text-color', ['step', count, '#ffffff', breaks[2], '#102a36']);
+  map.setPaintProperty(
+    'map-labels',
+    'text-color',
+    breaks.length
+      ? [
+          'step',
+          count,
+          '#ffffff',
+          ...breaks.flatMap((value, i) => [value, colorIndices[i + 1] >= 3 ? '#102a36' : '#ffffff']),
+        ]
+      : '#ffffff',
+  );
   map.setLayoutProperty('map-labels', 'text-allow-overlap', clustering !== 'off');
   map.setLayerZoomRange('map-labels', clustering === 'off' ? 8 : 0, 24);
   map.setLayoutProperty('map-labels', 'text-field', label);
+  for (const layer of ['point-outlines', 'clusters', 'locations', 'map-labels'])
+    map.setLayoutProperty(layer, 'visibility', clustering === 'region' ? 'none' : 'visible');
+  map.setLayoutProperty('region-markers', 'visibility', clustering === 'region' ? 'visible' : 'none');
+  if (clustering === 'region') {
+    updateRegionMarkers(
+      map,
+      mapPoints.filter((point) => point.properties.highSeas),
+      metric,
+      breaks,
+    );
+    map.setLayoutProperty('region-markers', 'symbol-sort-key', count);
+  }
+  // Keep the single hovered marker identical to the markers beneath it.
+  for (const layer of map
+    .getStyle()
+    .layers.filter((layer) => ['locations', 'map-labels', 'region-markers'].includes(layer.id))) {
+    for (const [key, value] of Object.entries(layer.paint || {})) map.setPaintProperty(`hover-${layer.id}`, key, value);
+    for (const [key, value] of Object.entries(layer.layout || {}))
+      map.setLayoutProperty(`hover-${layer.id}`, key, value);
+    map.setLayerZoomRange(`hover-${layer.id}`, layer.minzoom || 0, layer.maxzoom || 24);
+  }
+  map.setLayoutProperty('hover-map-labels', 'text-allow-overlap', true);
+  map.setLayoutProperty('hover-map-labels', 'text-ignore-placement', true);
 }
 
 function toast(message, error = false) {
@@ -236,7 +321,6 @@ function updateDataActions() {
   $('#current-data-detail').textContent =
     `${format(records.length)} observation${records.length === 1 ? '' : 's'} · ${locallySaved ? 'Saved on this device' : 'Session only'}`;
   $('#data-title').textContent = personal ? 'My data' : 'Your birding, mapped.';
-  $('#data-intro').hidden = personal;
   $('#close-data').hidden = !records.length;
   $('#data-footer').hidden = personal;
   $('#demo-invitation').hidden = personal;
@@ -244,7 +328,7 @@ function updateDataActions() {
     ? `Last backup: ${new Date(dataset.driveSavedAt).toLocaleString()}`
     : personal
       ? 'Save a copy to use on another device.'
-      : 'Have a saved backup? Restore it here.';
+      : '';
   $('#drive-save').disabled = dataBusy || !activeSource || !driveClientId;
   $('#drive-load').disabled = dataBusy || !driveClientId;
   for (const id of ['drive-save', 'drive-load'])
@@ -328,38 +412,55 @@ function showSpeciesTooltip(event) {
 
 function renderResults() {
   hideSpeciesTooltip();
+  highlightLocation();
+  const locationGrouping = ['country', 'region'].includes(grouping) ? grouping : 'locationId';
+  const locationLabel = { country: 'Country', region: 'Region', locationId: 'Location' }[locationGrouping];
+  const locationPlural = { country: 'Countries', region: 'Regions', locationId: 'Locations' }[locationGrouping];
+  $('#search').placeholder = tab === 'species' ? 'Search species' : `Search ${locationPlural.toLowerCase()}`;
+  $('#search').setAttribute('aria-label', $('#search').placeholder);
   const query = $('#search')
     .value.trim()
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')
     .toLowerCase();
-  const groups = new Map();
-  for (const record of tab === 'species' ? speciesRecords : filtered) {
-    if (tab === 'species' && record.count === 0) continue;
-    const key = tab === 'species' ? record.species || record.code : record.locationId;
-    if (!groups.has(key))
-      groups.set(key, {
-        ...record,
-        name: tab === 'species' ? record.speciesName || record.name : record.name,
-        scientific: record.speciesScientific || record.scientific,
-        category: record.species ? 'species' : record.category,
-        checklists: new Set(),
-        speciesIds: new Set(),
-        observations: 0,
-        individuals: 0,
-        exoticCounts: { native: 0, N: 0, P: 0, X: 0, unresolved: 0 },
-      });
-    groups.get(key).checklists.add(record.checklist);
-    if (record.count !== 0) groups.get(key).observations++;
-    groups.get(key).individuals += record.count ?? 0;
-    if (record.count !== 0)
-      groups.get(key).exoticCounts[record.exoticNeedsCounty ? 'unresolved' : record.exotic || 'native']++;
-    if (record.species && record.count !== 0 && record.exotic !== 'X') groups.get(key).speciesIds.add(record.species);
+  const cacheKey = `${tab}/${locationGrouping}`;
+  if (!resultGroups.has(cacheKey)) {
+    const groups = new Map();
+    for (const record of tab === 'species' ? speciesRecords : filtered) {
+      if (tab === 'species' && record.count === 0) continue;
+      if (tab === 'locations' && locationGrouping === 'region' && !record.region.split('-')[1]) continue;
+      const key = tab === 'species' ? record.species || record.code : record[locationGrouping];
+      if (!groups.has(key))
+        groups.set(key, {
+          ...record,
+          location:
+            tab === 'species' || locationGrouping === 'locationId'
+              ? record.location
+              : locationGrouping === 'country'
+                ? countryNames.of(key)
+                : regionNames[key] || key,
+          name: tab === 'species' ? record.speciesName || record.name : record.name,
+          scientific: record.speciesScientific || record.scientific,
+          category: record.species ? 'species' : record.category,
+          checklists: new Set(),
+          speciesIds: new Set(),
+          observations: 0,
+          individuals: 0,
+          exoticCounts: { native: 0, N: 0, P: 0, X: 0, unresolved: 0 },
+        });
+      groups.get(key).checklists.add(record.checklist);
+      if (record.count !== 0) groups.get(key).observations++;
+      groups.get(key).individuals += record.count ?? 0;
+      if (record.count !== 0)
+        groups.get(key).exoticCounts[record.exoticNeedsCounty ? 'unresolved' : record.exotic || 'native']++;
+      if (record.species && record.count !== 0 && record.exotic !== 'X') groups.get(key).speciesIds.add(record.species);
+    }
+    resultGroups.set(cacheKey, [...groups.entries()]);
   }
-  const results = [...groups.entries()].filter(([, record]) =>
+  const results = resultGroups.get(cacheKey).filter(([, record]) =>
     (tab === 'species'
       ? `${record.name} ${record.scientific}`
-      : `${record.location} ${countryNames.of(record.country)} ${record.checklist} ${record.date}`
+      : `${record.location} ${record.region} ${countryNames.of(record.country)} ${record.checklist} ${record.date}`
     )
       .normalize('NFD')
       .replace(/\p{Diacritic}/gu, '')
@@ -382,7 +483,11 @@ function renderResults() {
   );
   resultsByCode = new Map(results);
   const columns = [
-    ['name', tab === 'species' ? 'Species' : 'Location', tab === 'species' ? 'Taxonomic order' : 'Location name'],
+    [
+      'name',
+      tab === 'species' ? 'Species' : locationLabel,
+      tab === 'species' ? 'Taxonomic order' : `${locationLabel} name`,
+    ],
     ...(tab === 'locations'
       ? [
           ['species', 'Species', 'Species'],
@@ -411,11 +516,20 @@ function renderResults() {
     })
     .join('');
   $('#results').innerHTML =
-    `<table class="results-table"><caption class="visually-hidden">${tab === 'species' ? 'Species' : 'Locations'} in the selected area. Click column headings to sort.</caption><thead><tr>${tab === 'species' ? '<th scope="col" class="species-number" title="Species number">#</th>' : ''}${head}</tr></thead><tbody>${rows || `<tr><td colspan="${columns.length + (tab === 'species' ? 1 : 0)}" class="empty">No results in this selection.</td></tr>`}</tbody></table>${results.length > visibleRows ? `<button class="show-more" data-more>Show more (${format(visibleRows)} of ${format(results.length)})</button>` : ''}`;
-  $('#list-label').textContent = `${format(results.length)} ${tab === 'species' ? 'TAXA' : 'PLACES'} IN THIS AREA`;
+    `<table class="results-table"><caption class="visually-hidden">${tab === 'species' ? 'Species' : locationPlural} in the selected area. Click column headings to sort.</caption><thead><tr>${tab === 'species' ? '<th scope="col" class="species-number" title="Species number">#</th>' : ''}${head}</tr></thead><tbody>${rows || `<tr><td colspan="${columns.length + (tab === 'species' ? 1 : 0)}" class="empty">No results in this selection.</td></tr>`}</tbody></table>${results.length > visibleRows ? `<button class="show-more" data-more>Show more (${format(visibleRows)} of ${format(results.length)})</button>` : ''}`;
+  $('#list-label').textContent =
+    `${format(results.length)} ${tab === 'species' ? 'TAXA' : locationGrouping === 'locationId' ? 'PLACES' : locationPlural.toUpperCase()} IN THIS AREA`;
 }
 
 function refresh(updateSource = true) {
+  resultGroups.clear();
+  scheduleUrlUpdate();
+  const selectionKey = JSON.stringify([...selectedCodes].sort());
+  if (selectionKey !== colorSelectionKey) {
+    selectionColorBreaks = selectedCodes.size ? datasetMapColorBreaks(records, selectedCodes) : null;
+    colorSelectionKey = selectionKey;
+    updateMapMetric();
+  }
   $('#demo-notice').hidden = dataset.kind !== 'synthetic';
   const area = drawing ? previewPolygon : polygon;
   if (updateSource) {
@@ -454,7 +568,7 @@ function refresh(updateSource = true) {
   if (selectedCodes.size === 1) {
     const code = [...selectedCodes][0],
       record = records.find((record) => record.code === code || record.species === code);
-    $('#species-selection-label').textContent = `Selected: ${record.speciesName || record.name}`;
+    $('#species-selection-label').textContent = `Selected: ${record?.speciesName || record?.name || code}`;
   } else $('#species-selection-label').textContent = `${format(selectedCodes.size)} taxa selected`;
   renderResults();
   updateMap(updateSource);
@@ -475,6 +589,31 @@ function loadCountryBoundaries() {
     .catch(() => toast('Country boundaries could not load. Showing country circles instead.'));
 }
 
+function loadRegionBoundaries(points) {
+  for (const country of new Set(points.map((point) => point.properties.id.split('-')[0]))) {
+    const url = regionBoundaryFiles[`./assets/regions-v1/${country}.json`];
+    if (!url || regionBoundaryRequests.has(country)) continue;
+    regionBoundaryRequests.set(
+      country,
+      fetch(url)
+        .then((response) => {
+          if (!response.ok) throw new Error('Region boundary download failed');
+          return response.json();
+        })
+        .then((data) => {
+          for (const feature of data.features) regionBoundaries.set(feature.properties.code, feature);
+          if (!regionBoundaryFrame)
+            regionBoundaryFrame = requestAnimationFrame(() => {
+              regionBoundaryFrame = null;
+              renderedKey = null;
+              updateMap(false);
+            });
+        })
+        .catch(() => toast(`Region boundaries for ${countryNames.of(country)} could not load. Reload to try again.`)),
+    );
+  }
+}
+
 function updateMap(rebuild = true) {
   if (rebuild) {
     mapGroups.clear();
@@ -483,7 +622,7 @@ function updateMap(rebuild = true) {
   const source = map?.getSource('observations');
   if (!source) return;
   const key = ['country', 'region'].includes(clustering) ? clustering : 'locations';
-  if (!mapGroups.has(key)) mapGroups.set(key, { points: groupMapRecords(mapRecords, clustering) });
+  if (!mapGroups.has(key)) mapGroups.set(key, { points: groupMapDisplayRecords(mapRecords, clustering) });
   const group = mapGroups.get(key);
   mapPoints = group.points;
   if (clustering === 'auto' && !group.index) group.index = indexMapLocations(mapPoints);
@@ -492,10 +631,18 @@ function updateMap(rebuild = true) {
   if (source === renderedSource && nextKey === renderedKey) return;
   const features = clusterIndex ? clusteredMapFeatures(clusterIndex, map.getZoom()) : mapPoints;
   if (clustering === 'country' && !countryBoundaries) loadCountryBoundaries();
-  const countries =
-    clustering === 'country' && countryBoundaries
-      ? countryMapFeatures(features, countryBoundaries)
-      : { polygons: [], circles: renderMapFeatures(features), labels: [] };
+  if (clustering === 'region') loadRegionBoundaries(features);
+  const boundaries = clustering === 'country' ? countryBoundaries : clustering === 'region' ? regionBoundaries : null;
+  const areas = boundaries
+    ? boundaryMapFeatures(features, boundaries)
+    : { polygons: [], circles: renderMapFeatures(features), labels: [] };
+  if (clustering === 'region')
+    updateRegionMarkers(
+      map,
+      areas.circles.filter((point) => point.properties.highSeas),
+      metric,
+      (selectionColorBreaks || colorBreaks).region[metric],
+    );
   map.setFilter(
     'clusters',
     clustering === 'country'
@@ -505,12 +652,18 @@ function updateMap(rebuild = true) {
   map.setFilter(
     'locations',
     clustering === 'country'
-      ? ['all', ['!', ['has', 'point_count']], ['==', ['get', 'grouping'], 'country']]
+      ? [
+          'all',
+          ['!', ['has', 'point_count']],
+          ['any', ['==', ['get', 'grouping'], 'country'], ['==', ['get', 'highSeas'], true]],
+        ]
       : ['!', ['has', 'point_count']],
   );
-  source.setData({ type: 'FeatureCollection', features: countries.circles });
-  map.getSource('countries').setData({ type: 'FeatureCollection', features: countries.polygons });
-  map.getSource('country-labels').setData({ type: 'FeatureCollection', features: countries.labels });
+  source.setData({ type: 'FeatureCollection', features: areas.circles });
+  map.getSource('countries').setData({ type: 'FeatureCollection', features: areas.polygons });
+  map.getSource('country-labels').setData({ type: 'FeatureCollection', features: areas.labels });
+  highlightLocation();
+  locationHighlights = indexLocationHighlights([...areas.circles, ...areas.polygons], clusterIndex);
   renderedSource = source;
   renderedKey = nextKey;
 }
@@ -632,7 +785,11 @@ function addMapLayers() {
       )
         map.setLayoutProperty(layer.id, 'visibility', 'none');
     }
-  map.addSource('countries', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+  map.addSource('countries', {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] },
+    attribution: `<a href="${window.location.origin}${import.meta.env.BASE_URL}boundary-sources.html" target="_blank">Boundary sources: Natural Earth / geoBoundaries &amp; contributors</a>`,
+  });
   map.addLayer({
     id: 'country-fill',
     type: 'fill',
@@ -643,7 +800,15 @@ function addMapLayers() {
     id: 'country-borders',
     type: 'line',
     source: 'countries',
+    filter: ['!=', ['get', 'approximate'], true],
     paint: { 'line-color': theme === 'night' ? '#e3edf3' : '#385b75', 'line-width': 1.2, 'line-opacity': 0.9 },
+  });
+  map.addLayer({
+    id: 'approximate-borders',
+    type: 'line',
+    source: 'countries',
+    filter: ['==', ['get', 'approximate'], true],
+    paint: { 'line-color': '#b27917', 'line-width': 1.6, 'line-dasharray': [3, 2] },
   });
   map.addSource('country-labels', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
   map.addSource('observations', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
@@ -692,6 +857,22 @@ function addMapLayers() {
     paint: { 'text-color': palette.getPropertyValue('--map-label').trim() },
   });
   map.addLayer({
+    id: 'region-markers',
+    type: 'symbol',
+    source: 'observations',
+    filter: ['==', ['get', 'highSeas'], true],
+    layout: {
+      visibility: 'none',
+      'icon-image': ['concat', 'region:', ['get', 'id']],
+      'icon-allow-overlap': true,
+      'icon-ignore-placement': true,
+      'icon-pitch-alignment': 'viewport',
+      'icon-rotation-alignment': 'viewport',
+      'symbol-z-order': 'source',
+      'symbol-sort-key': ['get', metric],
+    },
+  });
+  map.addLayer({
     id: 'country-labels',
     type: 'symbol',
     source: 'country-labels',
@@ -703,6 +884,55 @@ function addMapLayers() {
     },
     paint: { 'text-color': '#173e54', 'text-halo-color': '#ffffff', 'text-halo-width': 1.8 },
   });
+  map.addSource('location-highlight', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+  for (const [suffix, color, width] of [
+    ['halo', '#ffffff', 6],
+    ['ring', '#0879b0', 2.5],
+  ]) {
+    map.addLayer({
+      id: `location-highlight-${suffix}`,
+      type: 'circle',
+      source: 'location-highlight',
+      filter: ['==', '$type', 'Point'],
+      paint: {
+        'circle-radius': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          0,
+          ['get', 'highlightRadius'],
+          7,
+          ['get', 'highlightRadius7'],
+          12,
+          ['get', 'highlightRadius12'],
+        ],
+        'circle-opacity': 0,
+        'circle-stroke-color': color,
+        'circle-stroke-width': width,
+        'circle-radius-transition': { duration: 0 },
+      },
+    });
+    map.addLayer({
+      id: `country-highlight-${suffix}`,
+      type: 'line',
+      source: 'location-highlight',
+      filter: ['==', '$type', 'Polygon'],
+      paint: { 'line-color': color, 'line-width': width },
+    });
+  }
+  // Draw the hovered marker and its label above every observation layer.
+  for (const layer of map
+    .getStyle()
+    .layers.filter((layer) => ['locations', 'map-labels', 'region-markers'].includes(layer.id)))
+    map.addLayer({
+      ...layer,
+      id: `hover-${layer.id}`,
+      source: 'location-highlight',
+      filter:
+        layer.id === 'region-markers'
+          ? ['all', ['==', '$type', 'Point'], ['==', ['get', 'highSeas'], true]]
+          : ['==', '$type', 'Point'],
+    });
   map.addSource('selection', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
   map.addLayer({
     id: 'selection-fill',
@@ -743,7 +973,13 @@ function changeMapStyle() {
 function mapFeaturesAt(point) {
   // GeoJSON sources replace their tile indexes asynchronously after grouping/filter changes.
   if (!map.isStyleLoaded() || !map.isSourceLoaded('observations') || !map.isSourceLoaded('countries')) return [];
-  return map.queryRenderedFeatures(point, { layers: ['locations', 'clusters', 'country-fill'] });
+  return map
+    .queryRenderedFeatures(point, { layers: ['region-markers', 'locations', 'clusters', 'country-fill'] })
+    .filter(
+      (feature) =>
+        feature.layer.id !== 'region-markers' ||
+        map.project(feature.geometry.coordinates).dist(point) <= regionMarkerRadius(feature.properties[metric]) + 3,
+    );
 }
 
 async function initializeMap() {
@@ -812,7 +1048,12 @@ async function initializeMap() {
           (p.grouping === 'country' ? record.country : p.grouping === 'region' ? record.region : record.locationId) ===
           p.id,
       );
-      const name = p.grouping === 'country' ? countryNames.of(p.id) : p.name;
+      const name =
+        p.grouping === 'country'
+          ? countryNames.of(p.id)
+          : p.grouping === 'region'
+            ? regionNames[p.id] || p.name
+            : p.name;
       const links =
         dataset.kind === 'synthetic'
           ? {}
@@ -835,17 +1076,22 @@ async function initializeMap() {
           return `<${tag} class="popup-stat"${attributes}><span class="stat-value"><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--${icon}"/></svg><span>${format(p[key])}</span></span><span class="metric-label">${label}${linked ? '<i class="bi bi-box-arrow-up-right external-link" aria-hidden="true"></i>' : ''}</span></${tag}>`;
         })
         .join('');
+      const title =
+        dataset.kind !== 'synthetic' && p.grouping !== 'country' && p.grouping !== 'region'
+          ? `<a href="https://ebird.org/hotspot/${encodeURIComponent(p.id)}" target="_blank" rel="noopener" title="View location on eBird">${escapeHtml(name)}</a>`
+          : escapeHtml(name);
       locationPopup = new mapboxgl.Popup({ maxWidth: '340px' })
         .setLngLat(feature.geometry.type === 'Point' ? feature.geometry.coordinates : event.lngLat)
         .setHTML(
-          `<section class="location-popup"><h3>${escapeHtml(name)}</h3><div class="popup-stats">${stats}</div>${dataset.kind === 'synthetic' ? '<p class="popup-note">Demonstration data</p>' : ''}</section>`,
+          `<section class="location-popup"><h3>${title}</h3><div class="popup-stats">${stats}</div>${p.approximate ? `<p class="popup-note">Illustrative area: ${p.boundaryMethod === 'eBird bounding box' ? 'eBird bounding box, not a land or reef outline' : 'country land divided by nearest region centre; not an administrative boundary'}. Counts follow your eBird region code.</p>` : ''}${p.highSeas ? '<p class="popup-note">All High Seas observations in this selection, shown at one representative observation site. No maritime boundary is implied.</p>' : ''}${dataset.kind === 'synthetic' ? '<p class="popup-note">Demonstration data</p>' : ''}</section>`,
         )
         .addTo(map);
-      if (p.grouping === 'country' || p.grouping === 'region') {
+      if (!p.highSeas && (p.grouping === 'country' || p.grouping === 'region')) {
         const bounds = new mapboxgl.LngLatBounds();
         for (const record of rows) bounds.extend([record.longitude, record.latitude]);
+        if (feature.geometry.type !== 'Point') locationPopup.setLngLat(bounds.getCenter());
         map.fitBounds(bounds, { padding: 50, maxZoom: 10 });
-      } else map.flyTo({ center: feature.geometry.coordinates, zoom: Math.max(15, map.getZoom()) });
+      } else if (!p.highSeas) map.flyTo({ center: feature.geometry.coordinates, zoom: Math.max(15, map.getZoom()) });
     }
   });
   map.on('dblclick', (event) => {
@@ -856,11 +1102,18 @@ async function initializeMap() {
   });
   map.on('mousemove', (event) => {
     if (!map.getLayer('locations')) return;
-    map.getCanvas().style.cursor = drawing ? 'crosshair' : mapFeaturesAt(event.point).length ? 'pointer' : '';
+    const feature = drawing ? null : mapFeaturesAt(event.point)[0];
+    map.getCanvas().style.cursor = drawing ? 'crosshair' : feature ? 'pointer' : '';
+    highlightLocation(feature ? feature.properties.id || `cluster:${feature.properties.cluster_id}` : '');
   });
+  map.getCanvas().addEventListener('mouseleave', () => highlightLocation());
 }
 
-function resetSelection() {
+function resetSelection(keepView = false) {
+  if (keepView) {
+    refresh();
+    return;
+  }
   selectedCodes.clear();
   selectionAnchor = '';
   polygon = null;
@@ -874,12 +1127,22 @@ function resetSelection() {
   refresh();
 }
 
-$('#results').onpointerover = showSpeciesTooltip;
-$('#results').addEventListener('focusin', showSpeciesTooltip);
+$('#results').onpointerover = (event) => {
+  showSpeciesTooltip(event);
+  if (tab === 'locations') highlightLocation(event.target.closest('tr[data-key]')?.dataset.key);
+};
+$('#results').addEventListener('focusin', (event) => {
+  showSpeciesTooltip(event);
+  if (tab === 'locations') highlightLocation(event.target.closest('tr[data-key]')?.dataset.key);
+});
 $('#results').onpointerout = (event) => {
   if (speciesTooltipTarget && !speciesTooltipTarget.contains(event.relatedTarget)) hideSpeciesTooltip();
+  if (!event.target.closest('tr[data-key]')?.contains(event.relatedTarget)) highlightLocation();
 };
-$('#results').addEventListener('focusout', hideSpeciesTooltip);
+$('#results').addEventListener('focusout', () => {
+  hideSpeciesTooltip();
+  highlightLocation();
+});
 document.addEventListener('scroll', hideSpeciesTooltip, true);
 window.addEventListener('resize', hideSpeciesTooltip);
 
@@ -916,10 +1179,19 @@ $('#results').onclick = (event) => {
       }
       selectionAnchor = key;
     }
+    if (selectedCodes.size) {
+      metric = 'checklists';
+      savePreferences();
+    }
     refresh();
   } else {
     $('.sidebar').classList.remove('open');
-    map?.flyTo({ center: [record.longitude, record.latitude], zoom: 15, essential: false });
+    if (map && ['country', 'region'].includes(grouping)) {
+      const bounds = new mapboxgl.LngLatBounds();
+      for (const row of filtered)
+        if (row[grouping] === button.dataset.key) bounds.extend([row.longitude, row.latitude]);
+      map.fitBounds(bounds, { padding: 50, maxZoom: 10 });
+    } else map?.flyTo({ center: [record.longitude, record.latitude], zoom: 15, essential: false });
   }
 };
 $('#clear-species-selection').onclick = () => {
@@ -937,8 +1209,6 @@ for (const name of ['species', 'locations'])
     tab = name;
     visibleRows = 160;
     $('#search').value = searchText[tab];
-    $('#search').placeholder = tab === 'species' ? 'Search species' : 'Search locations';
-    $('#search').setAttribute('aria-label', $('#search').placeholder);
     $('.results-panel').setAttribute('aria-labelledby', `${tab}-tab`);
     for (const other of ['species', 'locations'])
       $(`#${other}-tab`).setAttribute('aria-selected', String(other === name));
@@ -1017,10 +1287,12 @@ $('#clustering').onchange = () => {
   if (grouping === 'polygon') startPolygon();
   savePreferences();
   if (hadArea) refresh();
-  else updateMap(false);
+  else {
+    updateMap(false);
+    renderResults();
+  }
   updateMapMetric();
 };
-$('#settings-done').onclick = () => $('#settings-dialog').hidePopover();
 $('#close-settings').onclick = () => $('#settings-dialog').hidePopover();
 $('#settings-form').onsubmit = (event) => {
   event.preventDefault();
@@ -1089,8 +1361,11 @@ function importCsv(file, options = {}) {
       }
       progress('Preparing your map and observation lists…');
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const keepView = !records.length;
       dataset = data.metadata;
       records = data.records;
+      colorBreaks = datasetMapColorBreaks(records);
+      colorSelectionKey = null;
       activeSource = data.source;
       locallySaved = data.saved;
       trackEvent(options.origin === 'drive' ? 'drive_backup_load_success' : 'csv_import_success', {
@@ -1100,7 +1375,7 @@ function importCsv(file, options = {}) {
       searchText.species = '';
       searchText.locations = '';
       $('#search').value = '';
-      resetSelection();
+      resetSelection(keepView);
       toast(
         data.saved
           ? `${format(records.length)} rows loaded and saved on this device.`
@@ -1129,6 +1404,9 @@ $('#file-input').onchange = async ({ target }) => {
 };
 $('#mobile-results').onclick = () => $('.sidebar').classList.toggle('open');
 $('#close-results').onclick = () => $('.sidebar').classList.remove('open');
+$('#counting-taxonomy-version').textContent = taxonomyMetadata.version;
+$('#counting-help').onclick = () => $('#counting-dialog').showModal();
+$('#close-counting').onclick = () => $('#counting-dialog').close();
 $('#data-button').onclick = () => $('#data-dialog').showModal();
 $('#demo-import').onclick = () => $('#data-dialog').showModal();
 $('#choose-export').onclick = () => $('#file-input').click();
@@ -1137,11 +1415,14 @@ $('#data-dialog').oncancel = (event) => {
   if (!records.length) event.preventDefault();
 };
 $('#explore-demo').onclick = async () => {
-  dataset = { ...(await import('./demo.js')).default };
+  const keepView = !records.length;
+  dataset = await (await import('./demo.js')).default();
   records = dataset.records;
+  colorBreaks = datasetMapColorBreaks(records);
+  colorSelectionKey = null;
   delete dataset.records;
   setDateBounds();
-  resetSelection();
+  resetSelection(keepView);
   updateDataActions();
   $('#data-dialog').close();
   $('#data-button').focus();
@@ -1187,6 +1468,7 @@ if (stored) {
   locallySaved = true;
 } else dataset = { kind: 'empty', label: '', records: [] };
 records = dataset.records;
+colorBreaks = datasetMapColorBreaks(records);
 delete dataset.records;
 $('#import-status').textContent = dataset.label;
 document.body.classList.toggle('night', theme === 'night');

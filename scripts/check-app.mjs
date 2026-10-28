@@ -15,7 +15,7 @@ import {
   indexMapLocations,
   clusteredMapFeatures,
   renderMapFeatures,
-  countryMapFeatures,
+  boundaryMapFeatures,
   formatMapObservation,
 } from '../src/map-data.js';
 
@@ -295,7 +295,7 @@ for (const feature of boundaries.features) {
 }
 const countryPoints = groupMapRecords(clusterRows, 'country');
 const missingCountry = { ...countryPoints[0], properties: { ...countryPoints[0].properties, id: 'XX' } };
-const countryView = countryMapFeatures([...countryPoints, missingCountry], boundaryIndex);
+const countryView = boundaryMapFeatures([...countryPoints, missingCountry], boundaryIndex);
 assert.equal(countryView.polygons.length, 1);
 assert.equal(countryView.circles.length, 1);
 assert.equal(countryView.circles[0].properties.id, 'XX', 'Missing countries retain their circle and exact counts');
@@ -308,7 +308,7 @@ for (const key of ['species', 'checklists', 'observations', 'locations'])
   );
 assert.equal(countryView.polygons[0].properties.speciesIds, undefined);
 assert.equal(
-  countryMapFeatures(countryPoints, new Map()).circles.length,
+  boundaryMapFeatures(countryPoints, new Map()).circles.length,
   countryPoints.length,
   'Unavailable boundaries fall back to circles',
 );

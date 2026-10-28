@@ -1,0 +1,1569 @@
+{
+  "countries": {
+    "AD": {
+      "field": "iso_3166_2"
+    },
+    "AE": {
+      "field": "iso_3166_2"
+    },
+    "AF": {
+      "field": "iso_3166_2"
+    },
+    "AG": {
+      "field": "iso_3166_2"
+    },
+    "AL": {
+      "field": "iso_3166_2"
+    },
+    "AM": {
+      "field": "iso_3166_2"
+    },
+    "AO": {
+      "field": "iso_3166_2"
+    },
+    "AR": {
+      "field": "iso_3166_2"
+    },
+    "AT": {
+      "field": "iso_3166_2"
+    },
+    "AU": {
+      "field": "iso_3166_2"
+    },
+    "AZ": {
+      "field": "iso_3166_2"
+    },
+    "BA": {
+      "field": "region",
+      "codes": {
+        "Federacija Bosna i Hercegovina": "BA-BIH",
+        "Repuplika Srpska": "BA-SRP"
+      }
+    },
+    "BB": {
+      "field": "iso_3166_2"
+    },
+    "BD": {
+      "field": "name",
+      "codes": {
+        "Barisal": "BD-1",
+        "Chittagong": "BD-2",
+        "Dhaka": "BD-3",
+        "Khulna": "BD-4",
+        "Rajshahi": "BD-5",
+        "Rangpur": "BD-5",
+        "Sylhet": "BD-6"
+      }
+    },
+    "BE": {
+      "field": "geonunit",
+      "codes": {
+        "Flemish Region": "BE-VLG",
+        "Walloon Region": "BE-WAL",
+        "Brussels Capital Region": "BE-BRU"
+      }
+    },
+    "BF": {
+      "field": "iso_3166_2"
+    },
+    "BG": {
+      "field": "iso_3166_2"
+    },
+    "BH": {
+      "field": "iso_3166_2"
+    },
+    "BI": {
+      "field": "iso_3166_2"
+    },
+    "BJ": {
+      "field": "iso_3166_2"
+    },
+    "BN": {
+      "field": "iso_3166_2"
+    },
+    "BO": {
+      "field": "iso_3166_2"
+    },
+    "BQ": {
+      "field": "iso_3166_2"
+    },
+    "BR": {
+      "field": "iso_3166_2"
+    },
+    "BS": {
+      "field": "iso_3166_2"
+    },
+    "BT": {
+      "field": "iso_3166_2"
+    },
+    "BW": {
+      "field": "iso_3166_2"
+    },
+    "BY": {
+      "field": "iso_3166_2"
+    },
+    "BZ": {
+      "field": "iso_3166_2"
+    },
+    "CA": {
+      "field": "iso_3166_2"
+    },
+    "CD": {
+      "field": "iso_3166_2"
+    },
+    "CF": {
+      "field": "iso_3166_2"
+    },
+    "CG": {
+      "field": "iso_3166_2"
+    },
+    "CH": {
+      "field": "iso_3166_2"
+    },
+    "CI": {
+      "field": "iso_3166_2"
+    },
+    "CL": {
+      "field": "iso_3166_2"
+    },
+    "CM": {
+      "field": "iso_3166_2"
+    },
+    "CN": {
+      "field": "name",
+      "codes": {
+        "Beijing": "CN-11",
+        "Tianjin": "CN-12",
+        "Hebei": "CN-13",
+        "Shanxi": "CN-14",
+        "Inner Mongol": "CN-15",
+        "Liaoning": "CN-21",
+        "Jilin": "CN-22",
+        "Heilongjiang": "CN-23",
+        "Shanghai": "CN-31",
+        "Jiangsu": "CN-32",
+        "Zhejiang": "CN-33",
+        "Anhui": "CN-34",
+        "Fujian": "CN-35",
+        "Jiangxi": "CN-36",
+        "Shandong": "CN-37",
+        "Henan": "CN-41",
+        "Hubei": "CN-42",
+        "Hunan": "CN-43",
+        "Guangdong": "CN-44",
+        "Guangxi": "CN-45",
+        "Hainan": "CN-46",
+        "Chongqing": "CN-50",
+        "Sichuan": "CN-51",
+        "Guizhou": "CN-52",
+        "Yunnan": "CN-53",
+        "Xizang": "CN-54",
+        "Shaanxi": "CN-61",
+        "Gansu": "CN-62",
+        "Qinghai": "CN-63",
+        "Ningxia": "CN-64",
+        "Xinjiang": "CN-65"
+      }
+    },
+    "CO": {
+      "field": "iso_3166_2"
+    },
+    "CR": {
+      "field": "iso_3166_2"
+    },
+    "CU": {
+      "field": "iso_3166_2"
+    },
+    "CV": {
+      "field": "region",
+      "codes": {
+        "Ilhas de Barlavento": "CV-B",
+        "Ilhas de Sotavento": "CV-S"
+      }
+    },
+    "CY": {
+      "field": null
+    },
+    "CZ": {
+      "field": "iso_3166_2"
+    },
+    "DE": {
+      "field": "iso_3166_2"
+    },
+    "DJ": {
+      "field": "iso_3166_2"
+    },
+    "DK": {
+      "field": "iso_3166_2"
+    },
+    "DM": {
+      "field": "iso_3166_2"
+    },
+    "DO": {
+      "field": "iso_3166_2"
+    },
+    "DZ": {
+      "field": "iso_3166_2"
+    },
+    "EC": {
+      "field": "iso_3166_2"
+    },
+    "EE": {
+      "field": "iso_3166_2"
+    },
+    "EG": {
+      "field": "iso_3166_2"
+    },
+    "ER": {
+      "field": "iso_3166_2"
+    },
+    "ES": {
+      "field": "region",
+      "codes": {
+        "Andalucía": "ES-AN",
+        "Aragón": "ES-AR",
+        "Asturias": "ES-AS",
+        "Canary Is.": "ES-CN",
+        "Cantabria": "ES-CB",
+        "Castilla y León": "ES-CL",
+        "Castilla-La Mancha": "ES-CM",
+        "Cataluña": "ES-CT",
+        "Ceuta": "ES-CE",
+        "Extremadura": "ES-EX",
+        "Foral de Navarra": "ES-NC",
+        "Galicia": "ES-GA",
+        "Islas Baleares": "ES-IB",
+        "La Rioja": "ES-RI",
+        "Madrid": "ES-MD",
+        "Melilla": "ES-ML",
+        "Murcia": "ES-MC",
+        "País Vasco": "ES-PV",
+        "Valenciana": "ES-VC"
+      }
+    },
+    "ET": {
+      "field": "iso_3166_2"
+    },
+    "FI": {
+      "field": "iso_3166_2"
+    },
+    "FJ": {
+      "field": "iso_3166_2"
+    },
+    "FM": {
+      "field": "iso_3166_2"
+    },
+    "FR": {
+      "field": "region_cod"
+    },
+    "GA": {
+      "field": "iso_3166_2"
+    },
+    "GB": {
+      "field": "geonunit",
+      "codes": {
+        "England": "GB-ENG",
+        "Northern Ireland": "GB-NIR",
+        "Scotland": "GB-SCT",
+        "Wales": "GB-WLS"
+      }
+    },
+    "GD": {
+      "field": "iso_3166_2"
+    },
+    "GE": {
+      "field": "iso_3166_2"
+    },
+    "GH": {
+      "field": "iso_3166_2"
+    },
+    "GM": {
+      "field": "iso_3166_2"
+    },
+    "GN": {
+      "field": "region",
+      "codes": {
+        "Boke": "GN-B",
+        "Conakry": "GN-C",
+        "Kindia": "GN-D",
+        "Faranah": "GN-F",
+        "Kankan": "GN-K",
+        "Labé": "GN-L",
+        "Mamou": "GN-M",
+        "Nzérékoré": "GN-N"
+      }
+    },
+    "GQ": {
+      "field": "iso_3166_2"
+    },
+    "GR": {
+      "field": "iso_3166_2"
+    },
+    "GT": {
+      "field": "iso_3166_2"
+    },
+    "GW": {
+      "field": "region",
+      "codes": {
+        "Leste": "GW-L",
+        "Norte": "GW-N",
+        "Sul": "GW-S",
+        "Bissau": "GW-BS"
+      }
+    },
+    "GY": {
+      "field": "iso_3166_2"
+    },
+    "HN": {
+      "field": "iso_3166_2"
+    },
+    "HR": {
+      "field": "iso_3166_2"
+    },
+    "HT": {
+      "field": "iso_3166_2"
+    },
+    "HU": {
+      "field": "iso_3166_2"
+    },
+    "ID": {
+      "field": "iso_3166_2"
+    },
+    "IE": {
+      "field": null
+    },
+    "IL": {
+      "field": "iso_3166_2"
+    },
+    "IN": {
+      "field": "iso_3166_2"
+    },
+    "IQ": {
+      "field": "iso_3166_2"
+    },
+    "IR": {
+      "field": "iso_3166_2"
+    },
+    "IS": {
+      "field": "iso_3166_2"
+    },
+    "IT": {
+      "field": "region_cod"
+    },
+    "JM": {
+      "field": "iso_3166_2"
+    },
+    "JO": {
+      "field": "iso_3166_2"
+    },
+    "JP": {
+      "field": "iso_3166_2"
+    },
+    "KE": {
+      "field": "iso_3166_2"
+    },
+    "KG": {
+      "field": "iso_3166_2"
+    },
+    "KH": {
+      "field": "iso_3166_2"
+    },
+    "KI": {
+      "field": "iso_3166_2"
+    },
+    "KM": {
+      "field": "iso_3166_2"
+    },
+    "KN": {
+      "field": "region",
+      "codes": {
+        "Saint Kitts": "KN-K",
+        "Nevis": "KN-N"
+      }
+    },
+    "KP": {
+      "field": "iso_3166_2"
+    },
+    "KR": {
+      "field": "iso_3166_2"
+    },
+    "KW": {
+      "field": "iso_3166_2"
+    },
+    "KY": {
+      "field": "iso_3166_2"
+    },
+    "KZ": {
+      "field": "iso_3166_2"
+    },
+    "LA": {
+      "field": null
+    },
+    "LB": {
+      "field": null
+    },
+    "LC": {
+      "field": null
+    },
+    "LI": {
+      "field": "iso_3166_2"
+    },
+    "LK": {
+      "field": "iso_3166_2"
+    },
+    "LR": {
+      "field": "iso_3166_2"
+    },
+    "LS": {
+      "field": "iso_3166_2"
+    },
+    "LT": {
+      "field": "iso_3166_2"
+    },
+    "LU": {
+      "field": "iso_3166_2"
+    },
+    "LV": {
+      "field": "iso_3166_2"
+    },
+    "LY": {
+      "field": null
+    },
+    "MA": {
+      "field": "iso_3166_2"
+    },
+    "MD": {
+      "field": null
+    },
+    "ME": {
+      "field": "iso_3166_2"
+    },
+    "MG": {
+      "field": "iso_3166_2"
+    },
+    "MH": {
+      "field": "iso_3166_2"
+    },
+    "MK": {
+      "field": null
+    },
+    "ML": {
+      "field": "iso_3166_2"
+    },
+    "MM": {
+      "field": "iso_3166_2"
+    },
+    "MN": {
+      "field": "iso_3166_2"
+    },
+    "MP": {
+      "field": "iso_3166_2"
+    },
+    "MR": {
+      "field": "iso_3166_2"
+    },
+    "MT": {
+      "field": "iso_3166_2"
+    },
+    "MU": {
+      "field": "iso_3166_2"
+    },
+    "MV": {
+      "field": "iso_3166_2"
+    },
+    "MW": {
+      "field": "region",
+      "codes": {
+        "Northern": "MW-N",
+        "Central": "MW-C",
+        "Southern": "MW-S"
+      }
+    },
+    "MX": {
+      "field": "iso_3166_2"
+    },
+    "MY": {
+      "field": "iso_3166_2"
+    },
+    "MZ": {
+      "field": "iso_3166_2"
+    },
+    "NA": {
+      "field": "iso_3166_2"
+    },
+    "NE": {
+      "field": "iso_3166_2"
+    },
+    "NG": {
+      "field": "iso_3166_2"
+    },
+    "NI": {
+      "field": "iso_3166_2"
+    },
+    "NL": {
+      "field": "iso_3166_2"
+    },
+    "NO": {
+      "field": "iso_3166_2"
+    },
+    "NP": {
+      "field": null
+    },
+    "NR": {
+      "field": "iso_3166_2"
+    },
+    "NZ": {
+      "field": "iso_3166_2"
+    },
+    "OM": {
+      "field": "iso_3166_2"
+    },
+    "PA": {
+      "field": "iso_3166_2"
+    },
+    "PE": {
+      "field": "iso_3166_2"
+    },
+    "PF": {
+      "field": "name",
+      "codes": {
+        "Leeward Islands": "PF-LI",
+        "Marquesas Islands": "PF-MI",
+        "Tuamotu-Gambier": "PF-TG",
+        "Austral Islands": "PF-TI",
+        "Windward Islands": "PF-WI"
+      }
+    },
+    "PG": {
+      "field": "iso_3166_2"
+    },
+    "PH": {
+      "field": null
+    },
+    "PK": {
+      "field": "iso_3166_2"
+    },
+    "PL": {
+      "field": "iso_3166_2"
+    },
+    "PR": {
+      "field": null
+    },
+    "PT": {
+      "field": "iso_3166_2"
+    },
+    "PW": {
+      "field": "iso_3166_2"
+    },
+    "PY": {
+      "field": "iso_3166_2"
+    },
+    "QA": {
+      "field": null
+    },
+    "RO": {
+      "field": "iso_3166_2"
+    },
+    "RS": {
+      "field": "iso_3166_2"
+    },
+    "RU": {
+      "field": "iso_3166_2"
+    },
+    "RW": {
+      "field": "iso_3166_2"
+    },
+    "SA": {
+      "field": "iso_3166_2"
+    },
+    "SB": {
+      "field": "iso_3166_2"
+    },
+    "SC": {
+      "field": "iso_3166_2"
+    },
+    "SD": {
+      "field": "iso_3166_2"
+    },
+    "SE": {
+      "field": "iso_3166_2"
+    },
+    "SH": {
+      "field": "iso_3166_2"
+    },
+    "SI": {
+      "field": "iso_3166_2"
+    },
+    "SK": {
+      "field": "iso_3166_2"
+    },
+    "SL": {
+      "field": "iso_3166_2"
+    },
+    "SM": {
+      "field": "iso_3166_2"
+    },
+    "SN": {
+      "field": "iso_3166_2"
+    },
+    "SO": {
+      "field": null
+    },
+    "SR": {
+      "field": "iso_3166_2"
+    },
+    "SS": {
+      "field": "iso_3166_2"
+    },
+    "ST": {
+      "field": "iso_3166_2"
+    },
+    "SV": {
+      "field": "iso_3166_2"
+    },
+    "SY": {
+      "field": "iso_3166_2"
+    },
+    "SZ": {
+      "field": "iso_3166_2"
+    },
+    "TD": {
+      "field": "iso_3166_2"
+    },
+    "TG": {
+      "field": "iso_3166_2"
+    },
+    "TH": {
+      "field": "iso_3166_2"
+    },
+    "TJ": {
+      "field": "iso_3166_2"
+    },
+    "TL": {
+      "field": "iso_3166_2"
+    },
+    "TM": {
+      "field": "iso_3166_2"
+    },
+    "TN": {
+      "field": null
+    },
+    "TO": {
+      "field": "iso_3166_2"
+    },
+    "TR": {
+      "field": "iso_3166_2"
+    },
+    "TT": {
+      "field": "iso_3166_2"
+    },
+    "TV": {
+      "field": null
+    },
+    "TW": {
+      "field": null
+    },
+    "TZ": {
+      "field": null
+    },
+    "UA": {
+      "field": "iso_3166_2"
+    },
+    "UG": {
+      "field": "region",
+      "codes": {
+        "Central": "UG-C",
+        "Eastern": "UG-E",
+        "Northern": "UG-N",
+        "Western": "UG-W"
+      }
+    },
+    "UM": {
+      "field": "iso_3166_2"
+    },
+    "US": {
+      "field": "iso_3166_2"
+    },
+    "UY": {
+      "field": "iso_3166_2"
+    },
+    "UZ": {
+      "field": "iso_3166_2"
+    },
+    "VC": {
+      "field": "iso_3166_2"
+    },
+    "VE": {
+      "field": "iso_3166_2"
+    },
+    "VI": {
+      "field": "iso_3166_2"
+    },
+    "VN": {
+      "field": null
+    },
+    "VU": {
+      "field": "iso_3166_2"
+    },
+    "WS": {
+      "field": "iso_3166_2"
+    },
+    "YE": {
+      "field": "iso_3166_2"
+    },
+    "ZA": {
+      "field": "iso_3166_2"
+    },
+    "ZM": {
+      "field": "iso_3166_2"
+    },
+    "ZW": {
+      "field": "iso_3166_2"
+    }
+  },
+  "overrides": {
+    "AFG-1752": "AF-ORU",
+    "AFG-1753": "AF-DAY",
+    "AFG-1759": "AF-PKA",
+    "AFG-1769": "AF-PAN",
+    "AFG-1771": "AF-LOW",
+    "AFG-3413": "AF-PIA",
+    "ALD-4810": "FI-01",
+    "ALD-4812": "FI-01",
+    "ALD-4814": "FI-01",
+    "ALD-4817": "FI-01",
+    "ALD-4818": "FI-01",
+    "ALD-4819": "FI-01",
+    "ALD-4820": "FI-01",
+    "ALD-4821": "FI-01",
+    "ALD-4822": "FI-01",
+    "ALD-4823": "FI-01",
+    "ALD-4824": "FI-01",
+    "AZE-1680": "AZ-XAN",
+    "AZE-1701": "AZ-DAV",
+    "AZE-1707": "AZ-LAN",
+    "AZE-1727": "AZ-SAK",
+    "AZE-1735": "AZ-LAC",
+    "AZE-2415": "AZ-NX",
+    "AZE-2418": "AZ-NX",
+    "AZE-2419": "AZ-NX",
+    "AZE-2420": "AZ-NX",
+    "AZE-2421": "AZ-NX",
+    "AZE-2422": "AZ-NX",
+    "AZE-2423": "AZ-NX",
+    "AZE-5563": "AZ-AB",
+    "AZE-5565": "AZ-SS",
+    "AZE-5566": "AZ-YE",
+    "AZE-5567": "AZ-NX",
+    "BDI-3364": "BI-BJ",
+    "BDI-4854": "BI-BJ",
+    "BHS-5009": "BS-NP",
+    "BHS-5010": "BS-FP",
+    "BHS-5011": "BS-FP",
+    "BHS-5012": "BS-HR",
+    "BHS-5014": "BS-GT",
+    "BHS-5015": "BS-MH",
+    "BHS-5016": "BS-SP",
+    "BHS-5017": "BS-SP",
+    "BHS-5020": "BS-FC",
+    "BHS-5021": "BS-KB",
+    "BHS-5022": "BS-KB",
+    "BHS-5023": "BS-EX",
+    "BHS-5024": "BS-EX",
+    "BHS-5025": "BS-HI",
+    "BHS-5026": "BS-HI",
+    "BHS-5027": "BS-HI",
+    "BHS-5028": "BS-GH",
+    "BHS-5029": "BS-RS",
+    "BHS-5031": "BS-SR",
+    "BHS-5032": "BS-SR",
+    "BHS-5035": "BS-AC",
+    "BHS-5036": "BS-AC",
+    "BIH-3153": "BA-BIH",
+    "COL-1399": "CO-DC",
+    "GNQ-1467": "GQ-I",
+    "GNQ-1468": "GQ-C",
+    "GNQ-1469": "GQ-C",
+    "GNQ-1470": "GQ-C",
+    "GNQ-1471": "GQ-C",
+    "GNQ-1478": "GQ-I",
+    "GNQ-1479": "GQ-I",
+    "HRV-1604": "HR-11",
+    "IDN-1136": "ID-SM",
+    "IDN-1185": "ID-KA",
+    "IDN-1223": "ID-JW",
+    "IDN-1224": "ID-JW",
+    "IDN-1225": "ID-SM",
+    "IDN-1226": "ID-JW",
+    "IDN-1227": "ID-JW",
+    "IDN-1228": "ID-KA",
+    "IDN-1229": "ID-SM",
+    "IDN-1230": "ID-SM",
+    "IDN-1231": "ID-SM",
+    "IDN-1232": "ID-NU",
+    "IDN-1233": "ID-JW",
+    "IDN-1234": "ID-KA",
+    "IDN-1235": "ID-NU",
+    "IDN-1236": "ID-SL",
+    "IDN-1237": "ID-SL",
+    "IDN-1796": "ID-SM",
+    "IDN-1837": "ID-SL",
+    "IDN-1930": "ID-SM",
+    "IDN-1931": "ID-KA",
+    "IDN-1933": "ID-IJ",
+    "IDN-381": "ID-SM",
+    "IDN-492": "ID-SM",
+    "IDN-513": "ID-SL",
+    "IDN-538": "ID-MA",
+    "IDN-539": "ID-SM",
+    "IDN-540": "ID-JW",
+    "IDN-554": "ID-MA",
+    "IDN-555": "ID-NU",
+    "IDN-556": "ID-SL",
+    "IDN-557": "ID-SL",
+    "IDN-558": "ID-IJ",
+    "IND-20011": "IN-TS",
+    "IND-3254": "IN-UL",
+    "IRL-1444": "IE-M",
+    "IRL-3412": "IE-U",
+    "IRL-5568": "IE-C",
+    "IRL-5569": "IE-M",
+    "IRL-5570": "IE-M",
+    "IRL-5571": "IE-M",
+    "IRL-5572": "IE-M",
+    "IRL-5573": "IE-L",
+    "IRL-5574": "IE-L",
+    "IRL-5575": "IE-L",
+    "IRL-5576": "IE-L",
+    "IRL-712": "IE-L",
+    "IRL-713": "IE-C",
+    "IRL-714": "IE-C",
+    "IRL-715": "IE-L",
+    "IRL-716": "IE-L",
+    "IRL-717": "IE-L",
+    "IRL-718": "IE-L",
+    "IRL-719": "IE-L",
+    "IRL-721": "IE-L",
+    "IRL-722": "IE-L",
+    "IRL-723": "IE-L",
+    "IRL-724": "IE-M",
+    "IRL-725": "IE-M",
+    "IRL-726": "IE-M",
+    "IRL-727": "IE-C",
+    "IRL-728": "IE-C",
+    "IRL-729": "IE-U",
+    "IRL-730": "IE-C",
+    "IRL-731": "IE-L",
+    "IRL-76": "IE-M",
+    "IRL-77": "IE-L",
+    "IRL-78": "IE-M",
+    "IRL-79": "IE-U",
+    "KAZ-3207": "KZ-ALM",
+    "KOR-2496": "KR-51",
+    "KOR-2510": "KR-50",
+    "KOR-5129": "KR-36",
+    "LAO-3283": "LA-VT",
+    "LBR-1458": "LR-RG",
+    "LBR-1459": "LR-GP",
+    "LVA-1066": "LV-077",
+    "LVA-1081": "LV-025",
+    "LVA-1084": "LV-041",
+    "LVA-5725": "LV-042",
+    "LVA-5727": "LV-085",
+    "LVA-5774": "LV-086",
+    "LVA-934": "LV-106",
+    "MKD-2894": "MK-509",
+    "MKD-2895": "MK-301",
+    "MKD-2896": "MK-501",
+    "MKD-2897": "MK-502",
+    "MKD-2898": "MK-310",
+    "MKD-2899": "MK-304",
+    "MKD-2901": "MK-810",
+    "MKD-2902": "MK-311",
+    "MKD-2903": "MK-508",
+    "MKD-2904": "MK-209",
+    "MKD-2905": "MK-409",
+    "MKD-2906": "MK-702",
+    "MKD-2907": "MK-107",
+    "MKD-2908": "MK-811",
+    "MKD-2909": "MK-812",
+    "MKD-2910": "MK-706",
+    "MKD-2911": "MK-211",
+    "MKD-2912": "MK-813",
+    "MKD-2913": "MK-815",
+    "MKD-2914": "MK-108",
+    "MKD-2915": "MK-101",
+    "MKD-2916": "MK-307",
+    "MKD-2917": "MK-806",
+    "MKD-2918": "MK-605",
+    "MKD-2919": "MK-802",
+    "MKD-2920": "MK-704",
+    "MKD-2921": "MK-803",
+    "MKD-2922": "MK-109",
+    "MKD-2923": "MK-814",
+    "MKD-2924": "MK-204",
+    "MKD-2925": "MK-210",
+    "MKD-2926": "MK-816",
+    "MKD-2927": "MK-103",
+    "MKD-2928": "MK-503",
+    "MKD-2929": "MK-804",
+    "MKD-2930": "MK-102",
+    "MKD-2931": "MK-105",
+    "MKD-2932": "MK-407",
+    "MKD-2933": "MK-807",
+    "MKD-2934": "MK-205",
+    "MKD-2935": "MK-808",
+    "MKD-2936": "MK-104",
+    "MKD-2937": "MK-801",
+    "MKD-2938": "MK-809",
+    "MKD-2939": "MK-206",
+    "MKD-2940": "MK-701",
+    "MKD-2941": "MK-504",
+    "MKD-2942": "MK-505",
+    "MKD-2943": "MK-703",
+    "MKD-2944": "MK-308",
+    "MKD-2945": "MK-506",
+    "MKD-2946": "MK-106",
+    "MKD-2947": "MK-507",
+    "MKD-2948": "MK-805",
+    "MKD-2950": "MK-307",
+    "MKD-2951": "MK-313",
+    "MKD-2952": "MK-303",
+    "MKD-2953": "MK-307",
+    "MKD-2954": "MK-307",
+    "MKD-2955": "MK-607",
+    "MKD-2956": "MK-307",
+    "MKD-2957": "MK-608",
+    "MKD-2958": "MK-609",
+    "MKD-2959": "MK-603",
+    "MKD-2960": "MK-601",
+    "MKD-2961": "MK-602",
+    "MKD-2962": "MK-604",
+    "MKD-2963": "MK-606",
+    "MKD-2993": "MK-410",
+    "MKD-2994": "MK-403",
+    "MKD-2995": "MK-404",
+    "MKD-2996": "MK-401",
+    "MKD-2997": "MK-402",
+    "MKD-2998": "MK-405",
+    "MKD-2999": "MK-408",
+    "MKD-3000": "MK-406",
+    "MKD-3003": "MK-202",
+    "MKD-3004": "MK-201",
+    "MKD-3005": "MK-203",
+    "MKD-3006": "MK-207",
+    "MKD-3007": "MK-208",
+    "MKD-4845": "MK-312",
+    "MKD-4846": "MK-705",
+    "MKD-5883": "MK-817",
+    "MNP-4937": "MP-RO",
+    "MNP-4938": "MP-TI",
+    "MNP-4939": "MP-SA",
+    "MNP-4940": "MP-NI",
+    "MUS-5190": "MU-PU",
+    "MWI-1194": "MW-N",
+    "MWI-1908": "MW-C",
+    "MWI-1913": "MW-C",
+    "NLD-5147": "BQ-SA",
+    "NLD-5148": "BQ-SE",
+    "NLD-5149": "BQ-BO",
+    "NZL-5470": "NZ-CI",
+    "OMN-2406": "OM-SJ",
+    "OMN-2424": "OM-BS",
+    "PAK-1111": "PK-NA",
+    "PAK-1123": "PK-NW",
+    "PHL-5542": "PH-00",
+    "PHL-5543": "PH-00",
+    "PHL-5544": "PH-00",
+    "PHL-5545": "PH-00",
+    "PHL-5546": "PH-00",
+    "PHL-5547": "PH-00",
+    "PHL-5549": "PH-00",
+    "PHL-5550": "PH-00",
+    "PHL-5551": "PH-00",
+    "PHL-5552": "PH-00",
+    "PHL-5553": "PH-00",
+    "PHL-5554": "PH-00",
+    "PHL-5555": "PH-00",
+    "PHL-5556": "PH-00",
+    "PHL-5557": "PH-00",
+    "PHL-5558": "PH-00",
+    "PHL-5559": "PH-00",
+    "PNG-1245": "PG-NSA",
+    "RUS-2610": "RU-CHI",
+    "SDN-5859": "SD-DW",
+    "SEN-5514": "SN-KD",
+    "SEN-5515": "SN-TC",
+    "SEN-5516": "SN-KL",
+    "SHN-4864": "SH-SH",
+    "SLB-3507": "SB-WE",
+    "SRB-1059": "RS-VO",
+    "SRB-1060": "RS-VO",
+    "SRB-1061": "RS-VO",
+    "SRB-273": "RS-VO",
+    "SRB-274": "RS-VO",
+    "SRB-275": "RS-VO",
+    "SRB-281": "RS-VO",
+    "SVN-1006": "SI-142",
+    "TCD-5577": "TD-BET",
+    "TCD-5578": "TD-BET",
+    "TCD-5579": "TD-BET",
+    "TCD-5581": "TD-KA",
+    "TCD-5582": "TD-OD",
+    "TTO-50": "TT-TOB",
+    "TTO-5090": "TT-TOB",
+    "TZA-5584": "TZ-29",
+    "TZA-5585": "TZ-28",
+    "TZA-5587": "TZ-31",
+    "VIR-4868": "VI-ST",
+    "VIR-4869": "VI-SJ",
+    "VIR-4870": "VI-SC",
+    "VNM-429": "VN-22",
+    "VNM-444": "VN-80",
+    "VNM-450": "VN-11",
+    "VNM-451": "VN-19",
+    "VNM-452": "VN-19",
+    "VNM-453": "VN-12",
+    "VNM-454": "VN-20",
+    "VNM-455": "VN-14",
+    "VNM-456": "VN-38",
+    "VNM-457": "VN-08",
+    "VNM-458": "VN-15",
+    "VNM-459": "VN-25",
+    "VNM-460": "VN-31",
+    "VNM-4600": "VN-31",
+    "VNM-461": "VN-33",
+    "VNM-462": "VN-01",
+    "VNM-463": "VN-24",
+    "VNM-464": "VN-25",
+    "VNM-466": "VN-37",
+    "VNM-467": "VN-37",
+    "VNM-468": "VN-37",
+    "VNM-469": "VN-25",
+    "VNM-470": "VN-24",
+    "VNM-471": "VN-33",
+    "VNM-474": "VN-42",
+    "VNM-475": "VN-40",
+    "VNM-476": "VN-44",
+    "VNM-477": "VN-66",
+    "VNM-478": "VN-52",
+    "VNM-479": "VN-56",
+    "VNM-480": "VN-68",
+    "VNM-481": "VN-56",
+    "VNM-482": "VN-66",
+    "VNM-483": "VN-79",
+    "VNM-4834": "VN-82",
+    "VNM-4835": "VN-68",
+    "VNM-484": "VN-75",
+    "VNM-485": "VN-52",
+    "VNM-486": "VN-51",
+    "VNM-487": "VN-48",
+    "VNM-488": "VN-51",
+    "VNM-489": "VN-44",
+    "VNM-490": "VN-46",
+    "VNM-491": "VN-48",
+    "VNM-495": "VN-79",
+    "VNM-496": "VN-68",
+    "VNM-497": "VN-75",
+    "VNM-498": "VN-91",
+    "VNM-499": "VN-92",
+    "VNM-500": "VN-82",
+    "VNM-501": "VN-79",
+    "VNM-502": "VN-91",
+    "VNM-503": "VN-80",
+    "VNM-504": "VN-86",
+    "VNM-505": "VN-92",
+    "VNM-506": "VN-96",
+    "VNM-507": "VN-96",
+    "VNM-508": "VN-92",
+    "VNM-509": "VN-86",
+    "VNM-510": "VN-86",
+    "VNM-511": "VN-04",
+    "VNM-512": "VN-08",
+    "VNM-5483": "VN-15",
+    "YEM-3499": "YE-SN",
+    "ZMB-5511": "ZM-05",
+    "adm2:USA-72001": "PR-AJ",
+    "adm2:USA-72003": "PR-AD",
+    "adm2:USA-72005": "PR-AL",
+    "adm2:USA-72007": "PR-AB",
+    "adm2:USA-72009": "PR-AI",
+    "adm2:USA-72011": "PR-AN",
+    "adm2:USA-72013": "PR-AC",
+    "adm2:USA-72015": "PR-AR",
+    "adm2:USA-72017": "PR-BC",
+    "adm2:USA-72019": "PR-BQ",
+    "adm2:USA-72021": "PR-BY",
+    "adm2:USA-72023": "PR-CR",
+    "adm2:USA-72025": "PR-CG",
+    "adm2:USA-72027": "PR-CA",
+    "adm2:USA-72029": "PR-CV",
+    "adm2:USA-72031": "PR-CN",
+    "adm2:USA-72033": "PR-CT",
+    "adm2:USA-72035": "PR-CY",
+    "adm2:USA-72037": "PR-CB",
+    "adm2:USA-72039": "PR-CL",
+    "adm2:USA-72041": "PR-CD",
+    "adm2:USA-72043": "PR-CO",
+    "adm2:USA-72045": "PR-CM",
+    "adm2:USA-72047": "PR-CZ",
+    "adm2:USA-72049": "PR-CU",
+    "adm2:USA-72051": "PR-DO",
+    "adm2:USA-72053": "PR-FJ",
+    "adm2:USA-72054": "PR-FL",
+    "adm2:USA-72055": "PR-GC",
+    "adm2:USA-72057": "PR-GM",
+    "adm2:USA-72059": "PR-GL",
+    "adm2:USA-72061": "PR-GB",
+    "adm2:USA-72063": "PR-GR",
+    "adm2:USA-72065": "PR-HA",
+    "adm2:USA-72067": "PR-HO",
+    "adm2:USA-72069": "PR-HU",
+    "adm2:USA-72071": "PR-IS",
+    "adm2:USA-72073": "PR-JY",
+    "adm2:USA-72075": "PR-JD",
+    "adm2:USA-72077": "PR-JC",
+    "adm2:USA-72079": "PR-LJ",
+    "adm2:USA-72081": "PR-LR",
+    "adm2:USA-72083": "PR-LM",
+    "adm2:USA-72085": "PR-LP",
+    "adm2:USA-72087": "PR-LZ",
+    "adm2:USA-72089": "PR-LQ",
+    "adm2:USA-72091": "PR-MT",
+    "adm2:USA-72093": "PR-MR",
+    "adm2:USA-72095": "PR-MB",
+    "adm2:USA-72097": "PR-MG",
+    "adm2:USA-72099": "PR-MC",
+    "adm2:USA-72101": "PR-MV",
+    "adm2:USA-72103": "PR-NG",
+    "adm2:USA-72105": "PR-NR",
+    "adm2:USA-72107": "PR-OR",
+    "adm2:USA-72109": "PR-PT",
+    "adm2:USA-72111": "PR-PN",
+    "adm2:USA-72113": "PR-PO",
+    "adm2:USA-72115": "PR-QB",
+    "adm2:USA-72117": "PR-RC",
+    "adm2:USA-72119": "PR-RG",
+    "adm2:USA-72121": "PR-SB",
+    "adm2:USA-72123": "PR-SA",
+    "adm2:USA-72125": "PR-SG",
+    "adm2:USA-72127": "PR-SJ",
+    "adm2:USA-72129": "PR-SL",
+    "adm2:USA-72131": "PR-SS",
+    "adm2:USA-72133": "PR-SI",
+    "adm2:USA-72135": "PR-TA",
+    "adm2:USA-72137": "PR-TB",
+    "adm2:USA-72139": "PR-TJ",
+    "adm2:USA-72141": "PR-UT",
+    "adm2:USA-72143": "PR-VA",
+    "adm2:USA-72145": "PR-VB",
+    "adm2:USA-72147": "PR-VQ",
+    "adm2:USA-72149": "PR-VL",
+    "adm2:USA-72151": "PR-YB",
+    "adm2:USA-72153": "PR-YU",
+    "GRC-2884": "GR-I",
+    "MDV-5234": "MV-MLE",
+    "SVN-5884": "SI-029"
+  },
+  "excluded": ["IND-2445", "TZA-3335", "BIH-4803", "SVN-245", "SVN-926"],
+  "notes": {
+    "AF": "Correct swapped Paktia/Paktika codes and split Parwan/Panjshir and Uruzgan/Daykundi using source GeoNames labels.",
+    "AZ": "Correct Lachin mislabeled as Lankaran, separate district/city features and merge Nakhchivan districts.",
+    "BA": "Merge Federation cantons and Republika Srpska districts; Posavina belongs to the Federation. Brcko remains excluded pending eBird treatment.",
+    "BD": "Merge Rangpur back into the historical Rajshahi division used by eBird.",
+    "BS": "Merge source districts to the combined island groups named by eBird.",
+    "CN": "Explicit numeric-to-alphabetic province rekey; exclude unassigned/disputed island fragments.",
+    "FI": "Merge Aland municipalities into FI-01; do not treat AX as a separate eBird country.",
+    "HR": "Use the secondary English name to correct duplicated HR-12 (Pozega-Slavonia).",
+    "IE": "Merge counties into the four historical provinces; IE-U includes only the Republic's Ulster counties.",
+    "KR": "Correct Jeju/Sejong code collision and Gangwon rekey.",
+    "KZ": "Separate Almaty province from Almaty city despite their duplicated source ISO code.",
+    "LV": "Separate five districts from cities despite duplicated source codes, and correct swapped Sala/Salacgriva.",
+    "MK": "Rekey municipalities and merge Drugovo, Oslomej, Vranestica and Zajas into Kicevo; source Skopje feature is Petrovec per GeoNames/FIPS.",
+    "PR": "Use Natural Earth admin-2 municipios with explicit reviewed source feature IDs.",
+    "RS": "Merge seven Vojvodina districts; Rasina source code/name requires review.",
+    "TZ": "Replace the complete regional scheme with the 2019 NBS/geoBoundaries layer, including Mbeya/Songwe; explicit names avoid ISO code collisions. Nightly input is vendored with checksum.",
+    "VN": "Merge the 63 source provinces into the 34 units used by eBird following the 2025 government reorganization.",
+    "KI": "Assign the pinned source polygon components to Gilbert, Line and Phoenix island groups. No bounding rectangles are drawn.",
+    "SC": "Separate Aldabra polygon components from the other Outer Islands. Perseverance is absent from the source.",
+    "KY": "Assign the two separate sister-island polygons; Grand Cayman district boundaries remain unresolved.",
+    "IN": "Separate the three disconnected source parts into Daman/Diu and Dadra/Nagar Haveli; retain actual land outlines.",
+    "MV": "Separate Male from the incorrectly duplicated Meemu code; retain Alif Alif and Alif Dhaal as separate eBird codes.",
+    "PH": "Use the 2020 province layer, merge NCR districts and reunite Isabela City with Basilan and Cotabato City with Maguindanao.",
+    "SI": "Replace the source Kostel/Osilnica and Cankova/Tisina combined outlines with four OSM municipality polygons; merge Apace back into historical Gornja Radgona."
+  },
+  "deferred": {
+    "DK": "eBird uses 13 regions; the source uses five. Resolve the historical/custom geography before matching.",
+    "LY": "eBird uses 34 historical districts; available source layers use 22 modern districts. Do not substitute one for the other.",
+    "QA": "eBird uses nine historical municipalities; available source layers use a different seven/eight-municipality scheme.",
+    "MU": "Cargados Carajos Shoals are absent from the prepared land geometry.",
+    "SC": "Perseverance is reclaimed land absent from the older source; a newer outline is needed.",
+    "UM": "Kingman Reef has no source land polygon; do not invent a rectangle for a reef."
+  },
+  "references": {
+    "VN": "https://baochinhphu.vn/nghi-quyet-cua-quoc-hoi-ve-sap-xep-don-vi-hanh-chinh-cap-tinh-102250612191145158.htm",
+    "MK": "https://www.stat.gov.mk/KlasifikaciiNomenklaturi_en.aspx?id=11",
+    "IE": "https://www.proni.gov.uk/files/proni/2025-12/Counties%20in%20Ireland.pdf"
+  },
+  "supplements": [
+    {
+      "id": "gb-NPL-ADM1",
+      "country": "NP",
+      "url": "https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/NPL/ADM1/geoBoundaries-NPL-ADM1_simplified.geojson",
+      "sha256": "2088e69237955fc701eda309a5d0328b7caf5adf533af258f5c49f2fb9fe8328",
+      "source": "Survey Department of Nepal, OCHA FISS",
+      "year": "2020",
+      "license": "Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)",
+      "field": "shapeISO",
+      "codes": {
+        "NP-P1": "NP-1",
+        "NP-P2": "NP-2",
+        "NP-P3": "NP-3",
+        "NP-P4": "NP-4",
+        "NP-P5": "NP-5",
+        "NP-P6": "NP-6",
+        "NP-P7": "NP-7"
+      }
+    },
+    {
+      "id": "gb-MDA-ADM1",
+      "country": "MD",
+      "url": "https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/MDA/ADM1/geoBoundaries-MDA-ADM1_simplified.geojson",
+      "sha256": "b9f85b5b94d053cd3fc7f60d9823ec2ba9cd37b780f4935a778203d67cb5f523",
+      "source": "UNHCR, OCHA FISS",
+      "year": "2020",
+      "license": "Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)",
+      "field": "shapeISO",
+      "codes": null
+    },
+    {
+      "id": "gb-LBN-ADM1",
+      "country": "LB",
+      "url": "https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/LBN/ADM1/geoBoundaries-LBN-ADM1_simplified.geojson",
+      "sha256": "dedb31ee7931de59689011490c7244c7f773dd757af27258c4bd41386dd563ad",
+      "source": "geoBoundaries, Wikimedia Commons",
+      "year": "2017",
+      "license": "Public Domain",
+      "field": "shapeISO",
+      "codes": {
+        "N/A": "LB-JL"
+      }
+    },
+    {
+      "id": "gb-LAO-ADM1",
+      "country": "LA",
+      "url": "https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/LAO/ADM1/geoBoundaries-LAO-ADM1_simplified.geojson",
+      "sha256": "152d7d9f680d84c31214fe327e4d102a330d61f222329701ec8ea00a8d2dfb55",
+      "source": "OpenStreetMap, Wambacher",
+      "year": "2017",
+      "license": "Open Data Commons Open Database License 1.0",
+      "field": "shapeISO",
+      "codes": null
+    },
+    {
+      "id": "gb-TUN-ADM1",
+      "country": "TN",
+      "url": "https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/TUN/ADM1/geoBoundaries-TUN-ADM1_simplified.geojson",
+      "sha256": "c8961d7e933079295bdec215c4783c93774696f0600419a2f11779d81f8fb885",
+      "source": "OpenStreetMap, Wambacher",
+      "year": "2017",
+      "license": "Open Data Commons Open Database License 1.0",
+      "field": "shapeISO",
+      "codes": null
+    },
+    {
+      "id": "gb-TUV-ADM1",
+      "country": "TV",
+      "url": "https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/TUV/ADM1/geoBoundaries-TUV-ADM1_simplified.geojson",
+      "sha256": "be6847909466920d2775ddf2f106ff88c9e249db2ab22fe9ee4f38349245f55e",
+      "source": "OpenStreetMap, Wambacher",
+      "year": "2017",
+      "license": "Open Data Commons Open Database License 1.0",
+      "field": "shapeISO",
+      "codes": {
+        "TV-NUI": "TV-NIU"
+      }
+    },
+    {
+      "id": "gb-SOM-ADM1",
+      "country": "SO",
+      "url": "https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/SOM/ADM1/geoBoundaries-SOM-ADM1_simplified.geojson",
+      "sha256": "a3d87cc4bc6f6d32b40862c34efd325ae61fc22c092c81597e8c49c20c681910",
+      "source": "OpenStreetMap, Wambacher",
+      "year": "2015",
+      "license": "Open Data Commons Open Database License 1.0",
+      "field": "shapeISO",
+      "codes": null
+    },
+    {
+      "id": "gb-TWN-ADM1",
+      "country": "TW",
+      "url": "https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/TWN/ADM1/geoBoundaries-TWN-ADM1_simplified.geojson",
+      "sha256": "566a25e4522f33e492489ff321900be72b30be10de7b90a3586e292f7de1afe3",
+      "source": "OpenStreetMap, Wambacher",
+      "year": "2017",
+      "license": "Open Data Commons Open Database License 1.0",
+      "field": "shapeISO",
+      "codes": {
+        "TW-NWT": "TW-TPQ"
+      }
+    },
+    {
+      "id": "gb-CYP-ADM1",
+      "country": "CY",
+      "url": "https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/CYP/ADM1/geoBoundaries-CYP-ADM1_simplified.geojson",
+      "sha256": "cde18169e58bd83081e0cdab43471df63122188b4655033d6cf92d8e046685b3",
+      "source": "OpenStreetMap, Wambacher",
+      "year": "2017",
+      "license": "Open Data Commons Open Database License 1.0",
+      "field": "shapeISO",
+      "codes": null
+    },
+    {
+      "id": "gb-LCA-ADM1",
+      "country": "LC",
+      "url": "https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/LCA/ADM1/geoBoundaries-LCA-ADM1_simplified.geojson",
+      "sha256": "8d718c820ccd74baac7c892c63c7a8ebd3ace7016e0d2a5341ff306848470c0b",
+      "source": "Wikimedia Commons, Wikimedia Commons",
+      "year": "2015",
+      "license": "CC0 1.0 Universal (CC0 1.0) Public Domain Dedication",
+      "field": "shapeISO",
+      "codes": null
+    },
+    {
+      "id": "gb-PHL-ADM2",
+      "country": "PH",
+      "url": "https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/41af8f1/releaseData/gbOpen/PHL/ADM2/geoBoundaries-PHL-ADM2_simplified.geojson",
+      "sha256": "fa77b9f17db2e419acaae714a935f7812be4409e2983675d34020e8426a3e189",
+      "source": "National Mapping and Resource Information Authority (NAMRIA), Philippines Statistics Authority (PSA), OCHA Philippines",
+      "year": "2020",
+      "license": "Creative Commons Attribution 3.0 Intergovernmental Organisations (CC BY 3.0 IGO)",
+      "field": "shapeName",
+      "codes": {
+        "Abra": "PH-ABR",
+        "Agusan del Norte": "PH-AGN",
+        "Agusan del Sur": "PH-AGS",
+        "Aklan": "PH-AKL",
+        "Albay": "PH-ALB",
+        "Antique": "PH-ANT",
+        "Apayao": "PH-APA",
+        "Aurora": "PH-AUR",
+        "Basilan": "PH-BAS",
+        "Bataan": "PH-BAN",
+        "Batanes": "PH-BTN",
+        "Batangas": "PH-BTG",
+        "Benguet": "PH-BEN",
+        "Biliran": "PH-BIL",
+        "Bohol": "PH-BOH",
+        "Bukidnon": "PH-BUK",
+        "Bulacan": "PH-BUL",
+        "Cagayan": "PH-CAG",
+        "Camarines Norte": "PH-CAN",
+        "Camarines Sur": "PH-CAS",
+        "Camiguin": "PH-CAM",
+        "Capiz": "PH-CAP",
+        "Catanduanes": "PH-CAT",
+        "Cavite": "PH-CAV",
+        "Cebu": "PH-CEB",
+        "City of Isabela": "PH-BAS",
+        "Compostela Valley": "PH-COM",
+        "Cotabato": "PH-NCO",
+        "Cotabato City": "PH-MAG",
+        "Davao del Norte": "PH-DAV",
+        "Davao del Sur": "PH-DAS",
+        "Davao Occidental": "PH-DAC",
+        "Davao Oriental": "PH-DAO",
+        "Dinagat Islands": "PH-DIN",
+        "Eastern Samar": "PH-EAS",
+        "Guimaras": "PH-GUI",
+        "Ifugao": "PH-IFU",
+        "Ilocos Norte": "PH-ILN",
+        "Ilocos Sur": "PH-ILS",
+        "Iloilo": "PH-ILI",
+        "Isabela": "PH-ISA",
+        "Kalinga": "PH-KAL",
+        "La Union": "PH-LUN",
+        "Laguna": "PH-LAG",
+        "Lanao del Norte": "PH-LAN",
+        "Lanao del Sur": "PH-LAS",
+        "Leyte": "PH-LEY",
+        "Maguindanao": "PH-MAG",
+        "Marinduque": "PH-MAD",
+        "Masbate": "PH-MAS",
+        "Misamis Occidental": "PH-MSC",
+        "Misamis Oriental": "PH-MSR",
+        "Mountain Province": "PH-MOU",
+        "NCR, City of Manila, First District": "PH-00",
+        "NCR, Fourth District": "PH-00",
+        "NCR, Second District": "PH-00",
+        "NCR, Third District": "PH-00",
+        "Negros Occidental": "PH-NEC",
+        "Negros Oriental": "PH-NER",
+        "Northern Samar": "PH-NSA",
+        "Nueva Ecija": "PH-NUE",
+        "Nueva Vizcaya": "PH-NUV",
+        "Occidental Mindoro": "PH-MDC",
+        "Oriental Mindoro": "PH-MDR",
+        "Palawan": "PH-PLW",
+        "Pampanga": "PH-PAM",
+        "Pangasinan": "PH-PAN",
+        "Quezon": "PH-QUE",
+        "Quirino": "PH-QUI",
+        "Rizal": "PH-RIZ",
+        "Romblon": "PH-ROM",
+        "Samar": "PH-WSA",
+        "Sarangani": "PH-SAR",
+        "Siquijor": "PH-SIG",
+        "Sorsogon": "PH-SOR",
+        "South Cotabato": "PH-SCO",
+        "Southern Leyte": "PH-SLE",
+        "Sultan Kudarat": "PH-SUK",
+        "Sulu": "PH-SLU",
+        "Surigao del Norte": "PH-SUN",
+        "Surigao del Sur": "PH-SUR",
+        "Tarlac": "PH-TAR",
+        "Tawi-Tawi": "PH-TAW",
+        "Zambales": "PH-ZMB",
+        "Zamboanga del Norte": "PH-ZAN",
+        "Zamboanga del Sur": "PH-ZAS",
+        "Zamboanga Sibugay": "PH-ZSI"
+      }
+    },
+    {
+      "id": "gb-TZA-ADM1-2019",
+      "country": "TZ",
+      "url": "https://data.geoboundaries-dev.org/nightly/gbOpen/TZA/ADM1/geoBoundaries-TZA-ADM1_simplified.geojson",
+      "snapshot": "scripts/data/gb-TZA-ADM1-2019.geojson",
+      "retrieved": "2026-10-28",
+      "sha256": "57a8d375a84a5f884c00624fc91333291c2ca402a4e137c92d6070392ed1d809",
+      "source": "Tanzania National Bureau of Statistics",
+      "year": "2019",
+      "license": "Creative Commons Attribution 4.0 (CC BY 4.0)",
+      "field": "shapeName",
+      "codes": {
+        "Arusha": "TZ-01",
+        "Dar-es-salaam": "TZ-02",
+        "Dodoma": "TZ-03",
+        "Iringa": "TZ-04",
+        "Kagera": "TZ-05",
+        "Kaskazini Pemba": "TZ-06",
+        "Kaskazini Unguja": "TZ-07",
+        "Katavi": "TZ-29",
+        "Kigoma": "TZ-08",
+        "Kilimanjaro": "TZ-09",
+        "Kusini Pemba": "TZ-10",
+        "Kusini Unguja": "TZ-11",
+        "Lindi": "TZ-12",
+        "Mara": "TZ-13",
+        "Songwe": "TZ-30",
+        "Mtwara": "TZ-17",
+        "Njombe": "TZ-31",
+        "Rukwa": "TZ-20",
+        "Ruvuma": "TZ-21",
+        "Tabora": "TZ-24",
+        "Simiyu": "TZ-28",
+        "Mwanza": "TZ-18",
+        "Tanga": "TZ-25",
+        "Mbeya": "TZ-14",
+        "Pwani": "TZ-19",
+        "Geita": "TZ-27",
+        "Morogoro": "TZ-16",
+        "Singida": "TZ-23",
+        "Shinyanga": "TZ-22",
+        "Manyara": "TZ-26",
+        "Mjini Magharibi": "TZ-15"
+      }
+    },
+    {
+      "id": "osm-SI-municipalities",
+      "country": "SI",
+      "mode": "fill",
+      "snapshot": "scripts/data/osm-SI-2026-10-28.geojson",
+      "url": "https://www.openstreetmap.org/relation/1676376",
+      "sourceUrls": [
+        "https://www.openstreetmap.org/relation/1676376",
+        "https://www.openstreetmap.org/relation/1685736",
+        "https://www.openstreetmap.org/relation/541301",
+        "https://www.openstreetmap.org/relation/1676374"
+      ],
+      "retrieved": "2026-10-28",
+      "sha256": "8f012a8e74780231a1d2376b7be445320a124a85f285661e8e2c9aeb84f4a1d2",
+      "source": "OpenStreetMap contributors",
+      "year": "2026",
+      "license": "Open Database License 1.0 (ODbL)",
+      "field": "shapeISO",
+      "codes": null
+    },
+    {
+      "id": "osm-KY-districts",
+      "country": "KY",
+      "mode": "fill",
+      "snapshot": "scripts/data/osm-KY-2026-10-28.geojson",
+      "url": "https://www.openstreetmap.org/relation/13777969",
+      "sourceUrls": [
+        "https://www.openstreetmap.org/relation/13777969",
+        "https://www.openstreetmap.org/relation/13777968",
+        "https://www.openstreetmap.org/relation/13777970",
+        "https://www.openstreetmap.org/relation/13777967",
+        "https://www.openstreetmap.org/relation/13777971"
+      ],
+      "retrieved": "2026-10-28",
+      "sha256": "19ea84a8aae55bc2f56a5e057da3b97ec3eb1ef259cbc3db9f7b6d35ea4152f4",
+      "source": "OpenStreetMap contributors",
+      "year": "2026",
+      "license": "Open Database License 1.0 (ODbL)",
+      "field": "shapeISO",
+      "codes": null
+    },
+    {
+      "id": "commons-Cargados-Carajos",
+      "country": "MU",
+      "mode": "fill",
+      "snapshot": "scripts/data/cargados-carajos-commons.geojson",
+      "url": "https://commons.wikimedia.org/w/index.php?title=Data:Mauritius/Cargados_Carajos_Shoals.map&oldid=513561237",
+      "sha256": "d29870ba51468ea7b49ad58b1f17cbe0d0085137e5de3a8129ff9512ab2dc15d",
+      "source": "Wikimedia Commons / Natural Earth",
+      "year": "2020",
+      "license": "CC0 1.0",
+      "field": "shapeISO",
+      "codes": null
+    }
+  ],
+  "parts": {
+    "IND-2445": {
+      "IN-DD": [0, 1],
+      "IN-DN": [2]
+    },
+    "KIR+00?": {
+      "KI-G": [0, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 22, 23, 26, 27],
+      "KI-L": [1, 2, 21, 24, 28],
+      "KI-P": [3, 25]
+    },
+    "KIR+99?": {
+      "KI-L": [0],
+      "KI-P": [1, 2, 3, 4, 5]
+    },
+    "SYC-5197": {
+      "SC-98": [3, 4],
+      "SC-99": [0, 1, 2, 5, 6, 7]
+    },
+    "CYM+00?": {
+      "KY-SO": [1],
+      "KY-CB": [2]
+    }
+  },
+  "illustrations": {
+    "partitionCountries": ["DK", "LY", "QA"],
+    "boundsRegions": ["SC-26", "UM-89"],
+    "seedOverrides": {
+      "LY-JB": {
+        "coordinates": [24.51676, 29.74262],
+        "source": "https://www.geonames.org/88967/al-jaghbub.html"
+      },
+      "LY-QT": {
+        "coordinates": [14.64861, 24.95139],
+        "source": "https://www.geonames.org/2219739/al-qatrun.html"
+      }
+    }
+  }
+}

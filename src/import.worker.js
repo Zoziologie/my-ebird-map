@@ -17,7 +17,8 @@ self.onmessage = async ({ data: { file: input, origin = 'file', backupAt } }) =>
     const file = await csvFromExport(source);
     self.postMessage({ type: 'progress', message: 'Loading eBird taxonomy…' });
     const index = taxonomyIndex(await (await fetch(new URL('./assets/eBird_taxonomy.json', import.meta.url))).json());
-    const taxonomySource = 'Repository taxonomy snapshot; release version unknown';
+    const taxonomyMetadata = await (await fetch(new URL('./assets/taxonomy-source.json', import.meta.url))).json();
+    const taxonomySource = taxonomyMetadata.source;
     self.postMessage({ type: 'progress', message: 'Loading regional exotic rules…' });
     const exoticData = await (await fetch(new URL('./assets/exotic-rules.json', import.meta.url))).json();
     const exoticIndex = exoticRulesIndex(exoticData.rules, exoticData.counties);
@@ -69,6 +70,8 @@ self.onmessage = async ({ data: { file: input, origin = 'file', backupAt } }) =>
           importedAt: new Date().toISOString(),
           hasExoticStatus,
           taxonomySource,
+          taxonomyVersion: taxonomyMetadata.version,
+          taxonomySha256: taxonomyMetadata.sha256,
           exoticRulesSource: exoticData.source,
           exoticRulesSha256: exoticData.sha256,
           exoticNeedsCounty: records.filter((record) => record.exoticNeedsCounty).length,
@@ -79,7 +82,8 @@ self.onmessage = async ({ data: { file: input, origin = 'file', backupAt } }) =>
         let saved = true;
         try {
           await saveSnapshot(records, source, metadata);
-        } catch {
+        } catch (error) {
+          console.warn('Could not save the observation snapshot:', error);
           saved = false;
         }
         self.postMessage({

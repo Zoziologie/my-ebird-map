@@ -59,3 +59,33 @@ For a separate synthetic stress case with 100,000 distinct locations, run `npm r
 Use `npm run preview` and a separate browser profile at `http://127.0.0.1:4173/my-ebird-map/`. Confirm demo labelling, CSV/ZIP worker imports, expected counts, stored-data reopening, grouping/filters/polygons, and the 390 × 844 mobile layout. Never overwrite a user’s existing browser snapshot for testing. Drive requires real-account sign-in/Save/Load acceptance; Node tests cannot verify Google OAuth or production Mapbox URL restrictions. See [deployment preparation](deployment.md).
 
 The local production-preview acceptance run on 26 October 2026 imported the full CSV through the actual browser worker and verified 2,223 species, 11,736 checklists, 7,267 locations, and 187,190 observations against the independent reference. Reloading retained the same totals from IndexedDB. A 390 × 844 viewport check verified no horizontal overflow, and the country view rendered successfully. The smaller CSV also imported and reopened successfully. These checks used an isolated testing browser session; they do not establish physical-phone performance or Google Drive acceptance.
+
+## Automated desktop and mobile checks
+
+```sh
+npx playwright install chromium webkit
+npm run test:browser
+npm run test:browser:report
+```
+
+The suite builds and serves production assets on port 4175. It runs desktop Chromium, Pixel 7 Chromium, desktop WebKit, and iPhone 13 WebKit in separate temporary persistent profiles, removed after each test. Persistent profiles allow IndexedDB File/Blob storage, which WebKit ephemeral sessions reject. These profiles never touch your personal browser data. CI installs both browsers, runs this suite, retains reports for 14 days, and requires it to pass before deployment.
+
+Each device opens the demo, then imports a deterministic synthetic CSV containing 20,000 observations, 1,000 checklists, 500 locations, and two species through the actual import worker. Checks cover persisted counts after reload, search, sorting, pagination, seasonal-filter invalidation, mobile results open/close, settings, horizontal overflow, uncaught JavaScript errors, and axe WCAG A/AA rules. Automated accessibility checks cover only the exercised states and do not replace manual keyboard or screen-reader review.
+
+Each run attaches `performance.json` with import duration, search-to-frame samples, supported paint/layout-shift/long-task entries, and Chromium heap measurements before and after 20 repeated tab/search interactions and garbage collection. The retained main-thread JS heap may grow by at most 16 MiB during those warmed interactions; this is a broad leak regression check, not a total-memory budget. Worker, native, GPU, and map-tile memory are outside that measurement. Wall-clock timing is reported rather than gated on shared CI hardware. These controlled lab measurements are not field Core Web Vitals or physical-phone performance.
+
+The default suite disables the map token and fulfills third-party requests locally so tests need no network, credentials, or Mapbox quota. The four live-map integration cases are explicitly skipped. To exercise the real SDK, map canvas, all four map grouping modes, boundary downloads, zoom and metric controls, set a token permitted for the local preview origin:
+
+```sh
+BROWSER_MAPBOX_TOKEN=your_public_mapbox_token npm run test:browser
+```
+
+`npm run check:build` also enforces gzip budgets for the local entry JavaScript (80 KiB), entry CSS (35 KiB), and import worker (100 KiB). These allow modest headroom above the current approximately 61, 24, and 66 KiB. External Mapbox SDK/styles/tiles and lazily fetched taxonomy/boundaries are excluded; review them separately when comparing network traces. The budgets measure gzip size, not whether your deployment server actually enables compression.
+
+## Performance pass, 28 October 2026
+
+The demo bird names also match the bundled 2026 taxonomy, fixing a startup failure caught by the new browser checks. The demo now generates records inside an async factory, allowing its taxonomy indexes and replaced demo observations to be garbage-collected instead of retained by the module cache. The pass also reuses a number formatter across table cells, caches table aggregation until records/area/filters change, counts observation totals in the existing summary loop, accumulates map-group identities without per-group row arrays and repeated scans, avoids temporary union arrays during exact clustering, and finds the representative High Seas site with a linear scan. The Mapbox script is deferred so it no longer blocks HTML parsing. Exact species/checklist unions and zero/X/exotic-status behavior remain covered by existing regression tests.
+
+A local before/after run used one warmup and three measured repetitions on the same 188,407-row export, Node v26.11.1, Apple M3 Pro. Median location grouping changed from 118.7 to 88.1 ms, country grouping from 110.2 to 56.9 ms, region grouping from 145.8 to 89.1 ms, and cluster indexing from 73.3 to 52.4 ms. The separate 100,000-location synthetic run changed grouping from 247.7 to 138.2 ms with identical render payload size. These are small local samples, not a general speed guarantee. Process-wide peak RSS across the export benchmark increased from 1,365 to 1,414 MiB; this run does not establish lower peak memory. Before/after reports remain in ignored `output/benchmarks/` on the machine used for the pass.
+
+The final four-device browser run passed the synthetic demo/import/reopen/filter, accessibility, overflow, and heap checks. Importing the 20,000-row synthetic file took approximately 1.0–1.1 seconds. Chromium retained approximately 0.07–0.08 MiB of extra main-thread JS heap after the repeated interactions. Live Mapbox checks also passed on desktop and mobile Chromium; the live WebKit cases were not run. These results are local emulation measurements.

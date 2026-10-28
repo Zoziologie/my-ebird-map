@@ -1,0 +1,8 @@
+{
+  "version": 2026,
+  "source": "eBird API v2026",
+  "url": "https://api.ebird.org/v2/ref/taxonomy/ebird?fmt=json&version=2026",
+  "fetchedAt": "2026-10-28T08:38:52.724Z",
+  "taxa": 18631,
+  "sha256": "5cfe177fb15011154e89243f9cd391f6be795b56cb5182e5c90760a087288b25"
+}

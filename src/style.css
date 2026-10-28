@@ -408,12 +408,79 @@ h1 > span {
 .exotic-icon-X {
   background: #cc5000;
 }
-.exotic-icon-mixed {
-  background: linear-gradient(90deg, #f0f0f0 50%, #cc5000 50%);
-  border: 1px solid #777;
-}
 .exotic-icon-native {
   background: #f0f0f0;
+  border: 1px solid #777;
+}
+/* Fixed, equal sectors show every known category, independent of counts. */
+.exotic-icon-native-N {
+  background: conic-gradient(from -90deg, #f0f0f0 0turn 0.5turn, #777 0.5turn 1turn);
+  border: 1px solid #777;
+}
+.exotic-icon-native-P {
+  background: conic-gradient(from -90deg, #f0f0f0 0turn 0.5turn, #faeee5 0.5turn 1turn);
+  border: 1px solid #777;
+}
+.exotic-icon-native-X {
+  background: conic-gradient(from -90deg, #f0f0f0 0turn 0.5turn, #cc5000 0.5turn 1turn);
+  border: 1px solid #777;
+}
+.exotic-icon-N-P {
+  background: conic-gradient(from -90deg, #777 0turn 0.5turn, #faeee5 0.5turn 1turn);
+  border: 1px solid #777;
+}
+.exotic-icon-N-X {
+  background: conic-gradient(from -90deg, #777 0turn 0.5turn, #cc5000 0.5turn 1turn);
+  border: 1px solid #777;
+}
+.exotic-icon-P-X {
+  background: conic-gradient(from -90deg, #faeee5 0turn 0.5turn, #cc5000 0.5turn 1turn);
+  border: 1px solid #777;
+}
+.exotic-icon-native-N-P {
+  background: conic-gradient(
+    from -90deg,
+    #f0f0f0 0turn 0.333333turn,
+    #777 0.333333turn 0.666667turn,
+    #faeee5 0.666667turn 1turn
+  );
+  border: 1px solid #777;
+}
+.exotic-icon-native-N-X {
+  background: conic-gradient(
+    from -90deg,
+    #f0f0f0 0turn 0.333333turn,
+    #777 0.333333turn 0.666667turn,
+    #cc5000 0.666667turn 1turn
+  );
+  border: 1px solid #777;
+}
+.exotic-icon-native-P-X {
+  background: conic-gradient(
+    from -90deg,
+    #f0f0f0 0turn 0.333333turn,
+    #faeee5 0.333333turn 0.666667turn,
+    #cc5000 0.666667turn 1turn
+  );
+  border: 1px solid #777;
+}
+.exotic-icon-N-P-X {
+  background: conic-gradient(
+    from -90deg,
+    #777 0turn 0.333333turn,
+    #faeee5 0.333333turn 0.666667turn,
+    #cc5000 0.666667turn 1turn
+  );
+  border: 1px solid #777;
+}
+.exotic-icon-native-N-P-X {
+  background: conic-gradient(
+    from -90deg,
+    #f0f0f0 0turn 0.25turn,
+    #777 0.25turn 0.5turn,
+    #faeee5 0.5turn 0.75turn,
+    #cc5000 0.75turn 1turn
+  );
   border: 1px solid #777;
 }
 .species-tooltip {

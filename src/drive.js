@@ -83,6 +83,8 @@ export async function saveToDrive(source, metadata, onProgress) {
     importedAt: metadata.importedAt,
     savedAt: new Date().toISOString(),
     taxonomySource: metadata.taxonomySource,
+    taxonomyVersion: metadata.taxonomyVersion,
+    taxonomySha256: metadata.taxonomySha256,
   };
   const response = await driveRequest(
     'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id,createdTime',
