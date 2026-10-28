@@ -456,45 +456,51 @@ nav .nav-active {
   color: #fff;
 }
 
-/* Location statistics use the same icon/number/label arrangement as the footer. */
+/* Map popups use the same quiet surface and compact metrics as the header. */
+.mapboxgl-popup {
+  z-index: 4;
+}
 .mapboxgl-popup-content {
   width: 340px;
   max-width: calc(100vw - 28px);
   padding: 16px 14px !important;
-  background: #385b75 !important;
-  color: #b4cfdf !important;
+  background: var(--paper) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line);
   border-radius: 4px !important;
 }
 .mapboxgl-popup-tip {
   border-top-color: transparent !important;
 }
 .mapboxgl-popup-close-button {
-  color: #b4cfdf;
+  color: var(--muted);
   font-size: 22px;
   padding: 2px 8px;
 }
 .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip,
 .mapboxgl-popup-anchor-bottom-left .mapboxgl-popup-tip,
 .mapboxgl-popup-anchor-bottom-right .mapboxgl-popup-tip {
-  border-top-color: #385b75 !important;
+  border-top-color: var(--paper) !important;
 }
 .mapboxgl-popup-anchor-top .mapboxgl-popup-tip,
 .mapboxgl-popup-anchor-top-left .mapboxgl-popup-tip,
 .mapboxgl-popup-anchor-top-right .mapboxgl-popup-tip {
-  border-bottom-color: #385b75 !important;
+  border-bottom-color: var(--paper) !important;
 }
 .mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
-  border-right-color: #385b75 !important;
+  border-right-color: var(--paper) !important;
 }
 .mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
-  border-left-color: #385b75 !important;
+  border-left-color: var(--paper) !important;
 }
 .location-popup h3 {
-  margin: 0 12px 14px 0;
-  color: #f4f8fb;
-  font-size: 17px;
+  margin: 0 0 12px;
+  padding: 0 20px 12px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 15px;
   line-height: 1.35;
-  font-weight: 500;
+  font-weight: 700;
   letter-spacing: 0;
 }
 .location-popup h3 a {
@@ -504,6 +510,13 @@ nav .nav-active {
 .location-popup a:hover {
   text-decoration: none;
 }
+.location-popup h3 a:hover,
+.location-popup h3 a:focus-visible {
+  color: var(--green);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
 .popup-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -512,10 +525,10 @@ nav .nav-active {
 .popup-stat {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  border-left: 1px solid #b4cfdf80;
-  padding: 2px 0 4px 8px;
-  color: #b4cfdf !important;
+  align-items: center;
+  padding: 4px 0;
+  border-radius: 3px;
+  color: var(--ink) !important;
   text-decoration: none;
   min-width: 0;
 }
@@ -523,36 +536,35 @@ nav .nav-active {
 .popup-stat .stat-value {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 18px;
-  line-height: 1.1;
-  font-weight: 500;
-  letter-spacing: -0.5px;
+  gap: 5px;
+  font-size: 17px;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
 }
 .popup-stat .metric-icon {
-  width: 17px;
-  height: 17px;
+  width: 13px;
+  height: 13px;
+  color: var(--muted);
   flex-shrink: 0;
 }
 .popup-stat .metric-label {
-  margin-top: 6px;
-  color: #c3d9e6;
-  font-size: 11px;
-}
-.popup-stat .external-link {
+  margin-top: 4px;
+  color: var(--muted);
   font-size: 11px;
 }
 a.popup-stat:hover {
-  background: #ffffff0c;
-  color: #fff !important;
+  background: var(--soft);
+  color: var(--green) !important;
 }
 a.popup-stat:focus-visible {
-  outline: 2px solid #b4cfdf;
+  outline: 2px solid var(--accent);
   outline-offset: 4px;
 }
 .popup-note {
   margin: 16px 0 0;
-  color: #b4cfdf;
+  color: var(--muted);
   font-size: 10px;
 }
 
@@ -1184,10 +1196,7 @@ svg.metric-icon {
   background: #ffffff0c;
 }
 .popup-stat .metric-icon {
-  font-size: 18px;
-}
-.external-link {
-  margin-left: 5px;
+  font-size: 13px;
 }
 @media (max-width: 760px) {
   .brand {
@@ -1319,9 +1328,9 @@ svg.metric-icon {
 .mapboxgl-popup-content {
   font-family: Lato, 'Helvetica Neue', Arial, sans-serif !important;
 }
-.popup-stat svg.metric-icon {
-  width: 18px;
-  height: 18px;
+.popup-stat .stat-value svg.metric-icon {
+  width: 13px;
+  height: 13px;
 }
 .map-legend {
   border-radius: 3px;
@@ -2056,6 +2065,153 @@ svg.metric-icon {
   }
 }
 
+/* Metrics share the header's navigation typography and baseline. */
+.header {
+  gap: 24px;
+}
+.header .brand {
+  min-width: 0;
+  white-space: nowrap;
+}
+.header .metric-selector {
+  display: flex;
+  flex: 0 1 560px;
+  width: auto;
+  min-width: 0;
+  align-self: stretch;
+  align-items: stretch;
+  gap: 20px;
+  margin-inline: auto;
+  padding: 0;
+}
+.metric-selector .stat {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 9px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--muted);
+}
+.metric-selector .stat > .stat-value {
+  gap: 5px;
+  color: var(--ink);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.metric-selector .stat > .metric-label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.2;
+}
+.metric-selector .stat-value .metric-icon {
+  display: block;
+  width: 13px;
+  height: 13px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.metric-selector .stat:hover {
+  background: transparent;
+  box-shadow: inset 0 -2px var(--line);
+}
+.metric-selector .stat.active[aria-pressed='true'],
+.night .metric-selector .stat.active[aria-pressed='true'] {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: inset 0 -2px var(--green);
+}
+.metric-selector .stat.active[aria-pressed='true'] > .stat-value,
+.night .metric-selector .stat.active[aria-pressed='true'] > .stat-value,
+.metric-selector .stat.active .metric-icon {
+  color: var(--green);
+}
+.metric-selector .stat.active[aria-pressed='true'] > .metric-label,
+.night .metric-selector .stat.active[aria-pressed='true'] > .metric-label {
+  color: var(--muted);
+}
+.polygon-control .map-legend {
+  position: static;
+  max-width: none;
+  margin: 0 14px 12px;
+  padding: 12px 0 0;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: none;
+}
+.map-legend strong {
+  color: var(--muted);
+  font-weight: 400;
+}
+.legend-colors > span {
+  flex: 1;
+  width: auto;
+}
+@media (max-width: 1150px) {
+  .header {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-block: 12px;
+  }
+  .header .metric-selector {
+    order: 3;
+    flex-basis: 100%;
+    margin-bottom: -12px;
+  }
+  #settings-dialog {
+    top: 140px;
+  }
+  .toast {
+    top: 148px;
+  }
+}
+@media (max-width: 760px) {
+  .header {
+    gap: 10px;
+    padding: 10px 12px;
+  }
+  .header .header-actions {
+    width: auto;
+    gap: 4px;
+  }
+  .header .metric-selector {
+    gap: 12px;
+    margin-bottom: -10px;
+  }
+  .metric-selector .stat {
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px 0 12px;
+  }
+  .metric-selector .stat > .stat-value {
+    font-size: 16px;
+  }
+  .metric-selector .stat > .metric-label {
+    font-size: 11px;
+  }
+  .polygon-control .map-legend {
+    margin-inline: 10px;
+  }
+  .mobile-results {
+    bottom: 36px;
+  }
+}
+
 /* Let the map fill the remaining viewport, independently of header height. */
 body {
   display: flex;
@@ -2107,8 +2263,8 @@ body {
   justify-content: space-between;
   gap: 16px;
   flex-shrink: 0;
-  padding: 16px 0;
-  margin-top: 12px;
+  padding: 6px 0;
+  margin-top: 0;
   border-top: 1px solid var(--line);
   color: var(--muted);
   font-size: 12px;

@@ -310,16 +310,17 @@ function updateDataActions() {
   const personal = dataset?.kind === 'import';
   $('#data-state').textContent = personal
     ? locallySaved
-      ? 'Saved on this device'
+      ? ''
       : 'Session only · not saved'
     : dataset?.kind === 'synthetic'
       ? 'Demo · sample observations'
       : 'No data loaded';
+  $('#data-state').hidden = personal && locallySaved;
   $('#data-state').classList.toggle('is-demo', dataset?.kind === 'synthetic');
   $('#current-data').hidden = !personal;
   $('#current-data-name').textContent = dataset?.label || '';
   $('#current-data-detail').textContent =
-    `${format(records.length)} observation${records.length === 1 ? '' : 's'} · ${locallySaved ? 'Saved on this device' : 'Session only'}`;
+    `${format(records.length)} observation${records.length === 1 ? '' : 's'}${locallySaved ? '' : ' · Session only'}`;
   $('#data-title').textContent = personal ? 'My data' : 'Your birding, mapped.';
   $('#close-data').hidden = !records.length;
   $('#data-footer').hidden = personal;
@@ -1073,12 +1074,12 @@ async function initializeMap() {
           const attributes = linked
             ? ` href="${escapeHtml(linked)}" target="_blank" rel="noopener" title="View your ${label.toLowerCase()} on eBird"`
             : '';
-          return `<${tag} class="popup-stat"${attributes}><span class="stat-value"><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--${icon}"/></svg><span>${format(p[key])}</span></span><span class="metric-label">${label}${linked ? '<i class="bi bi-box-arrow-up-right external-link" aria-hidden="true"></i>' : ''}</span></${tag}>`;
+          return `<${tag} class="popup-stat"${attributes}><span class="stat-value"><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--${icon}"/></svg><span>${format(p[key])}</span></span><span class="metric-label">${label}</span></${tag}>`;
         })
         .join('');
       const title =
-        dataset.kind !== 'synthetic' && p.grouping !== 'country' && p.grouping !== 'region'
-          ? `<a href="https://ebird.org/hotspot/${encodeURIComponent(p.id)}" target="_blank" rel="noopener" title="View location on eBird">${escapeHtml(name)}</a>`
+        p.grouping === 'country' || p.grouping === 'region' || dataset.kind !== 'synthetic'
+          ? `<a href="https://ebird.org/${p.grouping === 'country' || p.grouping === 'region' ? 'region' : 'hotspot'}/${encodeURIComponent(p.id)}" target="_blank" rel="noopener" title="View ${p.grouping === 'country' || p.grouping === 'region' ? p.grouping : 'location'} on eBird">${escapeHtml(name)}</a>`
           : escapeHtml(name);
       locationPopup = new mapboxgl.Popup({ maxWidth: '340px' })
         .setLngLat(feature.geometry.type === 'Point' ? feature.geometry.coordinates : event.lngLat)
@@ -1378,7 +1379,7 @@ function importCsv(file, options = {}) {
       resetSelection(keepView);
       toast(
         data.saved
-          ? `${format(records.length)} rows loaded and saved on this device.`
+          ? `${format(records.length)} rows loaded.`
           : 'Data loaded for this session. Browser storage is full or unavailable; your previous saved data was kept.',
         !data.saved,
       );

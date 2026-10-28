@@ -51,6 +51,56 @@
           >My <span class="brand-ebird"><span class="brand-e">e</span>Bird</span> Map</span
         ></a
       >
+      <div class="stats metric-selector" role="group" aria-label="Count shown on the map" aria-live="polite">
+        <button
+          type="button"
+          class="stat active"
+          id="stat-species"
+          data-metric="species"
+          aria-pressed="true"
+          title="Show species counts on the map. Purple → teal → yellow indicates increasing counts."
+        >
+          <span class="stat-value"
+            ><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--species" /></svg
+            ><span id="species-count">—</span></span
+          ><span class="metric-label">Species</span>
+        </button>
+        <button
+          type="button"
+          class="stat"
+          data-metric="checklists"
+          aria-pressed="false"
+          title="Show checklist counts on the map. Purple → teal → yellow indicates increasing counts."
+        >
+          <span class="stat-value"
+            ><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--checklist" /></svg
+            ><span id="checklists-count">—</span></span
+          ><span class="metric-label">Checklists</span>
+        </button>
+        <button
+          type="button"
+          class="stat"
+          data-metric="observations"
+          aria-pressed="false"
+          title="Show observations on the map. Purple → teal → yellow indicates increasing counts."
+        >
+          <span class="stat-value"
+            ><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--check" /></svg
+            ><span id="observations-count">—</span></span
+          ><span class="metric-label">Observations</span>
+        </button>
+        <button
+          type="button"
+          class="stat"
+          data-metric="locations"
+          aria-pressed="false"
+          title="Show location counts on the map. Purple → teal → yellow indicates increasing counts."
+        >
+          <span class="stat-value"
+            ><i class="bi bi-geo-alt metric-icon" aria-hidden="true"></i><span id="places-count">—</span></span
+          ><span class="metric-label">Locations</span>
+        </button>
+      </div>
       <div class="header-actions">
         <span id="data-state" class="data-state" role="status">No data loaded</span>
         <button class="header-button" id="data-button" aria-haspopup="dialog">
@@ -137,9 +187,10 @@
               <option value="polygon">Custom area</option>
             </select></label
           >
+          <div id="map-legend" class="map-legend" aria-label="Map color scale"></div>
           <div id="demo-notice" class="demo-notice" hidden>
-            <strong>You’re exploring a demo</strong><span>These are made-up observations.</span
-            ><button id="demo-import">Use my eBird data <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+            <strong>You’re exploring a demo</strong>
+            <button id="demo-import">Use my eBird data <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
           </div>
           <div class="polygon-buttons">
             <button id="polygon-start" class="button" aria-expanded="false" hidden>Draw polygon</button
@@ -190,59 +241,6 @@
           <i class="bi bi-search" aria-hidden="true"></i> <span>Species & locations</span
           ><i class="bi bi-chevron-up" aria-hidden="true"></i>
         </button>
-        <div id="map-legend" class="map-legend" aria-label="Map color scale"></div>
-        <div class="bottom-dock">
-          <div class="stats" role="group" aria-label="Count shown on the map" aria-live="polite">
-            <button
-              type="button"
-              class="stat active"
-              id="stat-species"
-              data-metric="species"
-              aria-pressed="true"
-              title="Show species counts on the map. Purple → teal → yellow indicates increasing counts."
-            >
-              <span class="stat-value"
-                ><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--species" /></svg
-                ><span id="species-count">—</span></span
-              ><span class="metric-label">Species</span>
-            </button>
-            <button
-              type="button"
-              class="stat"
-              data-metric="checklists"
-              aria-pressed="false"
-              title="Show checklist counts on the map. Purple → teal → yellow indicates increasing counts."
-            >
-              <span class="stat-value"
-                ><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--checklist" /></svg
-                ><span id="checklists-count">—</span></span
-              ><span class="metric-label">Checklists</span>
-            </button>
-            <button
-              type="button"
-              class="stat"
-              data-metric="observations"
-              aria-pressed="false"
-              title="Show observations on the map. Purple → teal → yellow indicates increasing counts."
-            >
-              <span class="stat-value"
-                ><svg class="metric-icon" viewBox="0 0 24 24" aria-hidden="true"><use href="#Icon--check" /></svg
-                ><span id="observations-count">—</span></span
-              ><span class="metric-label">Observations</span>
-            </button>
-            <button
-              type="button"
-              class="stat"
-              data-metric="locations"
-              aria-pressed="false"
-              title="Show location counts on the map. Purple → teal → yellow indicates increasing counts."
-            >
-              <span class="stat-value"
-                ><i class="bi bi-geo-alt metric-icon" aria-hidden="true"></i><span id="places-count">—</span></span
-              ><span class="metric-label">Locations</span>
-            </button>
-          </div>
-        </div>
       </section>
     </main>
     <dialog id="counting-dialog" aria-labelledby="counting-title">
