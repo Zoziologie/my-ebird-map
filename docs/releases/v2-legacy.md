@@ -4,7 +4,7 @@ Import your personal eBird CSV export and explore your observations on a Leaflet
 
 This release includes the My eBird Map name and migration to the new project URL. The previous project and website URLs redirect to their new locations.
 
-- [Open the current app](https://zoziologie.raphaelnussbaumer.com/myebirdmap/)
+- [Open the current app](https://zoziologie.raphaelnussbaumer.com/my-ebird-map/)
 - Source: commit `e8eb9587fe19462776266eecfae59eff9ac431d6`
 
-This snapshot preserves the legacy counting behaviour. Exotic-status handling is incomplete, and polygon totals use the selection's bounding box rather than the exact shape. The 2.0 rewrite addresses these limitations separately.
+This snapshot preserves the legacy counting behaviour. Exotic-status handling is incomplete, and polygon totals use the selection's bounding box rather than the exact shape. The 3.0 rewrite addresses these limitations separately.

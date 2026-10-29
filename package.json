@@ -1,6 +1,6 @@
 {
   "name": "myebirdmap",
-  "version": "2.4.0",
+  "version": "3.4.0",
   "description": "Visualize all your eBird observations on a map!",
   "scripts": {
     "dev": "vite",

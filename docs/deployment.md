@@ -31,7 +31,7 @@ Open `http://127.0.0.1:4173/my-ebird-map/` with a new browser profile. The produ
 - Check metric switching, search, year/season filters, clustering, country boundaries, region grouping, and polygon edit/undo/delete.
 - Check mobile results and Settings at phone width, and import responsiveness on a physical phone.
 - Complete Google sign-in, Save, and Load with a real account if Drive is enabled. The existing integration has not yet passed this acceptance check.
-- Verify the old URL redirect, tag the tested commit `v2.0.0` for this release.
+- Verify the old URL redirect, tag the tested commit for the release.
 
 ## Rollback
 
