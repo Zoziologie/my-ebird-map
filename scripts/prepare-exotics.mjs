@@ -2,12 +2,20 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { gzipSync } from 'node:zlib';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import Papa from 'papaparse';
 
-// node scripts/prepare-exotics.mjs source.csv [output.json]
+// node scripts/prepare-exotics.mjs source.csv|source.xlsx [output.json]
 const input = fs.readFileSync(process.argv[2]);
 const output = process.argv[3] || 'local/exotic-rules.json';
-const { data } = Papa.parse(input.toString('utf8'), { header: true, skipEmptyLines: 'greedy' });
+const csv = process.argv[2].toLowerCase().endsWith('.xlsx')
+  ? execFileSync('python3', [fileURLToPath(new URL('./read-exotic-matrix.py', import.meta.url)), process.argv[2]], {
+      encoding: 'utf8',
+      maxBuffer: 16 * 1024 * 1024,
+    })
+  : input.toString('utf8');
+const { data } = Papa.parse(csv, { header: true, skipEmptyLines: 'greedy' });
 const rules = {},
   counties = {};
 for (const row of data) {
