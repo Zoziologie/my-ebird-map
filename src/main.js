@@ -10,7 +10,6 @@ import { driveClientId, prepareDrive, saveToDrive, loadFromDrive } from './drive
 import { initializeAnalyticsChoice, trackEvent } from './analytics.js';
 import { datasetMapScales, mapMetricColor, mapPalette } from './map-colors.js';
 import { regionMarkerRadius, updateRegionMarkers } from './region-markers.js';
-import { readUrlSettings, writeUrlSettings } from './url-state.js';
 import {
   groupMapDisplayRecords,
   indexMapLocations,
@@ -31,13 +30,13 @@ const escapeHtml = (value) =>
     (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char],
   );
 const countryNames = { of: (code) => ebirdCountryNames[code] || code };
-const preferences = readUrlSettings(window.location.href, {
+const preferences = {
   theme: 'system',
   mapStyle: 'atlas',
   projection: 'mercator',
   clustering: 'off',
   ...JSON.parse(localStorage.getItem('myebirdmap:display') || '{}'),
-});
+};
 let activeSource,
   locallySaved = false,
   dataBusy = false;
@@ -131,6 +130,7 @@ function displaySettings() {
     clustering,
     grouping,
     polygon,
+    species: [...selectedCodes].sort(),
     yearFrom,
     yearTo,
     monthFrom,
@@ -143,18 +143,8 @@ function displaySettings() {
   };
 }
 
-let urlUpdateTimer;
-function scheduleUrlUpdate() {
-  clearTimeout(urlUpdateTimer);
-  urlUpdateTimer = setTimeout(() => {
-    const url = writeUrlSettings(window.location.href, { ...displaySettings(), species: [...selectedCodes].sort() });
-    if (url !== window.location.href) history.replaceState(history.state, '', url);
-  }, 200);
-}
-
 function savePreferences() {
   localStorage.setItem('myebirdmap:display', JSON.stringify(displaySettings()));
-  scheduleUrlUpdate();
 }
 
 function updateMapLegend(metric) {
@@ -527,7 +517,7 @@ function renderResults() {
 function refresh(updateSource = true) {
   if (replay) return;
   resultGroups.clear();
-  scheduleUrlUpdate();
+  savePreferences();
   const selectionKey = JSON.stringify([...selectedCodes].sort());
   if (selectionKey !== colorSelectionKey) {
     selectionColorScales = selectedCodes.size ? datasetMapScales(records, selectedCodes) : null;
@@ -659,21 +649,17 @@ function updateMap(rebuild = true) {
       metric,
       (selectionColorScales || colorScales).maxima.region[metric],
     );
-  map.setFilter(
-    'clusters',
+  // Source tiles update asynchronously; exclude covered countries from every point layer immediately.
+  const pointFilter =
     clustering === 'country'
-      ? ['all', ['has', 'point_count'], ['==', ['get', 'grouping'], 'country']]
-      : ['has', 'point_count'],
-  );
+      ? ['in', ['get', 'id'], ['literal', areas.circles.map((point) => point.properties.id)]]
+      : null;
+  map.setFilter('point-outlines', pointFilter);
+  map.setFilter('map-labels', pointFilter);
+  map.setFilter('clusters', pointFilter ? ['all', ['has', 'point_count'], pointFilter] : ['has', 'point_count']);
   map.setFilter(
     'locations',
-    clustering === 'country'
-      ? [
-          'all',
-          ['!', ['has', 'point_count']],
-          ['any', ['==', ['get', 'grouping'], 'country'], ['==', ['get', 'highSeas'], true]],
-        ]
-      : ['!', ['has', 'point_count']],
+    pointFilter ? ['all', ['!', ['has', 'point_count']], pointFilter] : ['!', ['has', 'point_count']],
   );
   source.setData({ type: 'FeatureCollection', features: areas.circles });
   map.getSource('countries').setData({ type: 'FeatureCollection', features: areas.polygons });

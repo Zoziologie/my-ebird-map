@@ -68,7 +68,9 @@ test('import, reload, search, sorting and bounded rendering across devices', asy
         contentType: route.request().resourceType() === 'stylesheet' ? 'text/css' : 'application/javascript',
       }),
     );
-  await page.goto('./');
+  await page.goto('./?metric=locations&species=unknown');
+  const initialUrl = page.url();
+  await expect(page.locator('[data-metric="species"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#data-dialog')).toBeVisible();
   await page.locator('#explore-demo').click();
   await expect(page.locator('#demo-notice')).toBeVisible();
@@ -89,7 +91,7 @@ test('import, reload, search, sorting and bounded rendering across devices', asy
   await page.locator('[data-metric="individuals"]').click();
   await expect(page.locator('[data-metric="individuals"]')).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#map-legend strong')).toHaveText('Birds');
-  await expect(page).toHaveURL(/metric=individuals/);
+  await expect(page).toHaveURL(initialUrl);
   await page.reload();
   await expect(page.locator('#observations-count')).toHaveText('20,000');
   await expect(page.locator('#individuals-count')).toHaveText('20K');
@@ -110,6 +112,17 @@ test('import, reload, search, sorting and bounded rendering across devices', asy
   await expect(page.locator('#results tbody tr')).toHaveCount(1);
   await expect(page.locator('#results tbody')).toContainText('European Robin');
   await page.locator('#search').fill('');
+  await page.locator('#results .table-name').first().click();
+  const selectedSpecies = await page.locator('#species-selection-label').textContent();
+  await expect(page.locator('#species-selection')).toBeVisible();
+  await page.reload();
+  await expect(page.locator('#species-selection')).toBeVisible();
+  await expect(page.locator('#species-selection-label')).toHaveText(selectedSpecies);
+  await expect(page).toHaveURL(initialUrl);
+  await page.locator('#clear-species-selection').click();
+  await page.reload();
+  await expect(page.locator('#species-selection')).toBeHidden();
+  if (isMobile) await page.locator('#mobile-results').click();
 
   for (const initialMetric of ['species', 'checklists', 'observations', 'individuals', 'locations']) {
     await page.locator(`[data-metric="${initialMetric}"]`).click();
