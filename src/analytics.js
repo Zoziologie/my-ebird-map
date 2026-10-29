@@ -1,4 +1,4 @@
-const measurementId = 'G-LWY6VVZ48V';
+const measurementId = 'G-TZFVZH1W15';
 const consentKey = 'myebirdmap:analytics-consent';
 let loaded = false;
 
