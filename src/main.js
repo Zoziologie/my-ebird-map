@@ -822,7 +822,7 @@ function addMapLayers() {
       'circle-radius': ['step', ['get', 'point_count'], 14, 10, 18, 40, 23],
       'circle-opacity': 0.92,
       'circle-stroke-width': 4,
-      'circle-stroke-color': palette.getPropertyValue('--map-ring').trim(),
+      'circle-stroke-color': '#ffffff',
     },
   });
   map.addLayer({

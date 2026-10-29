@@ -222,6 +222,9 @@ test('live map loads and switches location, cluster, country and region views', 
   test.skip(!process.env.BROWSER_MAPBOX_TOKEN, 'Set BROWSER_MAPBOX_TOKEN for the live Mapbox integration check.');
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
+  page.on('console', (message) => {
+    if (message.type() === 'error') errors.push(message.text());
+  });
   await page.addInitScript(() => localStorage.setItem('myebirdmap:analytics-consent', 'denied'));
   await page.goto('./');
   await page
